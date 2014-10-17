@@ -1,6 +1,6 @@
 /*!
  * koa-better-body <https://github.com/tunnckoCore/koa-better-body>
- * 
+ *
  * Copyright (c) 2014 Charlike Mike Reagent, Daryl Lau, contributors.
  * Released under the MIT license.
  */
@@ -33,7 +33,7 @@ var defaultOptions = {
 
 /**
  * Doneable formidable
- * 
+ *
  * @param  {Stream} ctx
  * @param  {Object} opts
  * @return {Function} Node-style callback, ready for yielding
@@ -50,15 +50,30 @@ function formy(ctx, opts) {
 }
 
 function normalize(body, opts) {
+
+  var fields,
+      files;
+
+  if(body.files)
+  {
+      files = body.files;
+  }
+
+  if(body.fields)
+  {
+      fields = body.fields;
+  }
+
   if (typeof opts.fieldsKey !== 'string') {
-    body = body.fields;
+    body = fields;
   } else {
-    body[opts.fieldsKey] = body.fields;
+    body[opts.fieldsKey] = fields;
   }
+
   if (typeof opts.filesKey === 'string') {
-    body[opts.filesKey] = body.files;
+    body[opts.filesKey] = files;
   }
-  
+
   return body;
 }
 
@@ -69,10 +84,10 @@ function normalize(body, opts) {
  * - [`examples/multer`](./examples/multer.js) - usage like Express's bodyParser - [multer][multer-url] `npm run examples-multer`
  * - [`examples/koa-router`](./examples/koa-router.js) - usage with Alex's [koa-router][koa-router-url] `npm run examples-koa-router`
  *
- * 
+ *
  * ## Options
  * > However, `koa-better-body` have few custom options, see also [co-body][cobody-url], [raw-body][rawbody-url], [formidable][formidable-url]
- * 
+ *
  * @param {Boolean} `patchNode` Patch request body to Node's `ctx.req` object, default `false`
  * @param {Boolean} `patchKoa` Patch request body to Koa's `ctx.request` object, default `true`
  * @param {String|Number} `jsonLimit` The byte limit of the JSON body, default `1mb`
@@ -91,23 +106,28 @@ function normalize(body, opts) {
 
 module.exports = function koaBody(options) {
   var opts = xtend(true, defaultOptions, options || {});
-  
+
   return function* koaBody(next){
-    var body = {}, json, form;
+    var body, json, form;
     if (this.request.is('json'))  {
       json = yield buddy.json(this, {encoding: opts.encoding, limit: opts.jsonLimit});
+      body = {};
       body.fields = json;
     }
     else if (this.request.is('urlencoded')) {
       form = yield buddy.form(this, {encoding: opts.encoding, limit: opts.formLimit});
+      body = {};
       body.fields = form;
     }
     else if (this.request.is('multipart') && opts.multipart) {
+      body = {};
       body = yield formy(this, opts.formidable);
     }
-    
-    body = normalize(body, opts);
-    
+
+    if(body){
+        body = normalize(body, opts);
+    }
+
     if (opts.patchNode) {
       this.req.body = body;
     }
