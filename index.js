@@ -51,8 +51,6 @@ function formy(ctx, opts) {
 
 function normalize(body, opts) {
 
-  if(!body) return body;
-
   var fields,
       files;
 
@@ -126,7 +124,9 @@ module.exports = function koaBody(options) {
       body = yield formy(this, opts.formidable);
     }
 
-    body = normalize(body, opts);
+    if(body){
+        body = normalize(body, opts);
+    }
 
     if (opts.patchNode) {
       this.req.body = body;
