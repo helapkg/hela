@@ -90,18 +90,18 @@ function * handleRequest(that, opts) {
 
   var files = copy.files;
 
-  if (opts.fieldsKey === false) {
-    copy = copy.fields;
-  } else {
+  if (opts.fieldsKey) {
     var fields = copy.fields;
     copy = {};
     copy[opts.fieldsKey] = fields;
+  } else {
+    copy = copy.fields;
   }
 
-  if (opts.filesKey === false) {
-    extend(false, copy, files);
-  } else {
+  if (opts.filesKey) {
     copy[opts.filesKey] = files;
+  } else {
+    extend(false, copy, files);
   }
 
   return copy;
