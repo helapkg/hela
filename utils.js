@@ -34,6 +34,12 @@ require('koa-body-parsers', 'parse')
 
 require = fn // eslint-disable-line no-undef, no-native-reassign
 
+utils.parseBody = function parseBody (ctx) {
+  utils.parse(ctx)
+  ctx.request.multipart = utils.multipart
+  return ctx
+}
+
 utils.multipart = function multipart (options, ctx) {
   if (typeof ctx !== 'object') {
     ctx = options

@@ -16,35 +16,33 @@ module.exports = function koaBetterBody (options) {
     if (!options.strict || !utils.isValid(this.method)) {
       return yield * next
     }
-    var res = {}
-    utils.parse(this)
-    this.request.multipart = utils.multipart
+
+    utils.parseBody(this)
+
+    var fields = typeof options.fields === 'string' ? options.fields : 'fields'
+    var files = typeof options.files === 'string' ? options.files : 'files'
+
+    if (options.buffer) {
+      this.body = yield this.request.buffer(options.bufferLimit || options.textLimit)
+      return yield * next
+    }
 
     if (options.detectJSON(this) || this.request.is(options.extendTypes.json)) {
       this.app.jsonStrict = typeof options.jsonStrict === 'boolean' ? options.jsonStrict : true
-      res.fields = yield this.request.json(options.jsonLimit)
+      this.request[fields] = yield this.request.json(options.jsonLimit)
     } else if (this.request.is(options.extendTypes.form || options.extendTypes.urlencoded)) {
-      res.fields = yield this.request.urlencoded(options.formLimit)
+      this.request[fields] = yield this.request.urlencoded(options.formLimit)
     } else if (this.request.is(options.extendTypes.text)) {
       this.body = yield this.request.text(options.textLimit)
       return yield * next
     } else if (this.request.is(options.extendTypes.multipart)) {
       var result = yield this.request.multipart(options, this)
-      res.fields = result.fields
-      res.files = result.files
-    } else {
-      this.body = yield this.request.buffer(options.bufferLimit || options.textLimit)
-      return yield * next
+      this.request[fields] = result.fields
+      this.request[files] = result.files
     }
 
-    var fields = typeof options.fields === 'string' ? options.fields : 'fields'
-    var files = typeof options.files === 'string' ? options.files : 'files'
-
-    this.request[fields] = res.fields
-    this.request[files] = res.files
-
     if (!options.fields) {
-      this.body = res.fields
+      this.body = this.request[fields]
     }
 
     yield * next
