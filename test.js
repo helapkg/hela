@@ -88,8 +88,8 @@ test('parse text body', function () {
   })
 })
 
-test('parse buffer body only if options.buffer: true', function () {
-  test('should get the raw buffer body', function (done) {
+test('parse buffer body', function () {
+  test('should get the raw buffer body (options.buffer: true)', function (done) {
     var server = koa().use(betterBody({buffer: true}))
     server.use(function * () {
       test.strictEqual(isBuffer(this.body), true)
@@ -100,11 +100,23 @@ test('parse buffer body only if options.buffer: true', function () {
       .expect(200)
       .expect('qux', done)
   })
-  test('should throw if the buffer body is too large', function (done) {
+  test('should throw if the buffer body is too large (options.buffer: true)', function (done) {
     var server = koa().use(betterBody({buffer: true, bufferLimit: '2b'}))
     request(server.callback())
       .post('/')
       .send('too large')
       .expect(413, done)
+  })
+  test('should get json if `options.buffer` is false (that is the default)', function (done) {
+    var server = koa().use(betterBody())
+    server.use(function * () {
+      test.strictEqual(typeof this.body, 'object')
+      test.deepEqual(this.body, {'too large': ''})
+    })
+    request(server.callback())
+      .post('/')
+      .send('too large')
+      .expect(200)
+      .expect(/"too large"/, done)
   })
 })
