@@ -13,7 +13,7 @@
   "dependencies": {
     "extend-shallow": "^2.0.1",
     "formidable": "^1.0.17",
-    "koa-body-parsers": "github:tunnckocore/body-parsers",
+    "koa-body-parsers": "git+https://github.com/tunnckoCore/body-parsers.git",
     "lazy-cache": "^1.0.3"
   },
   "devDependencies": {
