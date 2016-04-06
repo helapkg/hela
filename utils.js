@@ -48,11 +48,6 @@ utils.multipart = function multipart (options, ctx) {
   options = utils.defaultOptions(options)
 
   return function thunk (done) {
-    if (typeof ctx !== 'object') {
-      done(new TypeError('koa-better-body: .multuipart expect koa context'))
-      return
-    }
-
     var form = options.IncomingForm instanceof utils.formidable.IncomingForm
       ? options.IncomingForm
       : new utils.formidable.IncomingForm(options)
