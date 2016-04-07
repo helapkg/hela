@@ -1,6 +1,6 @@
 # [koa-better-body][author-www-url] [![npmjs.com][npmjs-img]][npmjs-url] [![The MIT License][license-img]][license-url] 
 
-> The koa body parser! Support parsing text, xml, json, csp-report, multipart and urlencoded bodies.
+> The koa body parser! Support parsing text, buffer, json, csp-report, multipart and urlencoded bodies.
 
 [![code climate][codeclimate-img]][codeclimate-url] [![standard code style][standard-img]][standard-url] [![travis build status][travis-img]][travis-url] [![coverage status][coveralls-img]][coveralls-url] [![dependency status][david-img]][david-url]
 
