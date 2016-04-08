@@ -9,6 +9,32 @@
 
 var utils = require('./utils')
 
+/**
+ * > Robust body parser for [koa][]@1, also works for `koa@2` (with deprecations).
+ * Will also work for future `koa@3` with [koa-convert][].
+ *
+ * **Example**
+ *
+ * ```js
+ * var koa = require('koa')
+ * var body = require('koa-better-body')
+ * var app = koa()
+ *
+ * app
+ *   .use(body())
+ *   .use(function * () {
+ *     console.log(this.body)
+ *   })
+ *   .listen(8080, function () {
+ *     console.log('koa server start listening on port 8080')
+ *   })
+ * ```
+ *
+ * @param  {Object} `options` see more on [options section](#options)
+ * @return {GeneratorFunction}
+ * @api public
+ */
+
 module.exports = function koaBetterBody (options) {
   options = utils.defaultOptions(options)
 
