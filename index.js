@@ -13,7 +13,7 @@ module.exports = function koaBetterBody (options) {
   options = utils.defaultOptions(options)
 
   return function * plugin (next) {
-    if (!options.strict || !utils.isValid(this.method)) {
+    if (options.strict && !utils.isValid(this.method)) {
       return yield * next
     }
 
