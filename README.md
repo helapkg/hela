@@ -13,7 +13,10 @@ npm i koa-better-body --save
 > For more use-cases see the [tests](./test.js)
 
 ```js
+const koa = require('koa')
 const koaBetterBody = require('koa-better-body')
+
+const app = koa().use(koaBetterBody())
 ```
 
 ## Contributing
