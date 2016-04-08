@@ -135,7 +135,7 @@ utils.parseBody = function * parseBody (ctx, options, next) {
   if (options.multipart && ctx.request.is(options.extendTypes.multipart)) {
     var result = yield ctx.request.multipart(options, ctx)
     ctx.body = ctx.request[fields] = result.fields
-    ctx.request[files] = result.files
+    ctx.body[files] = ctx.request[files] = result.files
     return yield * next
   }
 }
