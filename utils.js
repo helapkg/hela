@@ -96,14 +96,27 @@ utils.multipart = function multipart (options, ctx) {
   options = utils.defaultOptions(options)
 
   return function thunk (done) {
+    var fields = {}
+    var files = {}
     var form = options.IncomingForm instanceof utils.formidable.IncomingForm
       ? options.IncomingForm
       : new utils.formidable.IncomingForm(options)
 
-    form.parse(ctx.req, function callback (err, fields, files) {
-      if (err) return done(err)
+    form.on('error', done)
+    form.on('file', utils.handleMultiple(files))
+    form.on('field', utils.handleMultiple(fields))
+    form.on('end', function () {
       done(null, { fields: fields, files: files })
     })
+    form.parse(ctx.req)
+  }
+}
+
+utils.handleMultiple = function handleMultiple (res) {
+  return function handleFilesAndFields (name, value) {
+    res[name] = res[name] ? [res[name]] : []
+    res[name].push(value)
+    res[name] = res[name].length > 1 ? res[name] : res[name][0]
   }
 }
 
