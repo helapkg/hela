@@ -234,4 +234,13 @@ test('parse multipart body', function () {
       .expect(200, done)
     done()
   })
+  // test('should get multiple files on same field', function (done) {
+  //   var server = koa().use(betterBody())
+  //   request(server.callback())
+  //     .post('/')
+  //     .attach('pkg', 'package.json')
+  //     .attach('pkg', 'utils.js')
+  //     .expect(200, done)
+  //   done()
+  // })
 })
