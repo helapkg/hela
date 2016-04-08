@@ -93,10 +93,6 @@ utils.setParsers = function setParsers (ctx) {
 }
 
 utils.multipart = function multipart (options, ctx) {
-  if (typeof ctx !== 'object') {
-    ctx = options
-    options = {}
-  }
   options = utils.defaultOptions(options)
 
   return function thunk (done) {
