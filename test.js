@@ -187,3 +187,21 @@ test('options and misc', function () {
       .expect(204, done)
   })
 })
+
+test('parse multipart body', function () {
+  test('should not get multipart body if options.multipart: false', function (done) {
+    var server = koa().use(betterBody({ multipart: false }))
+    server.use(function * () {
+      test.strictEqual(this.body, undefined)
+      test.strictEqual(this.request.fields, undefined)
+      test.strictEqual(this.request.files, undefined)
+      this.body = 'abc'
+    })
+    request(server.callback())
+      .post('/')
+      .type('multipart/form-data')
+      .attach('foo', 'package.json')
+      .expect(200)
+      .expect('abc', done)
+  })
+})
