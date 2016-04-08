@@ -40,7 +40,7 @@ utils.defaultOptions = function defaultOptions (options) {
   options = utils.extend({
     fields: false,
     files: false,
-    multipart: false,
+    multipart: true,
     textLimit: false,
     formLimit: false,
     jsonLimit: false,
@@ -132,7 +132,7 @@ utils.parseBody = function * parseBody (ctx, options, next) {
       : yield ctx.request.text(options.textLimit)
     return yield * next
   }
-  if (ctx.request.is(options.extendTypes.multipart)) {
+  if (options.multipart && ctx.request.is(options.extendTypes.multipart)) {
     var result = yield ctx.request.multipart(options, ctx)
     ctx.body = ctx.request[fields] = result.fields
     ctx.request[files] = result.files
