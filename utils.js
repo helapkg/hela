@@ -34,6 +34,13 @@ require('koa-body-parsers', 'bodyParsers')
 
 require = fn // eslint-disable-line no-undef, no-native-reassign
 
+/**
+ * > Default options that will be loaded. Pass `options` to overwrite them.
+ *
+ * @param  {Object} `options`
+ * @return {Object}
+ * @api private
+ */
 utils.defaultOptions = function defaultOptions (options) {
   options = typeof options === 'object' ? options : {}
   var types = utils.defaultTypes(options.extendTypes)
@@ -62,6 +69,13 @@ utils.defaultOptions = function defaultOptions (options) {
   return options
 }
 
+/**
+ * > Only extend/overwrite default accept types.
+ *
+ * @param  {Object} `types`
+ * @return {Object}
+ * @api private
+ */
 utils.defaultTypes = function defaultTypes (types) {
   types = typeof types === 'object' ? types : {}
   return utils.extend({
@@ -83,15 +97,42 @@ utils.defaultTypes = function defaultTypes (types) {
   }, types)
 }
 
+/**
+ * > Is "valid" request method, according to IETF Draft.
+ *
+ * @see   https://tools.ietf.org/html/draft-ietf-httpbis-p2-semantics-19#section-6.1
+ * @param  {String} `method` koa request method
+ * @return {Boolean}
+ * @api private
+ */
 utils.isValid = function isValid (method) {
   return ['GET', 'HEAD', 'DELETE'].indexOf(method.toUpperCase()) === -1
 }
 
+/**
+ * > Add `koa-body-parsers` to the koa context. In addition
+ * also adds the formidable as multipart parser.
+ *
+ * @param  {Object} `ctx` koa context
+ * @return {Object} `ctx` koa context
+ * @api private
+ */
 utils.setParsers = function setParsers (ctx) {
   utils.bodyParsers(ctx)
   ctx.request.multipart = utils.multipart
+  return ctx
 }
 
+/**
+ * > Formidable wrapper as multipart parser to make
+ * thunk that later can be yielded. Also allows you to pass
+ * formidable.IncomingForm instance to `options.IncomingForm`.
+ *
+ * @param  {Object} `options` passed or default plugin options
+ * @param  {Object} `ctx` koa context
+ * @return {Function} thunk
+ * @api private
+ */
 utils.multipart = function multipart (options, ctx) {
   options = utils.defaultOptions(options)
 
@@ -112,6 +153,14 @@ utils.multipart = function multipart (options, ctx) {
   }
 }
 
+/**
+ * > Handles setting multiple values to same key, or multiple files.
+ * For example input selects or forms for uploading multiple files.
+ *
+ * @param  {Object} `res` result object where will be written
+ * @return {Function} event handler for formidable `file` and `field` events
+ * @api private
+ */
 utils.handleMultiple = function handleMultiple (res) {
   return function handleFilesAndFields (name, value) {
     res[name] = res[name] ? [res[name]] : []
@@ -120,8 +169,17 @@ utils.handleMultiple = function handleMultiple (res) {
   }
 }
 
-/* eslint complexity: [2, 12] */
-utils.parseBody = function * parseBody (ctx, options, next) {
+/**
+ * > Parse a different type of request bodies. By default accepts
+ * and can parse JSON, JSON-API, JSON-Patch, text, form, urlencoded
+ * and buffer bodies.
+ *
+ * @param {Object}   `ctx` koa context
+ * @param {Object}   `options` plugin options
+ * @param {Function} `next` next middleware
+ * @api private
+ */
+utils.parseBody = function * parseBody (ctx, options, next) { /* eslint complexity: [2, 12] */
   var fields = typeof options.fields === 'string' ? options.fields : 'fields'
   var files = typeof options.files === 'string' ? options.files : 'files'
 
