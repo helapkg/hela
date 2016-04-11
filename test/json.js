@@ -21,6 +21,14 @@ test('should parse a json body', function (done) {
     .expect(200)
     .expect({ foo: 'lol' }, done)
 })
+test('should parse a string json body', function (done) {
+  request(app.callback())
+    .post('/')
+    .type('application/json')
+    .send('{"fao":"nato"}')
+    .expect(200)
+    .expect({ fao: 'nato' }, done)
+})
 test('should throw on json non-object body in strict mode (default)', function (done) {
   request(app.callback())
     .post('/')
