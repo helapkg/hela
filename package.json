@@ -90,7 +90,8 @@
       "koa-body-parsers",
       "raw-body",
       "bytes",
-      "formidable"
+      "formidable",
+      "lazy-cache"
     ],
     "lint": {
       "reflinks": true

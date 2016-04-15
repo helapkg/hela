@@ -13,6 +13,7 @@ npm i koa-better-body --save
 
 ## Features
 - Work for `koa@1` and `koa@2` (with deprecation messages), will also work in `koa@3` with [koa-convert][]
+- Totally flexible through `options` and absolutely lightweight using [lazy-cache][]
 - Accept few JSON types
 - Accept [JSON Patch [RFC6902]](https://tools.ietf.org/html/rfc6902) ([koajs/bodyparser#8](https://github.com/koajs/bodyparser/pull/8))
 - Accept [JSON API v1](http://jsonapi.org/) ([koajs/bodyparser#7](https://github.com/koajs/bodyparser/pull/7))
@@ -126,6 +127,7 @@ It will help a lot, thanks in advance! :yum:
 [raw-body]: https://github.com/stream-utils/raw-body
 [bytes]: https://github.com/visionmedia/bytes.js
 [formidable]: https://github.com/felixge/node-formidable
+[lazy-cache]: https://github.com/jonschlinkert/lazy-cache
 
 [npmjs-url]: https://www.npmjs.com/package/koa-better-body
 [npmjs-img]: https://img.shields.io/npm/v/koa-better-body.svg?label=koa-better-body
