@@ -1,19 +1,18 @@
 'use strict'
 
 var app = require('koa')()
-var path = require('path')
 var body = require('../../index')
 
 app
   .use(body({
-      buffer: true,
-      extendTypes: {
-        text: [
-          'image/png',
-          'image/jpeg'
-        ]
-      }
-    }))
+    buffer: true,
+    extendTypes: {
+      text: [
+        'image/png',
+        'image/jpeg'
+      ]
+    }
+  }))
   .use(function * () {
     console.log(this.body instanceof Buffer)
   })
