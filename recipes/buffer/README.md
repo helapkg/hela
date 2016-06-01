@@ -1,4 +1,4 @@
-## multipart
+## buffer
 
 To make koa-better-body parse a request's body to a Buffer, you have to pass an array with accepted mime types in options.extendTypes.text Make sure to send your requests with the appropiate content-type.
 
