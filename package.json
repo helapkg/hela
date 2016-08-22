@@ -11,6 +11,7 @@
     "test": "standard && node test.js"
   },
   "dependencies": {
+    "co-body": "^4.2.0",
     "extend-shallow": "^2.0.1",
     "formidable": "^1.0.17",
     "koa-body-parsers": "git+https://github.com/tunnckoCore/body-parsers.git",
