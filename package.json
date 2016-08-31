@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "is-buffer": "^1.1.3",
-    "koa": "^1.2.0",
+    "koa": "^1.2.2",
     "mukla": "^0.4.1",
     "pre-commit": "*",
     "supertest": "^2.0.0"
