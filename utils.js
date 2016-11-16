@@ -206,7 +206,7 @@ utils.multipart = function multipart (options) {
       fields[name].push(value)
     })
     form.on('field', function (name, value) {
-      buff += name + '=' + value + options.delimiter
+      buff += encodeURIComponent(name) + '=' + encodeURIComponent(value) + options.delimiter
     })
     form.on('end', function () {
       fields = buff && buff.length
