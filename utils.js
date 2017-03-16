@@ -206,6 +206,9 @@ utils.multipart = function multipart (options) {
       fields[name].push(value)
     })
     form.on('field', function (name, value) {
+      name = options.querystring ? options.querystring.escape(name) : utils.querystring.escape(name)
+      value = options.querystring ? options.querystring.escape(value) : utils.querystring.escape(value)
+      
       buff += name + '=' + value + options.delimiter
     })
     form.on('end', function () {
