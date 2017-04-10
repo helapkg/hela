@@ -74,6 +74,21 @@ test('should get multipart files and fields', function (done) {
     .attach('pkg', filepath('package.json'))
     .expect(200, done)
 })
+
+test('should escape ampersand on multipart form', function (done) {
+  var server = koa().use(betterBody())
+  server.use(function * () {
+    test.ok(this.request.fields)
+    test.strictEqual(this.request.fields.a, 'B&W')
+    this.body = 'ok13'
+  })
+  request(server.callback())
+    .post('/')
+    .type('multipart/form-data')
+    .field('a', 'B&W')
+    .expect(200, done)
+})
+
 test('should get multiple files on same field name', function (done) {
   var server = koa().use(betterBody())
   server.use(function * () {
