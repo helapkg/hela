@@ -65,6 +65,7 @@ test('should get multipart files and fields', function (done) {
     test.strictEqual(this.request.files[0].name, 'package.json')
     test.strictEqual(this.request.fields.a, 'b')
     test.strictEqual(this.request.fields.pkg[0].name, 'package.json')
+    this.body = 'ok1'
   })
   request(server.callback())
     .post('/')
@@ -72,7 +73,6 @@ test('should get multipart files and fields', function (done) {
     .field('a', 'b')
     .attach('pkg', filepath('package.json'))
     .expect(200, done)
-  done()
 })
 test('should get multiple files on same field name', function (done) {
   var server = koa().use(betterBody())
