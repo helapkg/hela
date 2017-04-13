@@ -124,6 +124,22 @@ test('should get multiple fields on same field name', function (done) {
     .expect(200)
     .expect('ok3', done)
 })
+test('should get 3 or more fields on same field name', function (done) {
+  var server = koa().use(betterBody())
+  server.use(function * () {
+    test.ok(this.request.fields)
+    test.deepEqual(this.request.fields.foo, ['bar', 'baz', 'bop'])
+    this.body = 'ok'
+  })
+  request(server.callback())
+    .post('/')
+    .type('multipart/form-data')
+    .field('foo', 'bar')
+    .field('foo', 'baz')
+    .field('foo', 'bop')
+    .expect(200)
+    .expect('ok', done)
+})
 test('should **conflicts** between fields and files', function (done) {
   var server = koa().use(betterBody())
   server.use(function * () {
