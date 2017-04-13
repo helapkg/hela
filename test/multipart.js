@@ -79,7 +79,7 @@ test('should escape ampersand on multipart form', function (done) {
   var server = koa().use(betterBody())
   server.use(function * () {
     test.ok(this.request.fields)
-    test.strictEqual(this.request.fields.a, 'B&W')
+    test.deepEqual(this.request.fields.a, 'B&W')
     this.body = 'ok13'
   })
   request(server.callback())

@@ -191,8 +191,8 @@ utils.multipart = function multipart (options) {
   var ctx = this
 
   return function thunk (done) {
-    var buff = ''
     var fields = {}
+    var fileFields = {}
     var files = []
     var form = options.IncomingForm instanceof utils.formidable.IncomingForm
       ? options.IncomingForm
@@ -202,19 +202,23 @@ utils.multipart = function multipart (options) {
     form.on('aborted', done)
     form.on('file', function (name, value) {
       files.push(value)
-      fields[name] = fields[name] || []
-      fields[name].push(value)
+      fileFields[name] = fileFields[name] || []
+      fileFields[name].push(value)
     })
     form.on('field', function (name, value) {
-      buff += name + '=' + value + options.delimiter
+      if (fields.hasOwnProperty(name)) {
+        if (Array.isArray(fields[name])) {
+          fields[name].push(value)
+        } else {
+          fields[name] = [fields[name], value]
+        }
+      } else {
+        fields[name] = value
+      }
     })
     form.on('end', function () {
-      fields = buff && buff.length
-        ? utils.extend({}, utils.parseQs(buff.slice(0, -1), options), fields)
-        : fields
-
       done(null, {
-        fields: fields,
+        fields: Object.assign({}, fields, fileFields),
         files: files
       })
     })
