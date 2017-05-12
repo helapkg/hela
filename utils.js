@@ -5,6 +5,7 @@
  */
 
 var utils = require('lazy-cache')(require)
+var buddy = require('co-body')
 
 /**
  * Temporarily re-assign `require` to trick browserify and
@@ -225,8 +226,7 @@ utils.parseBody = function * parseBody (ctx, options, next) { /* eslint complexi
     return yield * next
   }
   if (ctx.request.is(options.extendTypes.form || options.extendTypes.urlencoded)) {
-    var res = yield ctx.request.urlencoded(options.formLimit)
-    ctx.request[fields] = res
+    ctx.request[fields] = yield buddy.form(ctx, {limit: options.formLimit})
     return yield * next
   }
   if (options.buffer && ctx.request.is(options.extendTypes.buffer)) {
