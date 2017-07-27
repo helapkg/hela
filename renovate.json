@@ -1,5 +1,16 @@
 {
+  "enabled": true,
   "pinVersions": true,
+  "rebaseStalePrs": true,
   "semanticCommits": true,
-  "depTypes": [{"depType": "dependencies", "pinVersions": false}]
+  "labels": [
+    "renovate",
+    "deps"
+  ],
+  "assignees": [
+    "charlike"
+  ],
+  "automerge": "minor",
+  "automergeType": "branch-push",
+  "prCreation": "not-pending"
 }
