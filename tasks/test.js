@@ -7,5 +7,5 @@
 
 module.exports = ({ adds, shell }) => {
   console.log('Running `test` command...')
-  shell(`nyc --reporter lcov ${adds}`, 'nyc report')
+  shell([`nyc --reporter lcov ${adds}`, 'nyc report'])
 }
