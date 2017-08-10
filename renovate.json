@@ -8,6 +8,9 @@
     "deps",
     "renovate"
   ],
+  "schedule": [
+    "every 15 mins every weekday"
+  ],
   "prCreation": "not-pending",
   "depTypes": [
     {
