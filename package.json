@@ -1,6 +1,6 @@
 {
   "name": "hela",
-  "version": "0.1.4",
+  "version": "0.0.0-semantic-release",
   "description": "Task runner for @tunnckoCore projects with optinionated tasks for linting, testing, releaseing & hooks",
   "repository": "tunnckoCore/hela",
   "homepage": "https://github.com/tunnckoCore/hela",
@@ -13,7 +13,7 @@
     "precommit": "./cli.js precommit",
     "commit": "./cli.js commit",
     "postcommit": "git push",
-    "release": "./cli.js release"
+    "semantic-release": "./cli.js release"
   },
   "bin": {
     "hela": "./cli.js"
@@ -113,8 +113,5 @@
     "lint": {
       "reflinks": true
     }
-  },
-  "release": {
-    "analyzeCommits": "simple-commit-message"
   }
 }
