@@ -1,7 +1,7 @@
 {
   "name": "hela",
   "version": "0.0.0-semantic-release",
-  "description": "Task runner for @tunnckoCore projects with optinionated tasks for linting, testing, releaseing & hooks",
+  "description": "Task runner based on `execa`. Includes few predefined tasks for linting (ESLint), testing & releasing (semantic-release).",
   "repository": "tunnckoCore/hela",
   "homepage": "https://github.com/tunnckoCore/hela",
   "author": "Charlike Mike Reagent <@tunnckoCore> (https://i.am.charlike.online)",
