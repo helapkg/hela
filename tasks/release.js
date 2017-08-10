@@ -5,8 +5,6 @@
  * Released under the MIT license.
  */
 
-const fs = require('fs')
-
 module.exports = ({ shell }) => {
   console.log('Running `release` command...')
   shell(['semantic-release pre', 'npm publish', 'semantic-release post'])

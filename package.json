@@ -10,7 +10,9 @@
   "scripts": {
     "lint": "./cli.js lint . -c .eslintrc.json",
     "test": "./cli.js test node ./test.js",
+    "precommit": "./cli.js precommit",
     "commit": "./cli.js commit",
+    "postcommit": "git push",
     "release": "./cli.js release"
   },
   "bin": {
@@ -32,12 +34,12 @@
     "mukla": "0.4.9",
     "nyc": "11.1.0",
     "p-map-series": "1.0.0",
-    "redolent": "2.0.5",
     "semantic-release": "^6.3.6",
     "simple-commit-message": "3.3.1"
   },
   "devDependencies": {
     "eslint": "4.4.1",
+    "eslint-config-standard-tunnckocore": "0.1.0",
     "husky": "0.14.3"
   },
   "keywords": [],
