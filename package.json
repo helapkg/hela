@@ -1,6 +1,6 @@
 {
   "name": "hela",
-  "version": "0.0.0-semantic-release",
+  "version": "0.1.4",
   "description": "Task runner for @tunnckoCore projects with optinionated tasks for linting, testing, releaseing & hooks",
   "repository": "tunnckoCore/hela",
   "homepage": "https://github.com/tunnckoCore/hela",
@@ -8,7 +8,7 @@
   "main": "./index.js",
   "license": "MIT",
   "scripts": {
-    "lint": "./cli.js lint index.js -c .eslintrc.json",
+    "lint": "./cli.js lint . -c .eslintrc.json",
     "test": "./cli.js test node ./test.js",
     "commit": "./cli.js commit",
     "release": "./cli.js release"
@@ -27,27 +27,17 @@
   ],
   "dependencies": {
     "dush": "3.0.5",
-    "eslint": "4.4.1",
-    "eslint-config-standard": "10.2.1",
-    "eslint-config-standard-jsx": "4.0.2",
-    "eslint-config-standard-react": "5.0.0",
-    "eslint-plugin-fp": "2.3.0",
-    "eslint-plugin-import": "2.7.0",
-    "eslint-plugin-jsdoc": "3.1.2",
-    "eslint-plugin-node": "5.1.1",
-    "eslint-plugin-promise": "3.5.0",
-    "eslint-plugin-react": "7.1.0",
-    "eslint-plugin-standard": "3.0.1",
     "execa": "0.8.0",
     "mri": "1.1.0",
     "mukla": "0.4.9",
     "nyc": "11.1.0",
-    "p-map": "1.1.1",
     "p-map-series": "1.0.0",
     "redolent": "2.0.5",
-    "semantic-release": "^6.3.6"
+    "semantic-release": "^6.3.6",
+    "simple-commit-message": "3.3.1"
   },
   "devDependencies": {
+    "eslint": "4.4.1",
     "husky": "0.14.3"
   },
   "keywords": [],
@@ -121,5 +111,8 @@
     "lint": {
       "reflinks": true
     }
+  },
+  "release": {
+    "analyzeCommits": "simple-commit-message"
   }
 }

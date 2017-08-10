@@ -24,14 +24,16 @@ const { hela, shell } = require('./index')
 const task = argv._.shift()
 const adds = argv._.join(' ')
 
-const onerror = (er) => {
+const onerror = er => {
   console.log(er)
   process.exit(1)
 }
 
 const app = hela(argv, './tasks')
+
 app.once('error', onerror)
 app.emit(task, { app, adds, argv, shell })
+
 // hela(argv, './tasks')
 //   .then((app) => {
 //     if (!app._allEvents[task]) {

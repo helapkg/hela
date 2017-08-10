@@ -5,32 +5,7 @@
  * Released under the MIT license.
  */
 
-const execa = require('execa')
-const stream = require('stream')
-
-module.exports = ({ app, adds, argv, shell }) => {
+module.exports = ({ adds, argv, shell }) => {
   console.log('Running `lint` command...')
-  execa(
-    `eslint`,
-    [
-      `${adds}`,
-      `-c`,
-      `${argv.config}`,
-      `--format`,
-      `${argv.reporter}`,
-      `--fix`,
-    ],
-    { stdio: 'inherit' }
-  )
-    .then(() => {
-      console.log('done lint')
-    })
-    .catch((er) => app.emit('error', er))
+  shell(`eslint ${adds} -c ${argv.config} --format ${argv.reporter} --fix`)
 }
-
-// const stream = require('stream')
-
-// module.exports = ({ adds, argv, shell }) => {
-//   console.log('Running `lint` command...')
-//   shell(`eslint ${adds} -c ${argv.config} --format ${argv.reporter} --fix`)
-// }
