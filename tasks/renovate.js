@@ -12,11 +12,7 @@ module.exports = ({ app }) => {
   console.log('Updating Renovate App config...')
   const helaFolder = path.dirname(__dirname)
   const localConfig = path.join(helaFolder, '.renovaterc.json')
-
-  const newConfig =
-    helaFolder === process.cwd()
-      ? path.join(helaFolder, 'renovate.json')
-      : path.join(__dirname, '..', '..', 'renovate.json')
+  const newConfig = path.join(process.cwd(), 'renovate.json')
 
   const onerror = (er) => app.emit('error', er)
 

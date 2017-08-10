@@ -15,8 +15,7 @@
     "commit": "./cli.js commit",
     "postcommit": "git push",
     "semantic-release": "./cli.js release",
-    "renovate": "./cli.js renovate",
-    "postinstall": "npm run renovate"
+    "renovate": "./cli.js renovate"
   },
   "bin": {
     "hela": "./cli.js"
