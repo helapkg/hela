@@ -7,5 +7,5 @@
 
 module.exports = ({ shell }) => {
   console.log('Running `precommit` command...')
-  shell(['npm run renovate', 'npm run lint', 'npm test', 'git add --all'])
+  shell(['npm run lint', 'npm test', 'git add --all'])
 }
