@@ -5,4 +5,10 @@
  * Released under the MIT license.
  */
 
-console.log('running tests')
+const test = require('mukla')
+const hela = require('./index')
+
+test('hela', () => {
+  const app = hela({ _: [] }, './tasks')
+  test.strictEqual(typeof app, 'object')
+})
