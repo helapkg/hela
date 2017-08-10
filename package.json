@@ -113,5 +113,8 @@
     "lint": {
       "reflinks": true
     }
+  },
+  "release": {
+    "analyzeCommits": "simple-commit-message"
   }
 }
