@@ -14,7 +14,8 @@
     "precommit": "./cli.js precommit",
     "commit": "./cli.js commit",
     "postcommit": "git push",
-    "semantic-release": "./cli.js release"
+    "semantic-release": "./cli.js release",
+    "postinstall": "./cli.js renovate"
   },
   "bin": {
     "hela": "./cli.js"
@@ -72,45 +73,6 @@
     "functions": 0,
     "branches": 0,
     "lines": 0
-  },
-  "renovate": {
-    "enabled": true,
-    "pinVersions": true,
-    "rebaseStalePrs": true,
-    "semanticCommits": true,
-    "unpublishSafe": false,
-    "labels": [
-      "deps",
-      "renovate"
-    ],
-    "prCreation": "not-pending",
-    "depTypes": [
-      {
-        "depType": "dependencies",
-        "semanticPrefix": "fix(renovate/deps): ",
-        "automerge": "minor",
-        "automergeType": "pr",
-        "assignees": [
-          "charlike"
-        ]
-      },
-      {
-        "depType": "devDependencies",
-        "semanticPrefix": "chore(renovate/devDeps): ",
-        "automerge": "any",
-        "automergeType": "branch-push"
-      }
-    ],
-    "packageRules": [
-      {
-        "packageNames": [
-          "semantic-release"
-        ],
-        "automerge": "minor",
-        "automergeType": "pr",
-        "pinVersions": false
-      }
-    ]
   },
   "verb": {
     "run": true,
