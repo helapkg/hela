@@ -111,8 +111,8 @@ Project scaffolded using [charlike-cli][].
 [prettier-url]: https://github.com/prettier/prettier
 [prettier-img]: https://img.shields.io/badge/styled_with-prettier-f952a5.svg
 
-[nodesecurity-url]: https://nodesecurity.io/orgs/tunnckocore-dev/projects/344b8ad6-4e7d-4579-bb70-60fa09e49044
-[nodesecurity-img]: https://nodesecurity.io/orgs/tunnckocore-dev/projects/344b8ad6-4e7d-4579-bb70-60fa09e49044/badge
+[nodesecurity-url]: https://nodesecurity.io/orgs/tunnckocore-dev/projects/6e5fb0cd-6807-4709-b6f2-37f194887691
+[nodesecurity-img]: https://nodesecurity.io/orgs/tunnckocore-dev/projects/6e5fb0cd-6807-4709-b6f2-37f194887691/badge
 <!-- the original color of nsp: 
 [nodesec-img]: https://img.shields.io/badge/nsp-no_known_vulns-35a9e0.svg -->
 

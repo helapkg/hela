@@ -5,6 +5,7 @@
   "repository": "tunnckoCore/hela",
   "homepage": "https://github.com/tunnckoCore/hela",
   "author": "Charlike Mike Reagent <@tunnckoCore> (https://i.am.charlike.online)",
+  "nspId": "6e5fb0cd-6807-4709-b6f2-37f194887691",
   "main": "./index.js",
   "license": "MIT",
   "scripts": {
@@ -45,10 +46,10 @@
   "keywords": [],
   "nyc": {
     "check-coverage": true,
-    "statements": 0,
-    "functions": 0,
-    "branches": 0,
-    "lines": 0
+    "statements": 50,
+    "functions": 20,
+    "branches": 50,
+    "lines": 50
   },
   "renovate": {
     "enabled": true,
