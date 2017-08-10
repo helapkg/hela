@@ -1,5 +1,6 @@
 # Always-ignore dirs #
 # ####################
+tasks/precommit.js
 _gh_pages
 node_modules
 jspm_packages

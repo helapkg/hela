@@ -7,5 +7,8 @@
 
 module.exports = ({ adds, argv, shell }) => {
   console.log('Running `lint` command...')
+
+  adds = adds || '.'
+
   shell(`eslint ${adds} -c ${argv.config} --format ${argv.reporter} --fix`)
 }

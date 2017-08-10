@@ -1,7 +1,7 @@
 {
   "name": "hela",
   "version": "0.0.0-semantic-release",
-  "description": "Task runner based on `execa`. Includes few predefined tasks for linting (ESLint), testing & releasing (semantic-release).",
+  "description": "Task runner based on [execa][]. Includes few predefined tasks for linting, testing & releasing",
   "repository": "tunnckoCore/hela",
   "homepage": "https://github.com/tunnckoCore/hela",
   "author": "Charlike Mike Reagent <@tunnckoCore> (https://i.am.charlike.online)",
@@ -9,7 +9,7 @@
   "main": "./index.js",
   "license": "MIT",
   "scripts": {
-    "lint": "./cli.js lint . -c .eslintrc.json",
+    "lint": "./cli.js lint -c .eslintrc.json",
     "test": "./cli.js test node ./test.js",
     "precommit": "./cli.js precommit",
     "commit": "./cli.js commit",
@@ -43,13 +43,35 @@
     "eslint-config-standard-tunnckocore": "0.1.0",
     "husky": "0.14.3"
   },
-  "keywords": [],
+  "keywords": [
+    "charlike",
+    "cli",
+    "command line",
+    "es2015",
+    "eslint",
+    "eslint fix",
+    "hela",
+    "hooks",
+    "lint",
+    "precommit",
+    "prettier",
+    "publish",
+    "release",
+    "runner",
+    "semantic",
+    "semantic release",
+    "standard",
+    "task",
+    "task runner",
+    "tasks",
+    "testing"
+  ],
   "nyc": {
     "check-coverage": true,
-    "statements": 50,
-    "functions": 20,
-    "branches": 50,
-    "lines": 50
+    "statements": 0,
+    "functions": 0,
+    "branches": 0,
+    "lines": 0
   },
   "renovate": {
     "enabled": true,
@@ -110,7 +132,10 @@
       ],
       "highlight": "koa-better-router"
     },
-    "reflinks": [],
+    "reflinks": [
+      "charlike-cli",
+      "execa"
+    ],
     "lint": {
       "reflinks": true
     }

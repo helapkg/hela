@@ -5,6 +5,8 @@
  * Released under the MIT license.
  */
 
+const f = require('fs')
+
 module.exports = ({ shell }) => {
   console.log('Running `precommit` command...')
   shell(['npm run lint', 'npm test', 'git add --all'])

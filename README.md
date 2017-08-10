@@ -1,6 +1,6 @@
 # hela [![npm version][npmv-img]][npmv-url] [![github release][github-release-img]][github-release-url] [![mit License][license-img]][license-url] [![NPM Downloads Weekly][downloads-weekly-img]][downloads-weekly-url] [![NPM Downloads Total][downloads-total-img]][downloads-total-url] 
 
-> Task runner for @tunnckoCore projects with optinionated tasks for linting, testing, releaseing & hooks
+> Task runner based on [execa][]. Includes few predefined tasks for linting, testing & releasing
 
 You might also be interested in [koa-better-router](https://github.com/tunnckocore/koa-better-router#readme).
 
@@ -126,3 +126,4 @@ Project scaffolded using [charlike-cli][].
 [nodeversion-img]: https://img.shields.io/node/v/hela.svg
 
 [charlike-cli]: https://github.com/tunnckoCore/charlike-cli
+[execa]: https://github.com/sindresorhus/execa
