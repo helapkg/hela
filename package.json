@@ -27,6 +27,7 @@
   "files": [
     "index.js",
     "cli.js",
+    ".renovaterc.json",
     "tasks/"
   ],
   "dependencies": {
