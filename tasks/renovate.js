@@ -16,7 +16,7 @@ module.exports = ({ app }) => {
   const newConfig =
     helaFolder === process.cwd()
       ? path.join(helaFolder, 'renovate.json')
-      : path.join(helaFolder, '..', '..', 'renovate.json')
+      : path.join(__dirname, '..', '..', 'renovate.json')
 
   const onerror = (er) => app.emit('error', er)
 
