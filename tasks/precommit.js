@@ -9,5 +9,5 @@ const f = require('fs')
 
 module.exports = ({ shell }) => {
   console.log('Running `precommit` command...')
-  shell(['npm run lint', 'npm test', 'npm run postinstall', 'git add --all'])
+  shell(['npm run renovate', 'npm run lint', 'npm test', 'git add --all'])
 }

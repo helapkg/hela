@@ -8,30 +8,20 @@
 const fs = require('fs')
 const path = require('path')
 
-const readFile = (fp) =>
-  new Promise((resolve, reject) => {
-    fs.readFile(fp, 'utf8', (er, res) => {
-      if (er) return reject(er)
-      resolve(res)
-    })
-  })
-
-const writeFile = (fp, data) =>
-  new Promise((resolve, reject) => {
-    fs.writeFile(path.join(process.cwd(), fp), data, (er, res) => {
-      if (er) return reject(er)
-      resolve(res)
-    })
-  })
-
 module.exports = ({ app }) => {
   console.log('Updating Renovate App config...')
   const helaFolder = path.dirname(__dirname)
   const localConfig = path.join(helaFolder, '.renovaterc.json')
 
-  const writeRenovate = (config) =>
-    writeFile('renovate.json', JSON.stringify(config, null, 2))
+  const newConfig =
+    helaFolder === process.cwd()
+      ? path.join(helaFolder, 'renovate.json')
+      : path.join(helaFolder, '..', '..', 'renovate.json')
 
-  readFile(localConfig).then(JSON.parse).then(writeRenovate)
-  // shell('simple-commit-message')
+  const onerror = (er) => app.emit('error', er)
+
+  const src = fs.createReadStream(localConfig).once('error', onerror)
+  const dest = fs.createWriteStream(newConfig).once('error', onerror)
+
+  src.pipe(dest)
 }
