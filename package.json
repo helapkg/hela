@@ -68,13 +68,6 @@
     "tasks",
     "testing"
   ],
-  "nyc": {
-    "check-coverage": true,
-    "statements": 0,
-    "functions": 0,
-    "branches": 0,
-    "lines": 0
-  },
   "verb": {
     "run": true,
     "toc": {
