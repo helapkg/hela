@@ -38,15 +38,14 @@
     "mukla": "0.4.9",
     "nyc": "11.1.0",
     "p-map-series": "1.0.0",
-    "rollup": "0.46.0",
+    "rollup": "0.46.1",
     "simple-commit-message": "3.3.1"
   },
   "devDependencies": {
     "eslint": "4.4.1",
     "eslint-config-standard-tunnckocore": "1.0.3",
     "husky": "0.14.3",
-    "semantic-release": "^6.3.6",
-    "source-map-support": "0.4.15"
+    "semantic-release": "^6.3.6"
   },
   "keywords": [
     "charlike",
