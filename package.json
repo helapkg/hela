@@ -38,7 +38,7 @@
     "mukla": "0.4.9",
     "nyc": "11.1.0",
     "p-map-series": "1.0.0",
-    "rollup": "0.46.1",
+    "rollup": "0.46.2",
     "simple-commit-message": "3.3.1"
   },
   "devDependencies": {
