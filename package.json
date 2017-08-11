@@ -9,13 +9,14 @@
   "main": "./index.js",
   "license": "MIT",
   "scripts": {
+    "fresh": "./cli.js fresh",
+    "renovate": "./cli.js renovate",
     "lint": "./cli.js lint -c .eslintrc.json",
     "test": "./cli.js test node ./test.js",
     "precommit": "./cli.js precommit",
     "commit": "./cli.js commit",
     "postcommit": "git push",
-    "semantic-release": "./cli.js release",
-    "renovate": "./cli.js renovate"
+    "semantic-release": "./cli.js release"
   },
   "bin": {
     "hela": "./cli.js"
@@ -37,6 +38,7 @@
     "mukla": "0.4.9",
     "nyc": "11.1.0",
     "p-map-series": "1.0.0",
+    "rimraf": "2.6.1",
     "rollup": "0.46.0",
     "simple-commit-message": "3.3.1"
   },
