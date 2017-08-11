@@ -5,7 +5,7 @@
  * Released under the MIT license.
  */
 
-module.exports = ({ shell }) => {
+module.exports = ({ exec }) => {
   console.log('Running `precommit` command...')
-  shell(['npm run lint', 'npm test', 'git add --all'])
+  exec(['npm run lint', 'npm test', 'git add --all'])
 }

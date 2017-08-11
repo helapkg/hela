@@ -5,7 +5,7 @@
  * Released under the MIT license.
  */
 
-module.exports = ({ adds, shell }) => {
+module.exports = ({ adds, exec }) => {
   console.log('Running `test` command...')
-  shell([`nyc --reporter lcov ${adds}`, 'nyc report'])
+  exec([`nyc --reporter lcov ${adds}`, 'nyc report'])
 }

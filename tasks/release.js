@@ -5,7 +5,7 @@
  * Released under the MIT license.
  */
 
-module.exports = ({ shell }) => {
+module.exports = ({ exec }) => {
   console.log('Running `release` command...')
-  shell(['semantic-release pre', 'npm publish', 'semantic-release post'])
+  exec(['semantic-release pre', 'npm publish', 'semantic-release post'])
 }

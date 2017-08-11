@@ -5,7 +5,7 @@
  * Released under the MIT license.
  */
 
-module.exports = ({ shell }) => {
+module.exports = ({ exec }) => {
   console.log('Running `commit` command...')
-  shell('simple-commit-message')
+  exec('simple-commit-message')
 }

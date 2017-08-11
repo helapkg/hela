@@ -5,10 +5,10 @@
  * Released under the MIT license.
  */
 
-module.exports = ({ adds, argv, shell }) => {
+module.exports = ({ adds, argv, exec }) => {
   console.log('Running `lint` command...')
 
   adds = adds || '.'
 
-  shell(`eslint ${adds} -c ${argv.config} --format ${argv.reporter} --fix`)
+  exec(`eslint ${adds} -c ${argv.config} --format ${argv.reporter} --fix`)
 }

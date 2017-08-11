@@ -19,7 +19,7 @@ const argv = require('mri')(process.argv.slice(2), {
   string: ['config', 'reporter'],
 })
 
-const { hela, shell } = require('./index')
+const { hela, exec, shell } = require('./index')
 
 const task = argv._.shift()
 const adds = argv._.join(' ')
@@ -29,4 +29,4 @@ const onerror = (er) => process.exit(1)
 const app = hela(argv, './tasks')
 
 app.once('error', onerror)
-app.emit(task, { app, adds, argv, shell })
+app.emit(task, { app, adds, argv, exec, shell })

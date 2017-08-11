@@ -5,8 +5,6 @@
  * Released under the MIT license.
  */
 
-const { shell } = require('execa')
-
-module.exports = ({ app }) => {
-  shell("sed -i 's/src/dest/' test.js").catch((er) => app.emit('error', er))
+module.exports = ({ shell }) => {
+  shell("sed -i 's/src/dest/' test.js")
 }

@@ -5,7 +5,7 @@
  * Released under the MIT license.
  */
 
-module.exports = ({ shell }) => {
+module.exports = ({ exec }) => {
   console.log('Running `build` command...')
-  shell('rollup -c')
+  exec('rollup -c')
 }
