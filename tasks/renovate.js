@@ -10,6 +10,7 @@ const path = require('path')
 
 module.exports = ({ app }) => {
   console.log('Updating Renovate App config...')
+
   const helaFolder = path.dirname(__dirname)
   const localConfig = path.join(helaFolder, '.renovaterc.json')
   const newConfig = path.join(process.cwd(), 'renovate.json')

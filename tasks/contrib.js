@@ -13,6 +13,8 @@ const get = require('simple-get')
 const url = 'https://cdn.rawgit.com/tunnckoCore/contributing/master/CONTRIBUTING.md'
 
 module.exports = ({ app }) => {
+  console.log('Updating CONTRIBUTING.md file...')
+
   const onerror = (er) => app.emit('error', er)
 
   get(url, (er, res) => {
