@@ -10,6 +10,7 @@
   "license": "MIT",
   "scripts": {
     "fresh": "./cli.js fresh",
+    "contrib": "./cli.js contrib",
     "renovate": "./cli.js renovate",
     "lint": "./cli.js lint -c .eslintrc.json",
     "test": "./cli.js test node ./test.js",
