@@ -9,15 +9,10 @@
   "main": "./index.js",
   "license": "MIT",
   "scripts": {
-    "fresh": "./cli.js fresh",
-    "contrib": "./cli.js contrib",
-    "renovate": "./cli.js renovate",
-    "lint": "./cli.js lint -c .eslintrc.json",
-    "test": "./cli.js test node ./test.js",
-    "precommit": "./cli.js precommit",
-    "commit": "./cli.js commit",
-    "postcommit": "git push",
-    "semantic-release": "./cli.js release"
+    "start": "./cli.js",
+    "test": "npm start test",
+    "precommit": "npm start precommit",
+    "commit": "npm start commit"
   },
   "bin": {
     "hela": "./cli.js"

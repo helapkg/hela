@@ -7,5 +7,10 @@
 
 module.exports = ({ exec }) => {
   console.log('Running `precommit` command...')
-  exec(['git status --porcelain', 'npm run lint', 'npm test', 'git add --all'])
+  exec([
+    'git status --porcelain',
+    'npm start lint',
+    'npm test',
+    'git add --all',
+  ])
 }

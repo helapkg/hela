@@ -7,5 +7,5 @@
 
 module.exports = ({ exec }) => {
   console.log('Running `commit` command...')
-  exec('simple-commit-message')
+  exec(['simple-commit-message', 'git push'])
 }

@@ -7,5 +7,6 @@
 
 module.exports = ({ adds, exec }) => {
   console.log('Running `test` command...')
+  adds = adds || 'node test.js'
   exec([`nyc --reporter lcov ${adds}`, 'nyc report'])
 }
