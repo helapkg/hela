@@ -15,5 +15,6 @@ ratings:
   - src/**/*.js
 
 exclude_paths:
+- src/cli.js
 - test/**/*.js
 - config/**/*.js
