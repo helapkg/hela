@@ -1,3 +1,9 @@
 {
-  "presets": "tunnckocore"
+  "presets": "tunnckocore",
+  "tasks": {
+    "build": [
+      "yarn start clean",
+      "yarn start build:node"
+    ]
+  }
 }
