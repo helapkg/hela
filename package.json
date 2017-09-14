@@ -16,8 +16,10 @@
     "test": "yarn start test",
     "precommit": "yarn start precommit",
     "commit": "yarn start commit",
-    "hela": "rollup -i src/cli.js -o dist/cli.js -f cjs --banner '#!/usr/bin/env node'",
-    "posthela": "chmod +x dist/cli.js"
+    "hela": "yarn build:cli && yarn build:self",
+    "build:cli": "rollup -i src/cli.js -o dist/cli.js -f cjs --banner '#!/usr/bin/env node'",
+    "postbuild:cli": "chmod +x dist/cli.js",
+    "build:self": "yarn start build"
   },
   "engines": {
     "node": ">=6",
