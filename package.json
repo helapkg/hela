@@ -9,6 +9,7 @@
   "main": "dist/index.js",
   "unpkg": "dist/index.umd.js",
   "module": "dist/index.es.js",
+  "modern": "dist/index.min.js",
   "license": "MIT",
   "scripts": {
     "start": "./cli.js",
@@ -40,7 +41,7 @@
   },
   "devDependencies": {
     "eslint-config-standard-tunnckocore": "^1.0.7",
-    "hela-preset-tunnckocore": "^0.1.5",
+    "hela-preset-tunnckocore": "^0.3.0",
     "husky": "^0.14.3",
     "mukla": "^0.4.9",
     "semantic-release": "^7.0.2"
