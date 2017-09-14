@@ -12,12 +12,12 @@
   "modern": "dist/index.min.js",
   "license": "MIT",
   "scripts": {
-    "start": "./cli.js",
+    "start": "./dist/cli.js",
     "test": "yarn start test",
     "precommit": "yarn start precommit",
     "commit": "yarn start commit",
-    "build-self": "yarn hela",
-    "hela": "rollup -c ./node_modules/hela-preset-tunnckocore/config/node.js"
+    "hela": "rollup -i src/cli.js -o dist/cli.js -f cjs --banner '#!/usr/bin/env node'",
+    "posthela": "chmod +x dist/cli.js"
   },
   "engines": {
     "node": ">=6",
@@ -25,11 +25,10 @@
     "yarn": ">=1"
   },
   "files": [
-    "dist/",
-    "cli.js"
+    "dist/"
   ],
   "bin": {
-    "hela": "./cli.js"
+    "hela": "./dist/cli.js"
   },
   "dependencies": {
     "arrify": "^1.0.1",
