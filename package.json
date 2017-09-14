@@ -7,9 +7,7 @@
   "nspId": "6e5fb0cd-6807-4709-b6f2-37f194887691",
   "src": "src/**/*.js",
   "main": "dist/index.js",
-  "unpkg": "dist/index.umd.js",
   "module": "dist/index.es.js",
-  "modern": "dist/index.min.js",
   "license": "MIT",
   "scripts": {
     "start": "./dist/cli.js",
