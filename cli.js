@@ -1,32 +1,39 @@
 #!/usr/bin/env node
 
-/*!
- * hela <https://github.com/tunnckoCore/hela>
- *
- * Copyright (c) 2017 Charlike Mike Reagent <open.source.charlike@gmail.com> (https://i.am.charlike.online)
- * Released under the MIT license.
+/**
+ * @author Charlike Mike Reagent <open.source.charlike@gmail.com>
+ * @copyright 2017 tunnckoCore and other contributors
+ * @license MIT
  */
 
-const argv = require('mri')(process.argv.slice(2), {
-  alias: {
-    c: 'config',
-    r: 'reporter',
-  },
-  default: {
-    config: './.eslintrc.json',
-    reporter: 'codeframe',
-  },
-  string: ['config', 'reporter'],
-})
+const parser = require('mri')
+const { hela, exec, shell } = require('./dist/index')
 
-const { hela, exec, shell } = require('./index')
+const options = { cwd: process.cwd(), hela, helaExec: exec, helaShell: shell }
 
-const task = argv._.shift()
-const adds = argv._.join(' ')
+options.parse = (opts) => parser(process.argv.slice(2), opts)
+options.argv = options.parse()
+options.taskName = options.argv._[0]
 
-const onerror = (er) => process.exit(1)
+if (!options.argv._.length) {
+  console.log('Usage: hela <taskName>')
+  process.exit(1)
+}
 
-const app = hela(argv, './tasks')
+const onerror = (er) => {
+  // Don't show stack/message
+  // if it is `nyc check-coverage` command,
+  // because it is already show that threshold is not meet
+  const isNyc = er.message.indexOf('nyc') > 0
+  const isCov = er.message.indexOf('check-coverage') > 0
+  if (!isNyc && !isCov) {
+    console.error('ERR!', er.stack || er.message)
+    throw er
+  }
+}
 
-app.once('error', onerror)
-app.emit(task, { app, adds, argv, exec, shell })
+hela(options)
+  .then((tasks) => tasks[options.taskName]())
+  .then(() => process.exit(0))
+  .catch(onerror)
+  .catch(() => process.exit(1))

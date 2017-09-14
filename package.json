@@ -1,48 +1,49 @@
 {
   "name": "hela",
   "version": "0.0.0-semantic-release",
-  "description": "Task runner based on [execa][]. Includes few predefined tasks for linting, testing & releasing",
+  "description": "Powerful & futuristic task runner in 80 lines, based on [execa][]. Supports concurrency, presets and awesome extensibility",
   "repository": "tunnckoCore/hela",
-  "homepage": "https://github.com/tunnckoCore/hela",
   "author": "Charlike Mike Reagent <@tunnckoCore> (https://i.am.charlike.online)",
   "nspId": "6e5fb0cd-6807-4709-b6f2-37f194887691",
-  "main": "./index.js",
+  "src": "src/**/*.js",
+  "main": "dist/index.js",
+  "unpkg": "dist/index.umd.js",
+  "module": "dist/index.es.js",
   "license": "MIT",
   "scripts": {
     "start": "./cli.js",
-    "test": "npm start test",
-    "precommit": "npm start precommit",
-    "commit": "npm start commit"
-  },
-  "bin": {
-    "hela": "./cli.js"
+    "test": "yarn start test",
+    "precommit": "yarn start precommit",
+    "commit": "yarn start commit",
+    "build-self": "yarn hela",
+    "hela": "rollup -c ./node_modules/hela-preset-tunnckocore/config/node.js"
   },
   "engines": {
     "node": ">=6",
-    "npm": ">=5"
+    "npm": ">=5",
+    "yarn": ">=1"
   },
   "files": [
-    "index.js",
-    "cli.js",
-    ".renovaterc.json",
-    "tasks/"
+    "dist/",
+    "cli.js"
   ],
+  "bin": {
+    "hela": "./cli.js"
+  },
   "dependencies": {
-    "dush": "3.0.5",
-    "execa": "0.8.0",
-    "mri": "1.1.0",
-    "mukla": "0.4.9",
-    "nyc": "11.2.1",
-    "p-map-series": "1.0.0",
-    "rollup": "0.49.3",
-    "simple-commit-message": "3.3.1",
-    "simple-get": "2.7.0"
+    "arrify": "^1.0.1",
+    "execa": "^0.8.0",
+    "js-yaml": "^3.10.0",
+    "mri": "^1.1.0",
+    "p-map-series": "^1.0.0",
+    "pify": "^3.0.0"
   },
   "devDependencies": {
-    "eslint": "4.6.1",
-    "eslint-config-standard-tunnckocore": "1.0.7",
-    "husky": "0.14.3",
-    "semantic-release": "^7.0.0"
+    "eslint-config-standard-tunnckocore": "^1.0.7",
+    "hela-preset-tunnckocore": "^0.1.4",
+    "husky": "^0.14.3",
+    "mukla": "^0.4.9",
+    "semantic-release": "^7.0.2"
   },
   "keywords": [
     "charlike",
@@ -83,17 +84,18 @@
         "dush",
         "p-map-series",
         "execa",
+        "hela-preset-tunnckocore",
         "mri"
       ],
-      "highlight": "koa-better-router"
+      "highlight": "hela-preset-tunnckocore"
+    },
+    "lint": {
+      "reflinks": true
     },
     "reflinks": [
       "charlike-cli",
       "execa"
-    ],
-    "lint": {
-      "reflinks": true
-    }
+    ]
   },
   "release": {
     "analyzeCommits": "simple-commit-message"

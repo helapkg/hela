@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "pinVersions": true,
+  "pinVersions": false,
   "rebaseStalePrs": true,
   "semanticCommits": true,
   "unpublishSafe": false,
