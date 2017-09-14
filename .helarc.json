@@ -3,6 +3,7 @@
   "tasks": {
     "build": [
       "yarn start clean",
+      "yarn build:cli",
       "yarn start build:node"
     ]
   }
