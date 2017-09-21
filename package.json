@@ -1,13 +1,15 @@
 {
   "name": "hela",
   "version": "0.0.0-semantic-release",
-  "description": "Powerful & futuristic task runner in 80 lines, based on [execa][]. Supports concurrency, presets and awesome extensibility",
+  "description": "Powerful & flexible task runner framework in 80 lines, based on execa. Supports presets, a la ESLint but for tasks & npm scripts",
   "repository": "tunnckoCore/hela",
   "author": "Charlike Mike Reagent <@tunnckoCore> (https://i.am.charlike.online)",
   "nspId": "6e5fb0cd-6807-4709-b6f2-37f194887691",
   "src": "src/**/*.js",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
+  "modern": "dist/index.min.js",
+  "unpkg": "dist/index.umd.js",
   "license": "MIT",
   "scripts": {
     "start": "./dist/cli.js",
@@ -45,22 +47,31 @@
     "semantic-release": "^7.0.2"
   },
   "keywords": [
+    "automation",
     "charlike",
     "cli",
     "command line",
+    "configs",
     "es2015",
     "eslint",
     "eslint fix",
+    "execa",
+    "execute",
     "hela",
     "hooks",
     "lint",
+    "npm scripts",
     "precommit",
+    "presets",
     "prettier",
     "publish",
     "release",
     "runner",
+    "scripts",
     "semantic",
     "semantic release",
+    "shareable configs",
+    "shareable presets",
     "standard",
     "task",
     "task runner",
@@ -93,7 +104,10 @@
     },
     "reflinks": [
       "charlike-cli",
-      "execa"
+      "execa",
+      "cosmiconfig",
+      "hela",
+      "hela-preset-tunnckocore"
     ]
   },
   "release": {
