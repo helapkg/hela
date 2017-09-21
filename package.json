@@ -8,8 +8,6 @@
   "src": "src/**/*.js",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
-  "modern": "dist/index.min.js",
-  "unpkg": "dist/index.umd.js",
   "license": "MIT",
   "scripts": {
     "start": "./dist/cli.js",
