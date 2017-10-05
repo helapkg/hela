@@ -1,8 +1,9 @@
 {
   "extends": [
     ":base",
-    ":automergeMajor",
-    ":automergePr"
+    ":automergePr",
+    ":automergeMinor",
+    ":preserveSemverRanges"
   ],
   "labels": [
     "deps",
@@ -14,7 +15,6 @@
   "ignoreDeps": [
     "semantic-release"
   ],
-  "pinVersions": false,
   "rebaseStalePrs": true,
   "semanticCommits": true
 }

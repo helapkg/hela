@@ -3,6 +3,7 @@
  * @copyright 2017 @tunnckoCore/team and contributors
  * @license MIT
  */
+
 import test from 'mukla'
 import { hela } from '../src/index.js'
 

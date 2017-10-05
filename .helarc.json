@@ -1,5 +1,5 @@
 {
-  "presets": "tunnckocore",
+  "presets": "../hela-preset-tunnckocore/index.js",
   "tasks": {
     "build": [
       "yarn start clean",
