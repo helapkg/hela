@@ -1,5 +1,7 @@
 {
-  "presets": "tunnckocore",
+  "presets": [
+    "tunnckocore"
+  ],
   "tasks": {
     "build": [
       "yarn start clean",
