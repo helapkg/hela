@@ -8,7 +8,6 @@
   "src": "src/**/*.js",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
-  "license": "MIT",
   "scripts": {
     "start": "./dist/cli.js",
     "test": "yarn start test",
@@ -18,6 +17,7 @@
     "build:cli": "rollup -i src/cli.js -o dist/cli.js -f cjs --banner '#!/usr/bin/env node'",
     "postbuild:cli": "chmod +x dist/cli.js"
   },
+  "license": "MIT",
   "engines": {
     "node": ">=6",
     "npm": ">=5",
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "eslint-config-standard-tunnckocore": "^1.0.10",
-    "hela-preset-tunnckocore": "^0.5.1",
+    "hela-preset-tunnckocore": "^0.5.4",
     "husky": "^0.14.3",
     "mukla": "^0.4.9",
     "semantic-release": "^7.0.2"

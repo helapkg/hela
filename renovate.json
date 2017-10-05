@@ -15,6 +15,7 @@
   "ignoreDeps": [
     "semantic-release"
   ],
+  "pinVersions": false,
   "rebaseStalePrs": true,
   "semanticCommits": true
 }
