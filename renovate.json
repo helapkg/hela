@@ -3,9 +3,8 @@
     ":base",
     ":automergePr",
     ":automergeMinor",
-    ":preserveSemverRanges"
+    ":prNotPending"
   ],
-  "schedule": ["every weekday", "every weekend"],
   "labels": [
     "deps",
     "renovate"
@@ -16,7 +15,7 @@
   "ignoreDeps": [
     "semantic-release"
   ],
-  "pinVersions": false,
+  "pinVersions": true,
   "rebaseStalePrs": true,
   "semanticCommits": true
 }
