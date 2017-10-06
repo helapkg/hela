@@ -5,6 +5,7 @@
     ":automergeMinor",
     ":preserveSemverRanges"
   ],
+  "schedule": ["every weekday", "every weekend"]
   "labels": [
     "deps",
     "renovate"
