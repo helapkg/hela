@@ -1,7 +1,6 @@
-import path from 'path'
 import execa from 'execa'
 import pMap from 'p-map-series'
-import arrayify from 'arrify'
+import resolvePlugins from 'resolve-plugins-sync'
 import prettyConfig from './pretty-config.js'
 
 /* eslint-disable max-line */
@@ -9,8 +8,8 @@ import prettyConfig from './pretty-config.js'
 function hela (opts) {
   opts = Object.assign({ argv: {} }, opts)
 
-  if (opts.tasks || opts.presets) {
-    return handle(opts)
+  if (opts.tasks || (opts.presets || opts.extends)) {
+    return handler(opts)
   }
 
   return prettyConfig('hela', opts).then((config) => {
@@ -18,62 +17,43 @@ function hela (opts) {
       throw new Error('hela: no config')
     }
 
-    return handle(Object.assign({}, config, opts))
+    return handler(Object.assign({}, config, opts))
   })
 }
 
-function handle (opts) {
+function handler (opts) {
   return new Promise((resolve, reject) => {
-    const tasks = presetResolver(opts)
-    resolve(tasks)
+    resolve(presetResolver(opts))
   })
 }
 
 // todo: externalize as `hela-resolver`?
-function presetResolver (preset) {
-  preset = Object.assign({}, preset)
+function presetResolver (opts) {
+  const presets = opts.presets || opts.extends
 
-  // todo: Workaround for the existing presets. Remove after the `tunnckocore` preset update
-  preset.tasks = hasTasks(preset.tasks)
-    ? preset.tasks
-    : Object.assign({}, preset)
+  if (presets.length > 0) {
+    // const prefix = 'hela-preset-'
+    const tasks = resolvePlugins(presets /* , { prefix } */).reduce(
+      (acc, preset) => presetReducer(acc, preset),
+      {}
+    )
 
-  preset.presets = arrayify(preset.presets)
-
-  let tasks = {}
-
-  if (preset.presets.length > 0) {
-    // todo: use & update `resolve-plugins-sync`
-    tasks = preset.presets.reduce((acc, item) => {
-      if (item[0] === '.') {
-        item = path.resolve(item)
-      } else if (!item.startsWith('hela-preset')) {
-        item = 'hela-preset-' + item
-      }
-
-      item = require(item) // eslint-disable-line
-      let tasks = hasTasks(preset.tasks)
-        ? Object.assign({}, presetResolver(item), preset.tasks)
-        : presetResolver(item)
-
-      tasks = transformTasks(preset, tasks)
-      return Object.assign({}, acc, tasks)
-    }, {})
-  } else {
-    tasks = transformTasks(preset, preset.tasks)
+    return transformTasks(opts, Object.assign({}, tasks, opts.tasks))
   }
 
-  return tasks
+  return transformTasks(opts, opts.tasks)
 }
 
-function hasTasks (val) {
-  return Object.keys(Object.assign({}, val)).length > 0
+function presetReducer (acc, preset) {
+  return preset.presets || preset.extends
+    ? presetResolver(preset)
+    : Object.assign({}, acc, preset.tasks)
 }
 
 function transformTasks (opts, tasks) {
   return Object.keys(Object.assign({}, tasks))
     .filter(isValidTask)
-    .reduce(reducer(opts, tasks), {})
+    .reduce(taskReducer(opts, tasks), {})
 }
 
 function isValidTask (val) {
@@ -82,7 +62,7 @@ function isValidTask (val) {
   )
 }
 
-function reducer (opts, tasks) {
+function taskReducer (opts, tasks) {
   return (memo, name) => {
     const task = tasks[name]
 
