@@ -1,6 +1,6 @@
 {
-  "presets": [
-    "./node_modules/hela-preset-tunnckocore"
+  "extends": [
+    "hela-preset-tunnckocore"
   ],
   "tasks": {
     "build": [

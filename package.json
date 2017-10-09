@@ -37,7 +37,7 @@
     "mri": "1.1.0",
     "p-map-series": "1.0.0",
     "pify": "3.0.0",
-    "resolve-plugins-sync": "1.1.0"
+    "resolve-plugins-sync": "1.1.2"
   },
   "devDependencies": {
     "eslint-config-standard-tunnckocore": "1.0.10",
