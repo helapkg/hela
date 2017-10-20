@@ -9,7 +9,7 @@ import resolvePlugins from 'resolve-plugins-sync'
 import prettyConfig from '@tunnckocore/pretty-config'
 
 function hela (opts) {
-  const options = Object.assign({ argv: {} }, opts)
+  const options = Object.assign({ argv: {}, prefix: 'hela-config-' }, opts)
 
   if (options.tasks || (options.presets || options.extends)) {
     return handler(options)
@@ -39,8 +39,9 @@ function presetResolver (opts) {
   const presets = arrayify(opts.presets || opts.extends)
 
   if (presets.length > 0) {
-    const prefix = 'hela-config-'
-    const tasks = resolvePlugins(presets, { prefix }).reduce(
+    const arg = Object.assign({}, opts)
+    const options = Object.assign({ first: arg }, opts)
+    const tasks = resolvePlugins(presets, options).reduce(
       (acc, preset) => presetReducer(acc, preset),
       {}
     )

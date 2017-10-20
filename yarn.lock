@@ -55,11 +55,12 @@
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/@std/esm/-/esm-0.12.0.tgz#d33b83e35e6854c94ac8840716c516b6f9b3cde2"
 
-"@tunnckocore/pretty-config@0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@tunnckocore/pretty-config/-/pretty-config-0.2.1.tgz#58ebacfd51e84f3f4688962c8fc6f1aa096147a0"
+"@tunnckocore/pretty-config@0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@tunnckocore/pretty-config/-/pretty-config-0.2.2.tgz#19cba311b6d9ebc536947acf7e8544368870c612"
   dependencies:
     "@std/esm" "0.11.3"
+    isobject "3.0.1"
     js-yaml "3.10.0"
     pify "3.0.0"
 
@@ -2099,6 +2100,10 @@ isarray@1.0.0, isarray@^1.0.0, isarray@~1.0.0:
 isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
+
+isobject@3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
 
 isobject@^2.0.0:
   version "2.1.0"

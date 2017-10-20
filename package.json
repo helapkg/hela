@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@std/esm": "0.12.0",
-    "@tunnckocore/pretty-config": "0.2.1",
+    "@tunnckocore/pretty-config": "0.2.2",
     "arrify": "1.0.1",
     "execa": "0.8.0",
     "mri": "1.1.0",

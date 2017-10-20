@@ -35,7 +35,15 @@ const onerror = (er) => {
 }
 
 hela(options)
-  .then((tasks) => tasks[options.taskName]())
+  .then((tasks) => {
+    if (Object.keys(tasks).length === 0) {
+      throw new Error('hela: no tasks')
+    }
+    if (!tasks.hasOwnProperty(options.taskName)) {
+      throw new Error('hela: no such task -> ' + options.taskName)
+    }
+    return tasks[options.taskName]()
+  })
   .then(() => process.exit(0))
   .catch(onerror)
   .catch(() => process.exit(1))
