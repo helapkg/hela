@@ -29,3 +29,9 @@ after_success:
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
+
+# TODO: remove when target Node >=8
+matrix:
+  fast_finish: true
+  allow_failures:
+    - node_js: "6"

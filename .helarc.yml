@@ -1,11 +1,11 @@
 tasks:
-  format: prettier-eslint --write ./{test,src}/**/*.{mjs,js} --config ./.prettierrc.yml
+  format: prettier-eslint --write ./{test,src}/**/*.{mjs,js} --config ./.prettierrc.json
 
-  lint: eslint ./{test,src}/**/*.{mjs,js} --config ./.eslintrc.yml --format codeframe --fix
+  lint: eslint ./{test,src}/**/*.{mjs,js} --config ./.eslintrc.json --format codeframe --fix
 
   test:
     - rollup -c
-    - nyc --reporter=lcov node dist/test.js
+    - nyc --reporter=lcov node ./dist/test.js
     - nyc report
     - nyc check-coverage
 

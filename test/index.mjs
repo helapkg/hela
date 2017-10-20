@@ -6,9 +6,11 @@
 import test from 'mukla'
 import { hela } from '../src/index.mjs'
 
-test('should be function', async () => {
-  const tasks = await hela()
+test('should be function', () => {
+  const promise = hela()
 
-  test.strictEqual(typeof tasks, 'object')
-  test.strictEqual(typeof tasks.lint, 'function')
+  return promise.then((tasks) => {
+    test.strictEqual(typeof tasks, 'object')
+    test.strictEqual(typeof tasks.lint, 'function')
+  })
 })
