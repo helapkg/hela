@@ -6,7 +6,7 @@ tasks:
   test:
     - yarn start format
     - yarn start lint
-    - node -r @std/esm test
+    - ava --tap
 
   precommit:
     - git status --porcelain
