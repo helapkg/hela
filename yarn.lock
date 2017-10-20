@@ -3353,9 +3353,9 @@ resolve-from@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/resolve-from/-/resolve-from-3.0.0.tgz#b22c7af7d9d6881bc8b6e653335eebcb0a188748"
 
-resolve-plugins-sync@1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/resolve-plugins-sync/-/resolve-plugins-sync-1.1.2.tgz#9eb538f2ddfeb3626400f32e56e34d7a67bb9eee"
+resolve-plugins-sync@1.1.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/resolve-plugins-sync/-/resolve-plugins-sync-1.1.3.tgz#f4afa85478f360eeb0510a016e59a1df635cc328"
   dependencies:
     get-installed-path "^4.0.5"
 
