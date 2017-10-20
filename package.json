@@ -42,6 +42,7 @@
     "eslint-config-standard-tunnckocore": "1.0.10",
     "husky": "0.14.3",
     "mukla": "0.4.9",
+    "nyc": "11.2.1",
     "prettier": "1.7.4",
     "prettier-eslint": "8.2.1",
     "prettier-eslint-cli": "4.4.0",

@@ -6,7 +6,9 @@ tasks:
   test:
     - yarn start format
     - yarn start lint
-    - ava --tap
+    - nyc --reporter=lcov ava --tap
+    - nyc report
+    - nyc check-coverage
 
   precommit:
     - git status --porcelain
