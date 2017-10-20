@@ -42,7 +42,7 @@ function presetResolver (opts) {
     const prefix = 'hela-config-'
     const tasks = resolvePlugins(presets, { prefix }).reduce(
       (acc, preset) => presetReducer(acc, preset),
-      {},
+      {}
     )
 
     return transformTasks(opts, Object.assign({}, tasks, opts.tasks))
@@ -102,7 +102,7 @@ function factory (type) {
     const commands = [].concat(cmds)
     const options = Object.assign(
       { stdio: 'inherit', cwd: process.cwd() },
-      opts,
+      opts
     )
 
     const mapper = (cmdLine) => {
