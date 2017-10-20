@@ -9,10 +9,12 @@ tasks:
     - nyc report
     - nyc check-coverage
 
-  precommit:
-    - git status --porcelain
+  style:
     - yarn start format
     - yarn start lint
+
+  precommit:
+    - git status --porcelain
     - yarn start test
     - git add --all
 

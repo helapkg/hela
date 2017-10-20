@@ -8,7 +8,7 @@
   "main": "./src/index.js",
   "module": "./src/index.mjs",
   "scripts": {
-    "start": "hela",
+    "start": "./src/cli.js",
     "test": "yarn start test",
     "precommit": "yarn start precommit",
     "commit": "yarn start commit"
