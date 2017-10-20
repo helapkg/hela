@@ -4,6 +4,7 @@
  */
 
 import path from 'path'
+import isObject from 'isobject'
 import parser from 'mri'
 import { hela, exec, shell } from './index.mjs'
 
@@ -23,6 +24,8 @@ if (!options.argv._.length) {
   process.exit(1)
 }
 
+const interop = (ex) => (isObject(ex) && 'default' in ex ? ex.default : ex)
+
 const onerror = (er) => {
   // Don't show stack/message
   // if it is `nyc check-coverage` command,
@@ -37,7 +40,7 @@ const onerror = (er) => {
 
 import(path.join(options.cwd, 'package.json'))
   .then((pkg) => {
-    options.pkg = pkg
+    options.pkg = interop(pkg)
     return hela(options)
   })
   .then((tasks) => {

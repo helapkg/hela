@@ -3,9 +3,7 @@
  * @license Apache-2.0
  */
 
-function isObject (val) {
-  return val && typeof val === 'object' && !Array.isArray(val)
-}
+const isObject = require('isobject')
 
 function esmInteropRequire (id, opts) {
   const ex = require('@std/esm')(module, opts)(id)
