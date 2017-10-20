@@ -4,14 +4,15 @@ tasks:
   lint: eslint ./{test,src}/**/*.{mjs,js} --config ./.eslintrc.yml --format codeframe --fix
 
   test:
-    - yarn start format
-    - yarn start lint
-    - nyc --reporter=lcov ava --tap
+    - rollup -c
+    - nyc --reporter=lcov node dist/test.js
     - nyc report
     - nyc check-coverage
 
   precommit:
     - git status --porcelain
+    - yarn start format
+    - yarn start lint
     - yarn start test
     - git add --all
 
