@@ -1,7 +1,7 @@
 tasks:
-  format: prettier-eslint --write ./{test,src}/**/*.{mjs,js} --config ./.prettierrc
+  format: prettier-eslint --write ./{test,src}/**/*.{mjs,js} --config ./.prettierrc.yml
 
-  lint: eslint ./{test,src}/**/*.{mjs,js} --config ./.eslintrc --format codeframe --fix
+  lint: eslint ./{test,src}/**/*.{mjs,js} --config ./.eslintrc.yml --format codeframe --fix
 
   test:
     - yarn start format
@@ -14,7 +14,7 @@ tasks:
     - git add --all
 
   commit:
-    - ./node_modules/.bin/simple-commit-message
+    - simple-commit-message
 
   release:
     - semantic-release pre
