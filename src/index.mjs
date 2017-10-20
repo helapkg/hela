@@ -55,7 +55,7 @@ function presetResolver (opts) {
 function presetReducer (acc, preset) {
   return preset.presets || preset.extends
     ? presetResolver(preset)
-    : Object.assign({}, acc, preset.tasks)
+    : Object.assign({}, acc, preset.tasks || preset)
 }
 
 function transformTasks (opts, tasks) {
@@ -102,7 +102,7 @@ function factory (type) {
   return (cmds, opts) => {
     const commands = [].concat(cmds)
     const options = Object.assign(
-      { stdio: 'inherit', cwd: process.cwd() },
+      { stdio: 'inherit', cwd: process.cwd(), preferLocal: true },
       opts
     )
 
