@@ -3,6 +3,7 @@
  * @license Apache-2.0
  */
 
+import path from 'path'
 import parser from 'mri'
 import { hela, exec, shell } from './index.mjs'
 
@@ -34,7 +35,11 @@ const onerror = (er) => {
   }
 }
 
-hela(options)
+import(path.join(options.cwd, 'package.json'))
+  .then((pkg) => {
+    options.pkg = pkg
+    return hela(options)
+  })
   .then((tasks) => {
     if (Object.keys(tasks).length === 0) {
       throw new Error('hela: no tasks')
