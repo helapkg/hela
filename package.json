@@ -1,6 +1,6 @@
 {
   "name": "hela",
-  "version": "0.0.0-semantic-release",
+  "version": "0.0.0-development",
   "description": "Powerful & flexible task runner framework in 80 lines, based on execa. Supports presets, a la ESLint but for tasks & npm scripts",
   "repository": "tunnckoCore/hela",
   "author": "Charlike Mike Reagent (https://i.am.charlike.online)",
@@ -8,11 +8,11 @@
   "main": "./src/index.js",
   "module": "./src/index.mjs",
   "scripts": {
-    "start": "./src/cli.js",
+    "start": "hela",
     "test": "yarn start test",
     "precommit": "yarn start precommit",
     "commit": "yarn start commit",
-    "hela": "chmod +x ./src/cli.js"
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "license": "Apache-2.0",
   "licenseStart": 2017,
@@ -44,7 +44,7 @@
     "prettier": "1.7.4",
     "prettier-eslint": "8.2.1",
     "prettier-eslint-cli": "4.4.0",
-    "semantic-release": "7.0.2",
+    "semantic-release": "^8.2.0",
     "simple-commit-message": "3.3.2"
   },
   "keywords": [

@@ -18,7 +18,7 @@ before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH=$HOME/.yarn/bin:$PATH
 
-before_script: yarn hela
+before_script: yarn link
 
 script: yarn test
 
