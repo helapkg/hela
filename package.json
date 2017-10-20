@@ -4,7 +4,7 @@
   "description": "Powerful & flexible task runner framework in 80 lines, based on execa. Supports presets, a la ESLint but for tasks & npm scripts",
   "repository": "tunnckoCore/hela",
   "author": "Charlike Mike Reagent (https://tunnckocore.now.sh)",
-  "nspId": "6e5fb0cd-6807-4709-b6f2-37f194887691",
+  "nspId": "98435a9b-965d-465e-bb57-1209d467e6f1",
   "main": "./src/index.js",
   "module": "./src/index.mjs",
   "scripts": {
@@ -13,7 +13,7 @@
     "precommit": "yarn start precommit",
     "commit": "yarn start commit"
   },
-  "license": "Apache-2.0",
+  "license": "tunnckoCore-1.0",
   "licenseStart": 2017,
   "engines": {
     "node": ">=6",
@@ -37,19 +37,8 @@
     "resolve-plugins-sync": "1.1.4"
   },
   "devDependencies": {
-    "babel-eslint": "8.0.1",
-    "builtin-modules": "1.1.1",
-    "eslint": "4.9.0",
-    "eslint-config-standard-tunnckocore": "1.0.10",
-    "husky": "0.14.3",
-    "mukla": "0.4.9",
-    "nyc": "11.2.1",
-    "prettier": "1.7.4",
-    "prettier-eslint": "8.2.1",
-    "prettier-eslint-cli": "4.4.0",
-    "rollup": "0.50.0",
-    "semantic-release": "8.2.0",
-    "simple-commit-message": "3.3.2"
+    "hela-config-tunnckocore": "1.2.16",
+    "mukla": "0.4.9"
   },
   "keywords": [
     "automation",
@@ -114,8 +103,5 @@
       "hela",
       "hela-preset-tunnckocore"
     ]
-  },
-  "release": {
-    "analyzeCommits": "simple-commit-message"
   }
 }

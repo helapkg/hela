@@ -1,0 +1,12 @@
+{
+  "extends": [
+    "tunnckocore"
+  ],
+  "rules": {
+    "import/no-dynamic-require": "off",
+    "import/no-extraneous-dependencies": "off",
+    "import/extensions": "off",
+    "comma-dangle": "off",
+    "global-require": "off"
+  }
+}

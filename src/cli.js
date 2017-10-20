@@ -5,4 +5,4 @@
  * @license Apache-2.0
  */
 
-module.exports = require('./esm-require.js')('./cli.mjs')
+module.exports = require('./esm-require.js')('./cli.mjs');

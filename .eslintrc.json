@@ -1,6 +1,0 @@
-{
-  "extends": [
-    "standard-tunnckocore"
-  ],
-  "parser": "babel-eslint"
-}
