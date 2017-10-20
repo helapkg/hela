@@ -1,7 +1,7 @@
 tasks:
-  format: prettier-eslint --write ./{test,src}/**/*.{mjs,js} --config ./.prettierrc.json
+  format: prettier-eslint --write ./{test,src}/**/*.{mjs,js}
 
-  lint: eslint ./{test,src}/**/*.{mjs,js} --config ./.eslintrc.json --format codeframe --fix
+  lint: eslint ./{test,src}/**/*.{mjs,js} --format codeframe --fix
 
   test:
     - rollup -c
