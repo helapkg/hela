@@ -22,9 +22,6 @@ package-lock.json
 # Typescript v1 declaration files
 typings/
 
-# Optional npm cache directory
-.npm
-
 # Packages #
 # ##########
 *.7z
@@ -89,6 +86,9 @@ pids
 
 # Yarn Integrity file
 .yarn-integrity
+
+# The `@std/esm` package cache
+.esm-cache
 
 # dotenv environment variables file
 .env

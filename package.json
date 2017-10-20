@@ -3,21 +3,18 @@
   "version": "0.0.0-semantic-release",
   "description": "Powerful & flexible task runner framework in 80 lines, based on execa. Supports presets, a la ESLint but for tasks & npm scripts",
   "repository": "tunnckoCore/hela",
-  "author": "Charlike Mike Reagent <@tunnckoCore> (https://i.am.charlike.online)",
+  "author": "Charlike Mike Reagent (https://i.am.charlike.online)",
   "nspId": "6e5fb0cd-6807-4709-b6f2-37f194887691",
-  "src": "src/**/*.js",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
+  "main": "./src/index.js",
+  "module": "./src/index.mjs",
   "scripts": {
-    "start": "./dist/cli.js",
+    "start": "./src/cli.js",
     "test": "yarn start test",
     "precommit": "yarn start precommit",
     "commit": "yarn start commit",
-    "hela": "yarn build:cli",
-    "build:cli": "rollup -i src/cli.js -o dist/cli.js -f cjs --banner '#!/usr/bin/env node'",
-    "postbuild:cli": "chmod +x dist/cli.js"
+    "hela": "chmod +x ./src/cli.js"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "licenseStart": 2017,
   "engines": {
     "node": ">=6",
@@ -25,26 +22,30 @@
     "yarn": ">=1"
   },
   "files": [
-    "dist/"
+    "src/"
   ],
   "bin": {
-    "hela": "./dist/cli.js"
+    "hela": "./src/cli.js"
   },
   "dependencies": {
+    "@std/esm": "0.12.0",
+    "@tunnckocore/pretty-config": "0.2.1",
     "arrify": "1.0.1",
     "execa": "0.8.0",
-    "js-yaml": "3.10.0",
     "mri": "1.1.0",
     "p-map-series": "1.0.0",
-    "pify": "3.0.0",
     "resolve-plugins-sync": "1.1.2"
   },
   "devDependencies": {
+    "eslint": "4.9.0",
     "eslint-config-standard-tunnckocore": "1.0.10",
-    "hela-preset-tunnckocore": "0.5.19",
     "husky": "0.14.3",
     "mukla": "0.4.9",
-    "semantic-release": "7.0.2"
+    "prettier": "1.7.4",
+    "prettier-eslint": "8.2.1",
+    "prettier-eslint-cli": "4.4.0",
+    "semantic-release": "7.0.2",
+    "simple-commit-message": "3.3.2"
   },
   "keywords": [
     "automation",

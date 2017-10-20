@@ -1,0 +1,22 @@
+tasks:
+  format: prettier-eslint --write ./{test,src}/**/*.{mjs,js} --config ./.prettierrc
+
+  lint: eslint ./{test,src}/**/*.{mjs,js} --config ./.eslintrc --format codeframe --fix
+
+  test:
+    - yarn start format
+    - yarn start lint
+    - node -r @std/esm test
+
+  precommit:
+    - git status --porcelain
+    - yarn start test
+    - git add --all
+
+  commit:
+    - ./node_modules/.bin/simple-commit-message
+
+  release:
+    - semantic-release pre
+    - npm publish
+    - semantic-release post

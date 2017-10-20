@@ -1,8 +1,3 @@
 {
-  "extends": [
-    "standard-tunnckocore"
-  ],
-  "rules": {
-    "react/react-in-jsx-scope": "off"
-  }
+  "extends": "standard-tunnckocore"
 }
