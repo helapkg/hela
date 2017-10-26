@@ -13,7 +13,7 @@
     "precommit": "yarn start precommit",
     "commit": "yarn start commit"
   },
-  "license": "tunnckoCore-1.0",
+  "license": "Apache-2.0",
   "licenseStart": 2017,
   "engines": {
     "node": ">=6",
