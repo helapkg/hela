@@ -1,7 +1,7 @@
 {
   "name": "hela",
   "version": "0.0.0-semantic-release",
-  "description": "Powerful & flexible task runner framework in 80 lines, based on [execa][]. Supports presets, a la ESLint but for tasks & npm scripts",
+  "description": "Powerful & flexible task runner framework in 80 lines, based on [execa][]. Supports shareable configs, a la ESLint",
   "repository": "tunnckoCore/hela",
   "author": "Charlike Mike Reagent (https://i.am.charlike.online)",
   "nspId": "98435a9b-965d-465e-bb57-1209d467e6f1",

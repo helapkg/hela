@@ -1,6 +1,6 @@
 # hela [![npm version][npmv-img]][npmv-url] [![github release][github-release-img]][github-release-url] [![License][license-img]][license-url] 
 
-> Powerful & flexible task runner framework in 80 lines, based on [execa][]. Supports presets, a la ESLint but for tasks & npm scripts
+> Powerful & flexible task runner framework in 80 lines, based on [execa][]. Supports shareable configs, a la ESLint
 
 <div id="thetop"></div>
 
@@ -138,7 +138,7 @@ $ hela release
 ## API
 Review carefully the provided examples and the working [tests](./test).
 
-### [.hela](src/index.js#L39)
+### [.hela](src/index.js#L40)
 
 > Controls, merges and resolves all tasks from config files
 > and passed through `opts.tasks`.
@@ -151,8 +151,9 @@ Review carefully the provided examples and the working [tests](./test).
 > prefixed with `hela-config-`),  a function (that is passed with `{ extends, tasks }` object)
 > or an object containing another `extends` and/or `tasks` properties.
 >
-> Configuration is handled by [@tunnckocore/pretty-config][] which is pretty similar
-> to the [cosmiconfig][] package and so the config files lookup order is:
+> Configuration is handled by [@tunnckocore/pretty-config](https://github.com/tunnckoCore/pretty-config)
+> which is pretty similar to the [cosmiconfig][] package and so the config
+> files lookup order is:
 > - `.helarc.{json,yaml,yml,js}`
 > - `hela.config.js`
 > - `.hela.config.js`
@@ -164,7 +165,7 @@ Review carefully the provided examples and the working [tests](./test).
 * `opts` **{Object}**: requires to have at least `tasks` ot `extends` properties    
 * `returns` **{Promise}**: so you can use `async/await` mechanism  
 
-### [.exec](src/index.js#L69)
+### [.exec](src/index.js#L70)
 
 > A mirror of [execa-pro][]'s `.exec` method, see its docs. This is also
 included in the object that is passed to each task if the task is a function.
@@ -175,7 +176,7 @@ included in the object that is passed to each task if the task is a function.
 * `options` **{Object}**: optional, passed to [execa-pro][] and so to [execa][]    
 * `returns` **{Promise}**: so you can use `async/await` mechanism  
 
-### [.shell](src/index.js#L84)
+### [.shell](src/index.js#L85)
 
 > A mirror of [execa-pro][]'s `.shell` method, see its docs. This is also
 included in the object that is passed to each task if the task is a function.
@@ -190,9 +191,9 @@ included in the object that is passed to each task if the task is a function.
 
 ## Shareables Configs
 
-- [hela-config-tunnckocore][] - a preset for every repository and package in @tunnckoCore organization
-- [hela-config-rollup-build][] - preset of tasks focused on bundling, using [rollup][]. Go create for Webpack?
-- [hela-config-new-project][] - preset of tasks for generating whole new project and repository
+- [hela-config-tunnckocore][] - a preset for every repository and package in [@tunnckoCore](https://github.com/tunnckoCore) organization.
+- [hela-config-rollup-build](https://github.com/tunnckoCore/hela-config-rollup-build) - preset of tasks focused on bundling, using [rollup][]. Go create for Webpack?
+- [hela-config-new-project](https://github.com/tunnckoCore/hela-config-new-project) - preset of tasks for generating whole new project and repository.
 
 ## Related Projects
 Some of these projects are used here or were inspiration for this one, others are just related. So, thanks for your existance! 

@@ -22,8 +22,9 @@ module.exports = { hela, exec, shell }
  * > prefixed with `hela-config-`),  a function (that is passed with `{ extends, tasks }` object)
  * > or an object containing another `extends` and/or `tasks` properties.
  * >
- * > Configuration is handled by [@tunnckocore/pretty-config][] which is pretty similar
- * > to the [cosmiconfig][] package and so the config files lookup order is:
+ * > Configuration is handled by [@tunnckocore/pretty-config](https://github.com/tunnckoCore/pretty-config)
+ * > which is pretty similar to the [cosmiconfig][] package and so the config
+ * > files lookup order is:
  * > - `.helarc.{json,yaml,yml,js}`
  * > - `hela.config.js`
  * > - `.hela.config.js`
