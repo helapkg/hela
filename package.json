@@ -96,11 +96,16 @@
       "reflinks": true
     },
     "reflinks": [
-      "hela",
-      "semantic-release",
       "cosmiconfig",
       "execa",
-      "execa-pro"
+      "execa-pro",
+      "hela",
+      "semantic-release",
+      "hela-config-new-project",
+      "hela-config-rollup-build",
+      "hela-config-tunnckocore",
+      "hela-preset-tunnckocore",
+      "rollup"
     ]
   }
 }

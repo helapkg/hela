@@ -12,23 +12,23 @@ module.exports = { hela, exec, shell }
 
 /**
  * > Controls, merges and resolves all tasks from config files
- * and passed through `opts.tasks`.
- *
+ * > and passed through `opts.tasks`.
+ * >
  * > All `opts` are passed to [execa-pro][] and to [execa][],
- * so you can pass `opts.stdio: 'inherit'` for example
- * to output the result of each command in the console, useful for things like prompt inputs.
- * Resolving works recursively and support ESLint style presets through
- * the `opts.extends`. The `extends` property can be `string` (the name of the preset,
- * prefixed with `hela-config-`),  a function (that is passed with `{ extends, tasks }` object)
- * or an object containing another `extends` and/or `tasks` properties.
- *
+ * > so you can pass `opts.stdio: 'inherit'` for example
+ * > to output the result of each command in the console, useful for things like prompt inputs.
+ * > Resolving works recursively and support ESLint style presets through
+ * > the `opts.extends`. The `extends` property can be `string` (the name of the preset,
+ * > prefixed with `hela-config-`),  a function (that is passed with `{ extends, tasks }` object)
+ * > or an object containing another `extends` and/or `tasks` properties.
+ * >
  * > Configuration is handled by [@tunnckocore/pretty-config][] which is pretty similar
- * to the [cosmiconfig][] package and so the config files lookup order is:
- * - `.helarc.{json,yaml,yml,js}`
- * - `hela.config.js`
- * - `.hela.config.js`
- * - `.helarc` - YAML or JSON syntax
- * - `package.json` - one of `hela`, `helaConfig` or `config.hela` fields
+ * > to the [cosmiconfig][] package and so the config files lookup order is:
+ * > - `.helarc.{json,yaml,yml,js}`
+ * > - `hela.config.js`
+ * > - `.hela.config.js`
+ * > - `.helarc` - YAML or JSON syntax
+ * > - `package.json` - one of `hela`, `helaConfig` or `config.hela` fields
  *
  * @name    .hela
  * @param   {Object} `opts` requires to have at least `tasks` ot `extends` properties

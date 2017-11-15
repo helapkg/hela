@@ -44,10 +44,12 @@ You may also read the [Contributing Guide](./CONTRIBUTING.md). There, beside _"H
 ## Table of Contents
 - [Install](#install)
 - [Background](#background)
+- [CLI](#cli)
 - [API](#api)
   * [.hela](#hela)
   * [.exec](#exec)
   * [.shell](#shell)
+- [Shareables Configs](#shareables-configs)
 - [Related Projects](#related-projects)
 - [Contributing](#contributing)
 - [Contributors](#contributors)
@@ -120,27 +122,42 @@ Basically, `hela` just loops over an object of key/value pairs, where key is the
 
 If task is a function, then it is passed with `({ parse, argv, taskName, hela, exec, shell, ...options })` signature. Worth mentioning that it is called in a `promise.then()` and so the nextTick - be aware of that.
 
+## CLI
+Install it as dev dependency of your project first, then you can use it just like
+you use `gulp`, for example `hela <taskName>`. In `tunnckocore` preset you can
+run tasks like the following, but go there for more deep docs.
+
+```
+$ hela style
+$ hela lint
+$ hela format
+$ hela commit
+$ hela release
+```
+
 ## API
 Review carefully the provided examples and the working [tests](./test).
 
 ### [.hela](src/index.js#L39)
-> Controls, merges and resolves all tasks from config files and passed through `opts.tasks`.
 
+> Controls, merges and resolves all tasks from config files
+> and passed through `opts.tasks`.
+>
 > All `opts` are passed to [execa-pro][] and to [execa][],
-so you can pass `opts.stdio: 'inherit'` for example
-to output the result of each command in the console, useful for things like prompt inputs.
-Resolving works recursively and support ESLint style presets through
-the `opts.extends`. The `extends` property can be `string` (the name of the preset,
-prefixed with `hela-config-`),  a function (that is passed with `{ extends, tasks }` object)
-or an object containing another `extends` and/or `tasks` properties.
-
+> so you can pass `opts.stdio: 'inherit'` for example
+> to output the result of each command in the console, useful for things like prompt inputs.
+> Resolving works recursively and support ESLint style presets through
+> the `opts.extends`. The `extends` property can be `string` (the name of the preset,
+> prefixed with `hela-config-`),  a function (that is passed with `{ extends, tasks }` object)
+> or an object containing another `extends` and/or `tasks` properties.
+>
 > Configuration is handled by [@tunnckocore/pretty-config][] which is pretty similar
-to the [cosmiconfig][] package and so the config files lookup order is:
-- `.helarc.{json,yaml,yml,js}`
-- `hela.config.js`
-- `.hela.config.js`
-- `.helarc` - YAML or JSON syntax
-- `package.json` - one of `hela`, `helaConfig` or `config.hela` fields
+> to the [cosmiconfig][] package and so the config files lookup order is:
+> - `.helarc.{json,yaml,yml,js}`
+> - `hela.config.js`
+> - `.hela.config.js`
+> - `.helarc` - YAML or JSON syntax
+> - `package.json` - one of `hela`, `helaConfig` or `config.hela` fields
 
 **Params**
 
@@ -170,6 +187,12 @@ included in the object that is passed to each task if the task is a function.
 * `returns` **{Promise}**: so you can use `async/await` mechanism  
 
 **[back to top](#thetop)**
+
+## Shareables Configs
+
+- [hela-config-tunnckocore][] - a preset for every repository and package in @tunnckoCore organization
+- [hela-config-rollup-build][] - preset of tasks focused on bundling, using [rollup][]. Go create for Webpack?
+- [hela-config-new-project][] - preset of tasks for generating whole new project and repository
 
 ## Related Projects
 Some of these projects are used here or were inspiration for this one, others are just related. So, thanks for your existance! 
@@ -205,7 +228,10 @@ _Project scaffolded and managed with [hela][]._
 [cosmiconfig]: https://github.com/davidtheclark/cosmiconfig
 [execa-pro]: https://github.com/tunnckoCore/execa-pro
 [execa]: https://github.com/sindresorhus/execa
+[hela-config-tunnckocore]: https://github.com/tunnckoCore/hela-config-tunnckocore
+[hela-preset-tunnckocore]: https://github.com/tunnckoCore/hela-preset-tunnckocore
 [hela]: https://github.com/tunnckoCore/hela
+[rollup]: https://github.com/rollup/rollup
 [semantic-release]: https://github.com/semantic-release/semantic-release
 
 <!-- Heading badges -->
@@ -287,4 +313,3 @@ _Project scaffolded and managed with [hela][]._
 [highlighted-link]: https://ghub.now.sh/hela-config-tunnckocore
 [author-link]: https://i.am.charlike.online
 
-[hela-preset-tunnckocore]: https://github.com/tunnckoCore/hela-preset-tunnckocore
