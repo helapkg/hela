@@ -97,7 +97,10 @@
     },
     "reflinks": [
       "hela",
-      "semantic-release"
+      "semantic-release",
+      "cosmiconfig",
+      "execa",
+      "execa-pro"
     ]
   }
 }

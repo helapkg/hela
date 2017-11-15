@@ -43,7 +43,11 @@ You may also read the [Contributing Guide](./CONTRIBUTING.md). There, beside _"H
 
 ## Table of Contents
 - [Install](#install)
+- [Background](#background)
 - [API](#api)
+  * [.hela](#hela)
+  * [.exec](#exec)
+  * [.shell](#shell)
 - [Related Projects](#related-projects)
 - [Contributing](#contributing)
 - [Contributors](#contributors)
@@ -65,9 +69,105 @@ See available bundles at [`https://unpkg.com/hela/dist/browser/`](https://unpkg.
 
 > _**Note:** May not work in the browser if some of the [Node.js builtin modules](https://github.com/juliangruber/builtins/blob/master/builtins.json) are used here._
  -->
- 
+
+## Background
+
+What is that? It is a package that is useful for automation and keeping things on one place.
+
+It is meant to be used in `npm scripts`, but if you decide to use it as standalone tool
+you still can. The core is pretty minimal, in [really 80 lines](./src/index.js) without the documentation comments, but it has very flexible nature by embracing Shareable Configs.
+Yes, it supports presets of tasks same as found in ESLint and Renovate. Each preset
+is just an object with `extends` and/or `tasks` properties. 
+
+A working preset, you can see in use here (yes, `hela` uses itself and presets to release itself) and
+in the first created preset [hela-preset-tunnckocore][], which by the way uses itself **AND** `hela` too! It is pretty awesome, seriously.
+
+Not only the presets gives us power. Hela uses pretty fantastic configuration loader, which is separated from the core as [pretty-config](https://github.com/tunnckoCore/pretty-config). It is similar to the very much used [cosmiconfig][], but is a lot more smaller (by implementation, by lines and by deps means) with great defaults and lookup on few places.
+
+The `pretty-config`'s resolving mechanism looks for this files to load configuration (where
+the `%s` is the name of the tool):
+
+```js
+const configFiles = [
+  '.%src.json', // 1
+  '.%src.yaml', // 2
+  '.%src.yml', // 3
+  '.%src.js', // 4
+  '%s.config.js', // 5
+  '.%s.config.js', // 6
+  '.%src', // 7 - first tries JSON, if fail to parse then fallback to YAML
+  'package.json', // 8 - foo, fooConfig or pkg.config.foo fields
+]
+```
+
+For example, to load some preset, you can create `.helarc.json` with this,
+where if you skip `hela-preset-` prefix it is assumed automatically.
+
+```json
+{
+  "extends": [
+    "foo",
+    "hela-preset-bar",
+    "tunnckocore",
+    "./some/relative/JS-or-JSON-file.js"]
+}
+```
+
+And so, above will resolve `hela-preset-foo`, `hela-preset-bar`, `hela-preset-tunnckocore` and
+the tasks/presets from some given relative file. And everything is recursive.
+
+Basically, `hela` just loops over an object of key/value pairs, where key is the name of a task and the value is a `string` (directly passed to `execa`), an `array` of strings (run in series passed to [execa][]) or a `function`.
+
+If task is a function, then it is passed with `({ parse, argv, taskName, hela, exec, shell, ...options })` signature. Worth mentioning that it is called in a `promise.then()` and so the nextTick - be aware of that.
+
 ## API
 Review carefully the provided examples and the working [tests](./test).
+
+### [.hela](src/index.js#L39)
+> Controls, merges and resolves all tasks from config files and passed through `opts.tasks`.
+
+> All `opts` are passed to [execa-pro][] and to [execa][],
+so you can pass `opts.stdio: 'inherit'` for example
+to output the result of each command in the console, useful for things like prompt inputs.
+Resolving works recursively and support ESLint style presets through
+the `opts.extends`. The `extends` property can be `string` (the name of the preset,
+prefixed with `hela-config-`),  a function (that is passed with `{ extends, tasks }` object)
+or an object containing another `extends` and/or `tasks` properties.
+
+> Configuration is handled by [@tunnckocore/pretty-config][] which is pretty similar
+to the [cosmiconfig][] package and so the config files lookup order is:
+- `.helarc.{json,yaml,yml,js}`
+- `hela.config.js`
+- `.hela.config.js`
+- `.helarc` - YAML or JSON syntax
+- `package.json` - one of `hela`, `helaConfig` or `config.hela` fields
+
+**Params**
+
+* `opts` **{Object}**: requires to have at least `tasks` ot `extends` properties    
+* `returns` **{Promise}**: so you can use `async/await` mechanism  
+
+### [.exec](src/index.js#L69)
+
+> A mirror of [execa-pro][]'s `.exec` method, see its docs. This is also
+included in the object that is passed to each task if the task is a function.
+
+**Params**
+
+* `cmds` **{string|Array}**: commands to call, if array of strings executes in series    
+* `options` **{Object}**: optional, passed to [execa-pro][] and so to [execa][]    
+* `returns` **{Promise}**: so you can use `async/await` mechanism  
+
+### [.shell](src/index.js#L84)
+
+> A mirror of [execa-pro][]'s `.shell` method, see its docs. This is also
+included in the object that is passed to each task if the task is a function.
+
+**Params**
+
+* `cmds` **{string|Array}**: commands to call, if array of strings executes in series    
+* `options` **{Object}**: optional, passed to [execa-pro][] and so to [execa][]    
+* `returns` **{Promise}**: so you can use `async/await` mechanism  
 
 **[back to top](#thetop)**
 
@@ -102,6 +202,9 @@ Released under the [Apache-2.0 License][license-url].
 _This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.6.0, on November 15, 2017._  
 _Project scaffolded and managed with [hela][]._
 
+[cosmiconfig]: https://github.com/davidtheclark/cosmiconfig
+[execa-pro]: https://github.com/tunnckoCore/execa-pro
+[execa]: https://github.com/sindresorhus/execa
 [hela]: https://github.com/tunnckoCore/hela
 [semantic-release]: https://github.com/semantic-release/semantic-release
 
@@ -184,4 +287,4 @@ _Project scaffolded and managed with [hela][]._
 [highlighted-link]: https://ghub.now.sh/hela-config-tunnckocore
 [author-link]: https://i.am.charlike.online
 
-[execa]: https://github.com/sindresorhus/execa
+[hela-preset-tunnckocore]: https://github.com/tunnckoCore/hela-preset-tunnckocore
