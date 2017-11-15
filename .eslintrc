@@ -7,6 +7,7 @@
     "import/no-extraneous-dependencies": "off",
     "import/extensions": "off",
     "comma-dangle": "off",
-    "global-require": "off"
+    "global-require": "off",
+    "semi": ["error", "never"]
   }
 }

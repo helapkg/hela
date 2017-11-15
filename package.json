@@ -1,22 +1,22 @@
 {
   "name": "hela",
   "version": "0.0.0-semantic-release",
-  "description": "Powerful & flexible task runner framework in 80 lines, based on execa. Supports presets, a la ESLint but for tasks & npm scripts",
+  "description": "Powerful & flexible task runner framework in 80 lines, based on [execa][]. Supports presets, a la ESLint but for tasks & npm scripts",
   "repository": "tunnckoCore/hela",
-  "author": "Charlike Mike Reagent (https://tunnckocore.now.sh)",
+  "author": "Charlike Mike Reagent (https://i.am.charlike.online)",
   "nspId": "98435a9b-965d-465e-bb57-1209d467e6f1",
   "main": "./src/index.js",
-  "module": "./src/index.mjs",
   "scripts": {
-    "start": "./src/cli.js",
-    "test": "yarn start test",
-    "precommit": "yarn start precommit",
-    "commit": "yarn start commit"
+    "hela-self": "./src/cli.js",
+    "test": "NODE_ENV=test yarn hela-self test",
+    "precommit": "yarn hela-self precommit",
+    "commit": "yarn hela-self commit",
+    "prepublishOnly": "yarn hela-self protect"
   },
   "license": "Apache-2.0",
   "licenseStart": 2017,
   "engines": {
-    "node": ">=6",
+    "node": ">=8",
     "npm": ">=5",
     "yarn": ">=1"
   },
@@ -27,17 +27,16 @@
     "hela": "./src/cli.js"
   },
   "dependencies": {
-    "@std/esm": "0.12.0",
     "@tunnckocore/pretty-config": "0.2.2",
-    "arrify": "1.0.1",
-    "execa": "0.8.0",
-    "isobject": "3.0.1",
+    "arrayify": "1.0.0",
+    "execa-pro": "1.0.2",
     "mri": "1.1.0",
-    "p-map-series": "1.0.0",
     "resolve-plugins-sync": "1.1.4"
   },
   "devDependencies": {
-    "hela-config-tunnckocore": "1.2.16",
+    "eslint": "4.11.0",
+    "eslint-config-tunnckocore": "0.2.0",
+    "hela-config-tunnckocore": "2.2.4",
     "mukla": "0.4.9"
   },
   "keywords": [
@@ -85,23 +84,20 @@
     ],
     "related": {
       "list": [
-        "dush",
-        "p-map-series",
-        "execa",
-        "hela-preset-tunnckocore",
-        "mri"
+        "gitcommit",
+        "parse-commit-message",
+        "execa-pro",
+        "hela-config-tunnckocore",
+        "new-release"
       ],
-      "highlight": "hela-preset-tunnckocore"
+      "highlight": "hela-config-tunnckocore"
     },
     "lint": {
       "reflinks": true
     },
     "reflinks": [
-      "charlike-cli",
-      "execa",
-      "cosmiconfig",
       "hela",
-      "hela-preset-tunnckocore"
+      "semantic-release"
     ]
   }
 }

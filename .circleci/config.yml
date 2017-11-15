@@ -1,0 +1,85 @@
+version: 2
+
+defaults: &defaults
+  working_directory: ~/hela
+  docker:
+    - image: circleci/node:8
+
+restore_modules_cache: &restore_modules_cache
+  restore_cache:
+    keys:
+    - hela-{{ checksum "yarn.lock" }}
+    # fallback to using the latest cache if no exact match is found
+    - hela-
+
+
+jobs:
+  install:
+    <<: *defaults
+    steps:
+      - checkout
+      - *restore_modules_cache
+      - run:
+          name: Installing Dependencies
+          command: yarn install
+      - save_cache:
+          key: hela-{{ checksum "yarn.lock" }}
+          paths: node_modules
+      - run:
+          name: Remove node_modules to cleanup workspace
+          command: rm -rf node_modules
+
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - *restore_modules_cache
+      - run:
+          name: Running tests and checks
+          command: yarn test
+      - run:
+          name: Sending test coverage to CodeCov
+          command: bash <(curl -s https://codecov.io/bash)
+
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - *restore_modules_cache
+      - run:
+          name: Creating distributable files
+          command: echo ok
+      - store_artifacts:
+          path: dist
+          destination: hela
+
+  publish:
+    <<: *defaults
+    steps:
+      - checkout
+      - *restore_modules_cache
+      - run:
+          name: Trying to deploy
+          command: yarn hela-self release
+
+workflows:
+  version: 2
+  automated:
+    jobs:
+      - install
+      - test:
+          requires:
+            - install
+      - build:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - publish:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+          context: org-global
