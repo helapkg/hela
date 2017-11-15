@@ -124,8 +124,8 @@ If task is a function, then it is passed with `({ parse, argv, taskName, hela, e
 
 ## CLI
 Install it as dev dependency of your project first, then you can use it just like
-you use `gulp`, for example `hela <taskName>`. In `tunnckocore` preset you can
-run tasks like the following, but go there for more deep docs.
+you use `gulp`, for example `hela <taskName>`. 
+With [hela-config-tunnckocore][] preset you can run tasks like the following, but go there for more deep docs.
 
 ```
 $ hela style
@@ -134,6 +134,32 @@ $ hela format
 $ hela commit
 $ hela release
 ```
+
+To start using some existing preset in your project add `.helarc` file in the root and set `extends` property to the name of the config (`hela-config-` prefix is assumed), for example:
+
+```yaml
+extends: tunnckocore
+```
+
+You also can override the tasks from the given preset, for example
+
+```yaml
+extends: tunnckocore
+tasks:
+  lint: echo foobar
+```
+
+And when running `hela lint` or `yarn hela lint` it will execute `echo foobar` instead of
+`eslint --fix`. Also note that you have access to the shell's environment variables.
+
+Try to run `hela show-cwd` somewhere
+
+```yaml
+tasks:
+  show-cwd: echo "Your working directory is $PWD"
+```
+
+Notice that you don't need any presets to work correctly.
 
 ## API
 Review carefully the provided examples and the working [tests](./test).
