@@ -61,6 +61,13 @@ function isValidTask (val) {
   return typeof val === 'string' || typeof val === 'function' || Array.isArray(val)
 }
 
+function factory (type, opts) {
+  return (cmds, options) => {
+    const cmd = { exec, shell }
+    return cmd[type](cmds, Object.assign({}, opts, options))
+  }
+}
+
 function taskReducer (opts, tasks) {
   return (acc, name) => {
     const task = tasks[name]
@@ -71,10 +78,10 @@ function taskReducer (opts, tasks) {
     if (typeof task === 'function') {
       const helpers = {
         hela,
-        exec,
-        shell,
-        helaExec: exec,
-        helaShell: shell,
+        exec: factory('exec', opts),
+        shell: factory('shell', opts),
+        helaExec: factory('exec', opts),
+        helaShell: factory('shell', opts),
       }
 
       const options = Object.assign({}, opts, helpers)
@@ -86,4 +93,8 @@ function taskReducer (opts, tasks) {
   }
 }
 
-module.exports = { hela, exec, shell }
+module.exports = {
+  hela,
+  exec: factory('exec'),
+  shell: factory('shell'),
+}
