@@ -68,7 +68,7 @@ async function hela (opts) {
  */
 
 async function exec (cmds, options) {
-  return factory('exec')(cmds, options)
+  return execa.exec(cmds, options)
 }
 
 /**
@@ -83,7 +83,7 @@ async function exec (cmds, options) {
  */
 
 async function shell (cmds, options) {
-  return factory('shell')(cmds, options)
+  return execa.shell(cmds, options)
 }
 
 /**
