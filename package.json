@@ -36,7 +36,7 @@
   "devDependencies": {
     "eslint": "4.11.0",
     "eslint-config-tunnckocore": "0.2.0",
-    "hela-config-tunnckocore": "2.2.6",
+    "hela-config-tunnckocore": "2.2.7",
     "mukla": "0.4.9"
   },
   "keywords": [
