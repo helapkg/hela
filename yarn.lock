@@ -825,9 +825,9 @@ eslint-config-airbnb@^16.0.0:
   dependencies:
     eslint-config-airbnb-base "^12.1.0"
 
-eslint-config-tunnckocore@0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-tunnckocore/-/eslint-config-tunnckocore-0.2.0.tgz#56c9ca0ddec1655fe0aa33d26fa8bce1316fc99d"
+eslint-config-tunnckocore@0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-tunnckocore/-/eslint-config-tunnckocore-0.3.0.tgz#222fec1182bc52dd8d92925921f07f61b068e6ce"
   dependencies:
     babel-eslint "^8.0.1"
     eslint-config-airbnb "^16.0.0"
