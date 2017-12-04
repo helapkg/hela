@@ -140,7 +140,7 @@ ansi-escapes@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/ansi-escapes/-/ansi-escapes-3.0.0.tgz#ec3e8b4e9f8064fc02c3ac9b65f1c275bda8ef92"
 
-ansi-regex@^2.0.0, ansi-regex@^2.1.1:
+ansi-regex@^2.0.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-2.1.1.tgz#c3b33ab5ee360d86e0e628f0468ae7ef27d654df"
 
@@ -152,7 +152,7 @@ ansi-styles@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-2.2.1.tgz#b432dd3358b634cf75e1e4664368240533c1ddbe"
 
-ansi-styles@^3.0.0, ansi-styles@^3.1.0, ansi-styles@^3.2.0:
+ansi-styles@^3.1.0, ansi-styles@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-3.2.0.tgz#c159b8d5be0f9e5a6f346dab94f16ce022161b88"
   dependencies:
@@ -1435,9 +1435,9 @@ hawk@~6.0.2:
     hoek "4.x.x"
     sntp "2.x.x"
 
-hela-config-tunnckocore@2.2.10:
-  version "2.2.10"
-  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.10.tgz#641a01f13a13a740aa45a472c5ae02a141f76278"
+hela-config-tunnckocore@2.2.12:
+  version "2.2.12"
+  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.12.tgz#a24d372f0bd2cf35e847a21d4ed2351c29f01283"
   dependencies:
     all-contributors-cli "4.10.0"
     gitcommit "0.2.4"
@@ -1445,8 +1445,8 @@ hela-config-tunnckocore@2.2.10:
     new-release "2.1.5"
     nyc "11.3.0"
     prettier "1.8.2"
-    prettier-eslint "8.2.2"
-    prettier-eslint-cli "4.4.1"
+    prettier-eslint "8.2.3"
+    prettier-eslint-cli "4.4.2"
     rimraf "2.6.2"
     semver "5.4.1"
 
@@ -2460,9 +2460,9 @@ preserve@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
 
-prettier-eslint-cli@4.4.1:
-  version "4.4.1"
-  resolved "https://registry.yarnpkg.com/prettier-eslint-cli/-/prettier-eslint-cli-4.4.1.tgz#092537af170f304aaa903bb8ab68de71b14a34e5"
+prettier-eslint-cli@4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/prettier-eslint-cli/-/prettier-eslint-cli-4.4.2.tgz#c72f5a3333a1022357474c36762d219378285a6a"
   dependencies:
     arrify "^1.0.1"
     babel-runtime "^6.23.0"
@@ -2483,23 +2483,7 @@ prettier-eslint-cli@4.4.1:
     rxjs "^5.3.0"
     yargs "10.0.3"
 
-prettier-eslint@8.2.2:
-  version "8.2.2"
-  resolved "https://registry.yarnpkg.com/prettier-eslint/-/prettier-eslint-8.2.2.tgz#b03c8794f844e863036163061ae14c2049bcff1a"
-  dependencies:
-    common-tags "^1.4.0"
-    dlv "^1.1.0"
-    eslint "^4.5.0"
-    indent-string "^3.2.0"
-    lodash.merge "^4.6.0"
-    loglevel-colored-level-prefix "^1.0.0"
-    prettier "^1.7.1"
-    pretty-format "^20.0.3"
-    require-relative "^0.8.7"
-    typescript "^2.5.1"
-    typescript-eslint-parser "^8.0.0"
-
-prettier-eslint@^8.0.0:
+prettier-eslint@8.2.3, prettier-eslint@^8.0.0:
   version "8.2.3"
   resolved "https://registry.yarnpkg.com/prettier-eslint/-/prettier-eslint-8.2.3.tgz#1e95788792fcac2f9219223795f9d95ce81fdf8e"
   dependencies:
@@ -2519,13 +2503,6 @@ prettier-eslint@^8.0.0:
 prettier@1.8.2, prettier@^1.7.1:
   version "1.8.2"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.8.2.tgz#bff83e7fd573933c607875e5ba3abbdffb96aeb8"
-
-pretty-format@^20.0.3:
-  version "20.0.3"
-  resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-20.0.3.tgz#020e350a560a1fe1a98dc3beb6ccffb386de8b14"
-  dependencies:
-    ansi-regex "^2.1.1"
-    ansi-styles "^3.0.0"
 
 pretty-format@^21.2.1:
   version "21.2.1"
