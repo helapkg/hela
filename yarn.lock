@@ -1435,16 +1435,16 @@ hawk@~6.0.2:
     hoek "4.x.x"
     sntp "2.x.x"
 
-hela-config-tunnckocore@2.2.15:
-  version "2.2.15"
-  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.15.tgz#bf268b071fbdab9e3cb9338429f06a304d806479"
+hela-config-tunnckocore@2.2.16:
+  version "2.2.16"
+  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.16.tgz#57b6daf6409773a15973e6462d817a921a90a027"
   dependencies:
     all-contributors-cli "4.10.0"
     gitcommit "0.2.4"
     is-ci "1.0.10"
     new-release "2.1.5"
     nyc "11.3.0"
-    prettier "1.9.0"
+    prettier "1.9.1"
     prettier-eslint "8.2.5"
     prettier-eslint-cli "4.4.2"
     rimraf "2.6.2"
@@ -2517,9 +2517,9 @@ prettier-eslint@^8.0.0:
     typescript "^2.5.1"
     typescript-eslint-parser "^8.0.0"
 
-prettier@1.9.0:
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.9.0.tgz#1a7205bdb6126b30cf8c0a7b2b86997162e1ee3e"
+prettier@1.9.1:
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.9.1.tgz#41638a0d47c1efbd1b7d5a742aaa5548eab86d70"
 
 prettier@^1.7.1:
   version "1.8.2"
