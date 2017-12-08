@@ -27,10 +27,11 @@ You may also read the [Contributing Guide](./CONTRIBUTING.md). There, beside _"H
 [![Node Version Required][nodeversion-img]][nodeversion-url] 
 [![Renovate App Status][renovate-img]][renovate-url]
 
+<!--
 <a target="_blank" rel="nofollow" href="https://app.codesponsor.io/link/K7yYzzA5nb2ZDR4GTKmgUdfe/tunnckoCore/hela">
   <img alt="Sponsor" width="888" height="68" src="https://app.codesponsor.io/embed/K7yYzzA5nb2ZDR4GTKmgUdfe/tunnckoCore/hela.svg" />
 </a>
-<p></p>
+<p></p>-->
 
 [![All Contributors Spec][all-contributors-img]](#contributors) 
 [![Make A Pull Request][prs-welcome-img]][prs-welcome-url] 
