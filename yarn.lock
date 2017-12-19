@@ -1392,9 +1392,9 @@ hawk@~6.0.2:
     hoek "4.x.x"
     sntp "2.x.x"
 
-hela-config-tunnckocore@2.2.23:
-  version "2.2.23"
-  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.23.tgz#2a02e93717f29f8d700b7e172b76d120347d4091"
+hela-config-tunnckocore@2.2.24:
+  version "2.2.24"
+  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.24.tgz#1e2da26a9929890872dfcadc96209cf632f34510"
   dependencies:
     all-contributors-cli "4.10.1"
     gitcommit "0.2.4"
@@ -1402,7 +1402,7 @@ hela-config-tunnckocore@2.2.23:
     new-release "2.1.5"
     nyc "11.3.0"
     prettier "1.9.2"
-    prettier-eslint "8.3.1"
+    prettier-eslint "8.4.0"
     prettier-eslint-cli "4.6.1"
     rimraf "2.6.2"
     semver "5.4.1"
@@ -2423,7 +2423,23 @@ prettier-eslint-cli@4.6.1:
     rxjs "^5.3.0"
     yargs "10.0.3"
 
-prettier-eslint@8.3.1, prettier-eslint@^8.3.0:
+prettier-eslint@8.4.0:
+  version "8.4.0"
+  resolved "https://registry.yarnpkg.com/prettier-eslint/-/prettier-eslint-8.4.0.tgz#ec947053f558833139f470e1bb7ea0722efc3d26"
+  dependencies:
+    common-tags "^1.4.0"
+    dlv "^1.1.0"
+    eslint "^4.5.0"
+    indent-string "^3.2.0"
+    lodash.merge "^4.6.0"
+    loglevel-colored-level-prefix "^1.0.0"
+    prettier "^1.9.0"
+    pretty-format "^22.0.3"
+    require-relative "^0.8.7"
+    typescript "^2.5.1"
+    typescript-eslint-parser "^11.0.0"
+
+prettier-eslint@^8.3.0:
   version "8.3.1"
   resolved "https://registry.yarnpkg.com/prettier-eslint/-/prettier-eslint-8.3.1.tgz#406f702b5a0790c3ced11942d54e5ff22d9bc984"
   dependencies:
@@ -2446,6 +2462,13 @@ prettier@1.9.2, prettier@^1.9.0:
 pretty-format@^21.2.1:
   version "21.2.1"
   resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-21.2.1.tgz#ae5407f3cf21066cd011aa1ba5fce7b6a2eddb36"
+  dependencies:
+    ansi-regex "^3.0.0"
+    ansi-styles "^3.2.0"
+
+pretty-format@^22.0.3:
+  version "22.0.3"
+  resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-22.0.3.tgz#a2bfa59fc33ad24aa4429981bb52524b41ba5dd7"
   dependencies:
     ansi-regex "^3.0.0"
     ansi-styles "^3.2.0"
@@ -3026,6 +3049,13 @@ type-check@~0.3.2:
 typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
+
+typescript-eslint-parser@^11.0.0:
+  version "11.0.0"
+  resolved "https://registry.yarnpkg.com/typescript-eslint-parser/-/typescript-eslint-parser-11.0.0.tgz#37dba6a0130dd307504aa4b4b21b0d3dc7d4e9f2"
+  dependencies:
+    lodash.unescape "4.0.1"
+    semver "5.4.1"
 
 typescript-eslint-parser@^8.0.0:
   version "8.0.1"
