@@ -1401,9 +1401,9 @@ hawk@~6.0.2:
     hoek "4.x.x"
     sntp "2.x.x"
 
-hela-config-tunnckocore@2.2.36:
-  version "2.2.36"
-  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.36.tgz#bbafa25027388a78b7645d5f9d40f622b4310e78"
+hela-config-tunnckocore@2.2.37:
+  version "2.2.37"
+  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.37.tgz#4342b8cd8d01713202e10e84ceed9d8feffb7c19"
   dependencies:
     all-contributors-cli "4.10.1"
     gitcommit "0.2.4"
@@ -1414,7 +1414,7 @@ hela-config-tunnckocore@2.2.36:
     prettier-eslint "8.7.4"
     prettier-eslint-cli "4.7.0"
     rimraf "2.6.2"
-    semver "5.4.1"
+    semver "5.5.0"
 
 hoek@4.x.x:
   version "4.2.0"
@@ -2742,6 +2742,10 @@ safe-buffer@^5.0.1, safe-buffer@^5.1.1, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
 "semver@2 || 3 || 4 || 5", semver@5.4.1, semver@^5.1.0, semver@^5.3.0:
   version "5.4.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.4.1.tgz#e059c09d8571f0540823733433505d3a2f00b18e"
+
+semver@5.5.0:
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-5.5.0.tgz#dc4bbc7a6ca9d916dee5d43516f0092b58f7b8ab"
 
 set-blocking@^2.0.0:
   version "2.0.0"
