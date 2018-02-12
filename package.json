@@ -34,7 +34,7 @@
     "resolve-plugins-sync": "1.1.4"
   },
   "devDependencies": {
-    "eslint": "4.16.0",
+    "eslint": "4.17.0",
     "eslint-config-tunnckocore": "0.3.0",
     "hela-config-tunnckocore": "2.2.41",
     "mukla": "0.4.9"
