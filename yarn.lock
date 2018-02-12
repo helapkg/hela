@@ -1462,9 +1462,9 @@ hawk@~6.0.2:
     hoek "4.x.x"
     sntp "2.x.x"
 
-hela-config-tunnckocore@2.2.41:
-  version "2.2.41"
-  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.41.tgz#cbb4387cd3935f4d4533a7bf51c0f0a9c884fc56"
+hela-config-tunnckocore@2.2.42:
+  version "2.2.42"
+  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.42.tgz#6de0c6aa9798013da87df579a689b3b875d8527b"
   dependencies:
     all-contributors-cli "4.10.1"
     gitcommit "0.2.4"
