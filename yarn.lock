@@ -544,6 +544,12 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
 
+collect-mentions@0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/collect-mentions/-/collect-mentions-0.1.1.tgz#5fbb3d9e5a0fa4b458a46900b93d1aabd2647fd2"
+  dependencies:
+    mentions-regex "2.0.3"
+
 color-convert@^1.9.0:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.1.tgz#c1261107aeb2f294ebffec9ed9ecad529a6097ed"
@@ -725,11 +731,11 @@ detect-indent@^4.0.0:
   dependencies:
     repeating "^2.0.0"
 
-detect-next-version@1.1.3:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/detect-next-version/-/detect-next-version-1.1.3.tgz#0230d64763b6cf14cc2d7aa90292f2ef43db8b27"
+detect-next-version@2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/detect-next-version/-/detect-next-version-2.0.2.tgz#22b56b98837aea0d350e787c43975be4a7e05eab"
   dependencies:
-    parse-commit-message "0.2.0"
+    parse-commit-message "1.1.2"
 
 dezalgo@^1.0.3:
   version "1.0.3"
@@ -1462,14 +1468,14 @@ hawk@~6.0.2:
     hoek "4.x.x"
     sntp "2.x.x"
 
-hela-config-tunnckocore@2.2.42:
-  version "2.2.42"
-  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.42.tgz#6de0c6aa9798013da87df579a689b3b875d8527b"
+hela-config-tunnckocore@2.2.44:
+  version "2.2.44"
+  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.44.tgz#2a27ccfb2666942195b010542979c7c2674c7d63"
   dependencies:
     all-contributors-cli "4.10.1"
     gitcommit "0.2.4"
     is-ci "1.1.0"
-    new-release "2.1.5"
+    new-release "4.0.1"
     nyc "11.4.1"
     prettier "1.10.2"
     prettier-eslint "8.8.1"
@@ -1611,12 +1617,6 @@ is-child-process@^1.0.0, is-child-process@^1.0.2:
   dependencies:
     is-node-emitter "^1.0.2"
     isarray "^1.0.0"
-
-is-ci@1.0.10:
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/is-ci/-/is-ci-1.0.10.tgz#f739336b2632365061a9d48270cd56ae3369318e"
-  dependencies:
-    ci-info "^1.0.0"
 
 is-ci@1.1.0:
   version "1.1.0"
@@ -2061,6 +2061,10 @@ mem@^1.1.0:
   dependencies:
     mimic-fn "^1.0.0"
 
+mentions-regex@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/mentions-regex/-/mentions-regex-2.0.3.tgz#442717a0048e53c2d2e2ae5e63a4e54a55ca9603"
+
 merge-source-map@^1.0.2:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/merge-source-map/-/merge-source-map-1.1.0.tgz#2fdde7e6020939f70906a68f2d7ae685e4c8c646"
@@ -2165,17 +2169,17 @@ natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
 
-new-release@2.1.5:
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/new-release/-/new-release-2.1.5.tgz#7cc3f2318973c49f89ffc63836ff05257d58d124"
+new-release@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/new-release/-/new-release-4.0.1.tgz#fcb653ad48827698d7d770fd07c216078a547bc5"
   dependencies:
-    detect-next-version "1.1.3"
+    detect-next-version "2.0.2"
     execa-pro "1.0.2"
-    is-ci "1.0.10"
+    is-ci "1.1.0"
     latest-version "3.1.0"
     minimist "1.2.0"
     parse-git-log "0.2.1"
-    semver "5.4.1"
+    semver "5.5.0"
 
 node-fetch@^1.0.1:
   version "1.7.3"
@@ -2366,9 +2370,12 @@ package-json@^4.0.0:
     registry-url "^3.0.3"
     semver "^5.1.0"
 
-parse-commit-message@0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/parse-commit-message/-/parse-commit-message-0.2.0.tgz#1a5fe358999ad7cd1f3f0e0135622342681ccce4"
+parse-commit-message@1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/parse-commit-message/-/parse-commit-message-1.1.2.tgz#95b6015bcb99a6efab5a8e208c95e59cce62f40d"
+  dependencies:
+    arrayify "1.0.0"
+    collect-mentions "0.1.1"
 
 parse-git-log@0.2.1:
   version "0.2.1"
