@@ -1468,9 +1468,9 @@ hawk@~6.0.2:
     hoek "4.x.x"
     sntp "2.x.x"
 
-hela-config-tunnckocore@2.2.44:
-  version "2.2.44"
-  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.44.tgz#2a27ccfb2666942195b010542979c7c2674c7d63"
+hela-config-tunnckocore@2.2.45:
+  version "2.2.45"
+  resolved "https://registry.yarnpkg.com/hela-config-tunnckocore/-/hela-config-tunnckocore-2.2.45.tgz#2010f62996714c520a14558531da50b9a9073f7a"
   dependencies:
     all-contributors-cli "4.10.1"
     gitcommit "0.2.4"
@@ -1479,7 +1479,7 @@ hela-config-tunnckocore@2.2.44:
     nyc "11.4.1"
     prettier "1.10.2"
     prettier-eslint "8.8.1"
-    prettier-eslint-cli "4.7.0"
+    prettier-eslint-cli "4.7.1"
     rimraf "2.6.2"
     semver "5.5.0"
 
@@ -2489,9 +2489,9 @@ preserve@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
 
-prettier-eslint-cli@4.7.0:
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/prettier-eslint-cli/-/prettier-eslint-cli-4.7.0.tgz#66421dd8e03ea67d6ba28d9e16b0de01559bc8ad"
+prettier-eslint-cli@4.7.1:
+  version "4.7.1"
+  resolved "https://registry.yarnpkg.com/prettier-eslint-cli/-/prettier-eslint-cli-4.7.1.tgz#3d103c494baa4e80b99ad53e2b9db7620101859f"
   dependencies:
     arrify "^1.0.1"
     babel-runtime "^6.23.0"
