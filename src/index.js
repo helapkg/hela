@@ -136,7 +136,7 @@ function taskReducer (opts, tasks) {
     const task = tasks[name]
 
     if (typeof task === 'string' || Array.isArray(task)) {
-      acc[name] = () => shell(task, opts)
+      acc[name] = async () => shell(task, opts)
     }
     if (typeof task === 'function') {
       const helpers = {
@@ -149,7 +149,7 @@ function taskReducer (opts, tasks) {
 
       const options = Object.assign({}, opts, helpers)
 
-      acc[name] = () => task(options)
+      acc[name] = async () => task(options)
     }
 
     return acc

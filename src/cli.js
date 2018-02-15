@@ -16,7 +16,7 @@ const { hela } = require('./index.js')
 const options = { cwd: process.cwd() }
 
 options.parse = (opts) => parser(process.argv.slice(2), opts)
-options.argv = options.parse()
+options.argv = Object.assign({ silent: true }, options.parse())
 
 const [taskName] = options.argv._
 options.taskName = taskName
@@ -32,33 +32,44 @@ const readJson = async (fp) => {
   return JSON.parse(pkgStr)
 }
 
-const onerror = (er) => {
-  // Don't show stack/message
-  // if it is `nyc check-coverage` command,
-  // because it is already show that threshold is not meet
-  const isNyc = er.message.indexOf('nyc') > 0
-  const isCov = er.message.indexOf('check-coverage') > 0
-  if (!isNyc && !isCov) {
-    console.error('ERR!', er.stack || er.message)
-    throw er
+// const slientSpecials = (er, name) => {
+//   // Don't show stack/message
+//   // if it is `nyc check-coverage` command,
+//   // because it is already show that threshold is not meet.
+//   // if it is `eslint` because it show the report
+//   const isEslint = er.message.includes('eslint')
+//   const isNyc = er.message.includes('nyc')
+//   const isCov = er.message.includes('check-coverage')
+
+//   if (!isNyc && !isCov && !isEslint) {
+//     console.error(`hela: task "${name}" failed`)
+//     console.error(er.stack || er.message)
+//   }
+// }
+
+async function run () {
+  const pkg = await readJson(path.join(options.cwd, 'package.json'))
+  const tasks = await hela({ pkg, ...options })
+  const name = options.taskName
+
+  if (Object.keys(tasks).length === 0) {
+    throw new Error('hela: no tasks')
   }
+
+  const hasOwn = (o, k) => Object.prototype.hasOwnProperty.call(o, k)
+  if (!hasOwn(tasks, name)) {
+    throw new Error(`hela: no such task -> ${name}`)
+  }
+
+  return tasks[name]()
 }
 
-readJson(path.join(options.cwd, 'package.json'))
-  .then((pkg) => {
-    options.pkg = pkg
-    return hela(options)
-  })
-  .then((tasks) => {
-    if (Object.keys(tasks).length === 0) {
-      throw new Error('hela: no tasks')
-    }
-    const hasOwn = (o, k) => Object.prototype.hasOwnProperty.call(o, k)
-    if (!hasOwn(tasks, options.taskName)) {
-      throw new Error(`hela: no such task -> ${options.taskName}`)
-    }
-    return tasks[options.taskName]()
-  })
-  .then(() => process.exit(0))
-  .catch(onerror)
-  .catch(() => process.exit(1))
+run().catch((er) => {
+  console.error('hela: task failed')
+
+  if (options.argv.silent === false) {
+    console.error(er.stack || er.message)
+  }
+
+  process.exit(er.code)
+})
