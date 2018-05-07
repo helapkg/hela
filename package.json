@@ -30,7 +30,7 @@
     "@tunnckocore/pretty-config": "0.5.1",
     "arrayify": "1.0.0",
     "execa-pro": "1.0.3",
-    "mri": "1.1.0",
+    "mri": "1.1.1",
     "resolve-plugins-sync": "1.1.4"
   },
   "devDependencies": {
