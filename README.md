@@ -20,7 +20,6 @@ You may also read the [Contributing Guide](./CONTRIBUTING.md). There, beside _"H
 [![Code Format Prettier][prettier-img]][prettier-url] 
 [![Node Security Status][nodesecurity-img]][nodesecurity-url] 
 [![Conventional Commits][ccommits-img]][ccommits-url] 
-[![Node Version Required][nodeversion-img]][nodeversion-url] 
 [![Renovate App Status][renovate-img]][renovate-url]
 
 <!--
@@ -278,8 +277,8 @@ _Project scaffolded and managed with [hela][]._
 [standard-url]: https://github.com/airbnb/javascript
 [standard-img]: https://img.shields.io/badge/code_style-airbnb-brightgreen.svg
 
-[circleci-url]: https://circleci.com/gh/tunnckoCore/hela/tree/master
-[circleci-img]: https://img.shields.io/circleci/project/github/tunnckoCore/hela/master.svg
+[circleci-url]: https://circleci.com/gh/olstenlarck/hela/tree/master
+[circleci-img]: https://img.shields.io/circleci/project/github/olstenlarck/hela/master.svg
 
 [codecov-url]: https://codecov.io/gh/tunnckoCore/hela
 [codecov-img]: https://img.shields.io/codecov/c/github/tunnckoCore/hela/master.svg
