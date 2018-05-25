@@ -12,27 +12,26 @@ _You might also be interested in [hela-config-tunnckocore][highlighted-link] or 
 [![Linux Build][circleci-img]][circleci-url] 
 [![Code Coverage][codecov-img]][codecov-url] 
 [![Dependencies Status][dependencies-img]][dependencies-url] 
+[![Renovate App Status][renovate-img]][renovate-url]
 
 If you have any _how-to_ kind of questions, please read [Code of Conduct](./CODE_OF_CONDUCT.md) and **join the chat** rooms or [open an issue][open-issue-url].  
 You may also read the [Contributing Guide](./CONTRIBUTING.md). There, beside _"How to contribute?"_, we describe everything **_stated_** by  the badges.
 
-[![tunnckoCore support][chat-img]][chat-url] 
 [![Code Format Prettier][prettier-img]][prettier-url] 
 [![Node Security Status][nodesecurity-img]][nodesecurity-url] 
 [![Conventional Commits][ccommits-img]][ccommits-url] 
-[![Renovate App Status][renovate-img]][renovate-url]
+[![NPM Downloads Monthly][downloads-monthly-img]][npmv-url] 
 
 <!--
 <a target="_blank" rel="nofollow" href="https://app.codesponsor.io/link/K7yYzzA5nb2ZDR4GTKmgUdfe/tunnckoCore/hela">
   <img alt="Sponsor" width="888" height="68" src="https://app.codesponsor.io/embed/K7yYzzA5nb2ZDR4GTKmgUdfe/tunnckoCore/hela.svg" />
 </a>
-<p></p>-->
+<p></p>
 
 [![All Contributors Spec][all-contributors-img]](#contributors) 
 [![Make A Pull Request][prs-welcome-img]][prs-welcome-url] 
 [![NPM Downloads Weekly][downloads-weekly-img]][npmv-url] 
-[![NPM Downloads Monthly][downloads-monthly-img]][npmv-url] 
-[![NPM Downloads Total][downloads-total-img]][npmv-url] 
+[![NPM Downloads Total][downloads-total-img]][npmv-url] -->
 
 ## Table of Contents
 - [Install](#install)
