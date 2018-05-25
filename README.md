@@ -8,12 +8,9 @@ _You might also be interested in [hela-config-tunnckocore][highlighted-link] or 
 
 ## Quality Assurance :100:
 
-[![bitHound Code][bithound-code-img]][bithound-code-url] 
 [![Code Style Standard][standard-img]][standard-url] 
 [![Linux Build][circleci-img]][circleci-url] 
 [![Code Coverage][codecov-img]][codecov-url] 
-[![bitHound Score][bithound-score-img]][bithound-score-url] 
-[![bitHound Deps][bithound-deps-img]][bithound-deps-url] 
 [![Dependencies Status][dependencies-img]][dependencies-url] 
 
 If you have any _how-to_ kind of questions, please read [Code of Conduct](./CODE_OF_CONDUCT.md) and **join the chat** rooms or [open an issue][open-issue-url].  
@@ -23,7 +20,6 @@ You may also read the [Contributing Guide](./CONTRIBUTING.md). There, beside _"H
 [![Code Format Prettier][prettier-img]][prettier-url] 
 [![Node Security Status][nodesecurity-img]][nodesecurity-url] 
 [![Conventional Commits][ccommits-img]][ccommits-url] 
-[![Make A Pull Request][prs-welcome-img]][prs-welcome-url] 
 [![Node Version Required][nodeversion-img]][nodeversion-url] 
 [![Renovate App Status][renovate-img]][renovate-url]
 
@@ -35,9 +31,6 @@ You may also read the [Contributing Guide](./CONTRIBUTING.md). There, beside _"H
 
 [![All Contributors Spec][all-contributors-img]](#contributors) 
 [![Make A Pull Request][prs-welcome-img]][prs-welcome-url] 
-[![Newsletter Subscribe][tinyletter-img]][tinyletter-url] 
-[![PayPal Author Support][paypal-donate-img]][paypal-donate-url] 
-[![Share Love Tweet][share-love-img]][share-love-url] 
 [![NPM Downloads Weekly][downloads-weekly-img]][npmv-url] 
 [![NPM Downloads Monthly][downloads-monthly-img]][npmv-url] 
 [![NPM Downloads Total][downloads-total-img]][npmv-url] 
