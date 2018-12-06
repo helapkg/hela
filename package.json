@@ -1,6 +1,6 @@
 {
   "name": "koa-better-body",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "Full-featured [koa][] body parser! Support parsing text, buffer, json, json patch, json api, csp-report, multipart, form and urlencoded bodies. Works for koa@1, koa@2 and will work for koa@3.",
   "repository": "tunnckoCore/koa-better-body",
   "author": "Charlike Mike Reagent <@tunnckoCore> (http://www.tunnckocore.tk)",
@@ -21,7 +21,7 @@
   "dependencies": {
     "extend-shallow": "3.0.2",
     "formidable": "1.2.1",
-    "koa-body-parsers": "git+https://github.com/tunnckoCore/body-parsers.git"
+    "koa-body-parsers": "3.0.0"
   },
   "devDependencies": {
     "commitizen": "3.0.5",
