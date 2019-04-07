@@ -1,29 +1,35 @@
 'use strict'
 
-var app = require('koa')()
-var body = require('./index')
-var router = require('koa-router')()
+const Koa = require('koa')
+const Router = require('koa-router')
+const convert = require('koa-convert')
+const body = require('./index')
 
-router.post('/upload', body(), function * (next) {
-  console.log(this.request.files)
-  console.log(this.request.fields)
+const app = new Koa()
+const router = new Router()
+
+router.use(convert(body()))
+
+router.post('/upload', async (ctx, next) => {
+  console.log(ctx.request.files)
+  console.log(ctx.request.fields)
 
   // there's no `.body` when `multipart`,
   // `urlencoded` or `json` request
-  console.log(this.request.body)
+  console.log(ctx.request.body)
 
   // print it to the API requester
-  this.body = JSON.stringify(
+  ctx.body = JSON.stringify(
     {
-      fields: this.request.fields,
-      files: this.request.files,
-      body: this.request.body || null
+      fields: ctx.request.fields,
+      files: ctx.request.files,
+      body: ctx.request.body || null
     },
     null,
     2
   )
 
-  yield next
+  await next
 })
 
 app.use(router.routes())
