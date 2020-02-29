@@ -35,6 +35,14 @@ class Yaro {
       ...options,
     };
 
+    if (
+      hasOwn(this.settings, 'defaultsToHelp') &&
+      this.settings.singleMode === true
+    ) {
+      this.settings.defaultsToHelp = false;
+      this.settings.defaultCommand = '$$root';
+    }
+
     this.programName = progName;
     this.commands = new Map();
     this.flags = new Map();
@@ -46,7 +54,7 @@ class Yaro {
   }
 
   command(rawName, description, config) {
-    if (this.settings.singleMode === true) {
+    if (this.settings.singleMode === true && !config.singleMode) {
       throw new Error('in single mode cannot add commands');
     }
 
@@ -113,12 +121,15 @@ class Yaro {
   }
 
   action(handler) {
-    const fn = (...args) => handler(...args);
+    const fn = (...args) => handler.apply(this, args);
 
+    if (!this.currentCommand && this.settings.singleMode === true) {
+      this.command('$$root', 'On single mode', { singleMode: true });
+    }
     this.currentCommand.handler = fn;
     this.__updateCommandsList();
 
-    return Object.assign(fn, this);
+    return this.settings.singleMode === true ? this : Object.assign(fn, this);
   }
 
   extendWith(inst) {
@@ -176,7 +187,7 @@ class Yaro {
     const sections = this.buildHelpOutput(commandName);
 
     if (typeof this.settings.helpHandler === 'function') {
-      this.settings.helpHandler(sections);
+      this.settings.helpHandler.call(this, sections);
       return this;
     }
 
@@ -190,7 +201,9 @@ class Yaro {
 
   buildHelpOutput(commandName) {
     const sections = [];
-    const commands = [...this.commands.values()];
+    const commands = [...this.commands.values()].filter(
+      (x) => x.commandName !== '$$root',
+    );
 
     // it's general help, so include commands
     if (!commandName) {
@@ -202,16 +215,18 @@ class Yaro {
         }`,
       });
 
-      sections.push(this.createSection('Commands', commands));
+      if (commands.length > 0) {
+        sections.push(this.createSection('Commands', commands));
 
-      sections.push({
-        title: `For more info, run any command with the \`--help\` flag`,
-        body: commands
-          .slice(0, 2)
-          .map((cmd) => `  $ ${this.programName} ${cmd.commandName} --help`)
-          .filter(Boolean)
-          .join('\n'),
-      });
+        sections.push({
+          title: `For more info, run any command with the \`--help\` flag`,
+          body: commands
+            .slice(0, 2)
+            .map((cmd) => `  $ ${this.programName} ${cmd.commandName} --help`)
+            .filter(Boolean)
+            .join('\n'),
+        });
+      }
     } else {
       const command = this.commands.get(commandName);
       sections.push({
@@ -246,7 +261,7 @@ class Yaro {
               ? example
               : (progName) => `  $ ${progName} ${example}`,
           )
-          .map((exampleFn) => exampleFn(this.programName))
+          .map((exampleFn) => exampleFn.call(this, this.programName))
           .join('\n'),
       });
     }
@@ -255,6 +270,12 @@ class Yaro {
   }
 
   parse(argv = processArgv, options = {}) {
+    // NOTE: it's in a single command mode but does not have `.action` defined,
+    // so we create noop one o uccessfully continue
+    if (!this.currentCommand && this.settings.singleMode === true) {
+      this.action(() => {});
+    }
+
     this.settings = { ...this.settings, options };
     this.result = this.__getResult(argv.slice(2));
 
@@ -297,7 +318,10 @@ class Yaro {
       return res;
     }
 
-    command.handler(...this.result.args.concat(this.result.flags, res));
+    command.handler.apply(
+      this,
+      this.result.args.concat(this.result.flags, res),
+    );
     return res;
   }
 
@@ -382,13 +406,20 @@ class Yaro {
 
   createSection(title, arr) {
     const longestName = findLongest(arr.map((x) => x.rawName || x));
+    const longestDesc = findLongest(arr.map((x) => x.description || x));
     return {
       title,
       body: arr
-        .map(
-          (x) =>
-            `  ${padRight(x.rawName, longestName.length)}  ${x.description}`,
-        )
+        .map((x) => {
+          const def =
+            title === 'Flags' && x.config
+              ? ` (default: ${JSON.stringify(x.config.default)})`
+              : '';
+          const name = padRight(x.rawName, longestName.length);
+          const desc = padRight(x.description, longestDesc.length);
+
+          return `  ${name}  ${desc} ${def}`;
+        })
         .join('\n'),
     };
   }
@@ -398,9 +429,10 @@ class Yaro {
     const flag = {
       rawName,
       description,
-      config: { ...config },
     };
+
     if (config !== undefined) {
+      flag.config = flag.config || {};
       flag.config.default = config;
     }
 

@@ -20,6 +20,11 @@
   "files": [
     "src"
   ],
+  "bin": {
+    "eslint": "src/bin.js",
+    "eslint-cli": "src/bin.js",
+    "hela-eslint": "src/bin.js"
+  },
   "engines": {
     "node": ">= 10.13"
   },
@@ -35,5 +40,10 @@
     "development",
     "developer-experience",
     "dx"
-  ]
+  ],
+  "dependencies": {
+    "@hela/core": "^3.0.1",
+    "eslint": "^6.8.0",
+    "glob-cache": "^0.3.5"
+  }
 }
