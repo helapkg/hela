@@ -19,7 +19,7 @@ const argv = utils.parseArgv(process.argv.slice(2), {
 });
 
 const explorer = cosmiconfig('hela');
-const prog = hela();
+const prog = hela({ argv });
 
 prog
   .option('--cwd', 'some global flag', argv.cwd)
@@ -91,50 +91,3 @@ function isValidConfig(val) {
 function isObject(val) {
   return val && typeof val === 'object' && Array.isArray(val) === false;
 }
-
-// async function getConfig(name, { cwd } = {}) {
-//   let cfg = await getPkg(cwd);
-
-//   // ! suppport ESM config files, and/or the freaking .mjs
-//   // ! in some wa without the `esm` package,
-//   // ! because I assume that `hela` bundle will be even more huge
-//   // ! it's freaking that Hela is 3x bigger than the whole Deno (~10mb)!
-//   const jsConfigFiles = ['hela.config.js', '.helarc.js'];
-
-//   if (!cfg) {
-//     const filepath = jsConfigFiles
-//       .map((x) => path.join(cwd, x))
-//       .find((fp) => (fs.existsSync(fp) ? fp : false));
-
-//     let config = null;
-
-//     try {
-//       config = require(filepath);
-//     } catch (err) {
-//       if (process.argv.includes('--verbose')) {
-//         log('[error] hela: while loading config!', err.message || err);
-//       }
-//       config = null;
-//     }
-
-//     cfg = { config, filepath };
-//   }
-
-//   return cfg;
-// }
-
-// async function getPkg(cwd) {
-//   let pkg = null;
-//   const filepath = path.join(cwd, 'package.json');
-
-//   try {
-//     pkg = JSON.parse(await fs.promises.readFile(filepath, 'utf8'));
-//   } catch (err) {
-//     if (process.argv.includes('--verbose')) {
-//       log('[error] hela: while loading config!', err.message || err);
-//     }
-//     return null;
-//   }
-
-//   return pkg.hela ? { config: pkg.hela, filepath } : null;
-// }

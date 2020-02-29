@@ -28,7 +28,7 @@ class Yaro {
     const progName = typeof programName === 'string' ? programName : 'cli';
 
     this.settings = {
-      cwd,
+      cwd: cwd(),
       version: '0.0.0',
       singleMode: false,
       allowUnknownFlags: false,
@@ -269,6 +269,7 @@ class Yaro {
     return sections;
   }
 
+  // eslint-disable-next-line max-statements
   parse(argv = processArgv, options = {}) {
     // NOTE: it's in a single command mode but does not have `.action` defined,
     // so we create noop one o uccessfully continue
@@ -276,7 +277,7 @@ class Yaro {
       this.action(() => {});
     }
 
-    this.settings = { ...this.settings, options };
+    this.settings = { ...this.settings, ...options };
     this.result = this.__getResult(argv.slice(2));
 
     if (this.settings.superLazy) {
@@ -302,7 +303,7 @@ class Yaro {
         // if (hasOwn(res.flags, flagName)) {
         //   res.flags[flagName] =
         // }
-        if (hasOwn(flag.config, 'default')) {
+        if (hasOwn(flag.config || {}, 'default')) {
           res.flags[flagName] = flag.config.default;
         }
       });
@@ -317,6 +318,12 @@ class Yaro {
     if (this.settings.lazy) {
       return res;
     }
+    // eslint-disable-next-line no-multi-assign
+    res.flags = this.result.flags = {
+      ...this.result.flags,
+      ...this.result.helaSettings.argv,
+      cwd: this.settings.cwd,
+    };
 
     command.handler.apply(
       this,
@@ -546,6 +553,7 @@ class Yaro {
       parsedArgv,
       rawArgs,
       flags,
+      helaSettings: this.settings,
     };
 
     if (idx > -1 && this.settings['--']) {
