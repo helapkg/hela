@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 3.1.0 (2020-02-29)
+
+
+### Features
+
+* upgrades ([edd33d5](https://github.com/tunnckoCore/hela/commit/edd33d5339b44357be4c6b8c9c1561f181f5cd9a))
+
+
+
+
+
 ## [3.0.1](https://github.com/tunnckoCore/hela/compare/@hela/eslint@3.0.0...@hela/eslint@3.0.1) (2020-02-29)
 
 

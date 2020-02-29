@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 3.1.0 (2020-02-29)
+
+
+### Bug Fixes
+
+* yaro typos; support passing options.argv ([cec6bc5](https://github.com/tunnckoCore/hela/commit/cec6bc522a7a85018631bccb28c4b29ef6aa9e1b))
+
+
+### Features
+
+* upgrades ([edd33d5](https://github.com/tunnckoCore/hela/commit/edd33d5339b44357be4c6b8c9c1561f181f5cd9a))
+
+
+
+
+
 ## [3.0.1](https://github.com/tunnckoCore/hela/compare/@hela/cli@3.0.0...@hela/cli@3.0.1) (2020-02-29)
 
 

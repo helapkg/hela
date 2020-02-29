@@ -1,6 +1,6 @@
 {
   "name": "@hela/eslint",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "licenseStart": 2018,
   "license": "MPL-2.0",
   "description": "WIP: Powerful software development experience",
@@ -42,7 +42,7 @@
     "dx"
   ],
   "dependencies": {
-    "@hela/core": "^3.0.1",
+    "@hela/core": "^3.1.0",
     "eslint": "^6.8.0",
     "glob-cache": "^0.3.5"
   }

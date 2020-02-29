@@ -1,6 +1,6 @@
 {
   "name": "hela",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "licenseStart": 2018,
   "license": "MPL-2.0",
   "description": "WIP: Powerful software development experience",
@@ -33,8 +33,8 @@
   },
   "scripts": {},
   "dependencies": {
-    "@hela/cli": "*",
-    "@hela/core": "*"
+    "@hela/cli": "^3.1.0",
+    "@hela/core": "^3.1.0"
   },
   "keywords": [
     "tunnckocorehq",
