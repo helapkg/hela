@@ -3,6 +3,7 @@
 .*cache
 *.cache
 
+!commands/build
 .yarn/unplugged
 .yarn/build-state.yml
 
