@@ -49,6 +49,10 @@ class HelaError extends Error {
 
 class Hela extends Yaro {
   constructor(progName = 'hela', options) {
+    if (progName && typeof progName === 'object') {
+      options = progName; // eslint-disable-line no-param-reassign
+      progName = 'hela'; // eslint-disable-line no-param-reassign
+    }
     super(progName, {
       defaultsToHelp: true,
       allowUnknownFlags: true,

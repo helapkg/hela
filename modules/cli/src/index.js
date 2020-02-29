@@ -4,40 +4,50 @@
 
 'use strict';
 
-const fs = require('fs');
 const path = require('path');
-const { hela, HelaError } = require('@hela/core');
-
-const CWD = process.cwd();
+const { hela, HelaError, utils } = require('@hela/core');
+const { cosmiconfig } = require('cosmiconfig');
 
 const { log } = console;
 
+const argv = utils.parseArgv(process.argv.slice(2), {
+  default: {
+    cwd: process.cwd(),
+    showStack: false,
+    verbose: false,
+  },
+});
+
+const explorer = cosmiconfig('hela');
 const prog = hela();
 
 prog
-  .option('--cwd', 'some global flag')
-  .option('--showStack', 'Show more detailed info when errors', false);
+  .option('--cwd', 'some global flag', argv.cwd)
+  .option('--verbose', 'Print more verbose output', false)
+  .option('--showStack', 'Show more detailed info when errors', false)
+  .option('-c, --config', 'Path to config file', 'hela.config.js');
 
 module.exports = async function main() {
-  const cfg = await getConfig('hela', { cwd: CWD });
+  const cfgPath = argv.c || argv.config;
+  const cfg = cfgPath ? await explorer.load(cfgPath) : await explorer.search();
 
-  if (!cfg || (cfg && !cfg.config)) {
-    throw new HelaError('No config or preset found');
+  if (!isValidConfig(cfg)) {
+    throw new HelaError('No config found or invalid. Try "--config" flag.');
+  }
+  if (argv.verbose) {
+    log('[info] hela: Loading ->', path.relative(argv.cwd, cfg.filepath));
   }
 
-  const config = cfg.filepath.endsWith('.json')
-    ? fromJson(cfg.config)
-    : cfg.config;
-
-  if (process.argv.includes('--verbose')) {
-    log('[info] hela: Loading config ->', path.relative(CWD, cfg.filepath));
+  let bypass = false;
+  if (cfg.filepath.endsWith('package.json')) {
+    const pkg = require(cfg.filepath);
+    cfg.config = fromJson(pkg.hela);
+    bypass = true;
   }
 
-  if (!isValidConfig(config)) {
-    throw new HelaError('No config found or invalid');
+  if (bypass || cfg.filepath.endsWith('.js') || cfg.filepath.endsWith('.cjs')) {
+    prog.extendWith(cfg.config);
   }
-
-  prog.extendWith(config);
 
   return prog.parse();
 };
@@ -50,14 +60,9 @@ function fromJson(config) {
       );
     }
 
-    return require(path.join(CWD, config));
+    return require(path.join(argv.cwd, config));
   }
 
-  // config.extends / pkg.hela.extends
-  // TODOs:
-  // should try to load config package (like `@hela/dev`) up to homedir,
-  // and check if it is globally installed.
-  // hint: detect-installed, get-installed-path, find-up and etc
   if (config && typeof config === 'object') {
     if (config.cwd) {
       if (!config.extends) {
@@ -87,49 +92,49 @@ function isObject(val) {
   return val && typeof val === 'object' && Array.isArray(val) === false;
 }
 
-async function getConfig(name, { cwd } = {}) {
-  let cfg = await getPkg(cwd);
+// async function getConfig(name, { cwd } = {}) {
+//   let cfg = await getPkg(cwd);
 
-  // ! suppport ESM config files, and/or the freaking .mjs
-  // ! in some wa without the `esm` package,
-  // ! because I assume that `hela` bundle will be even more huge
-  // ! it's freaking that Hela is 3x bigger than the whole Deno (~10mb)!
-  const jsConfigFiles = ['hela.config.js', '.helarc.js'];
+//   // ! suppport ESM config files, and/or the freaking .mjs
+//   // ! in some wa without the `esm` package,
+//   // ! because I assume that `hela` bundle will be even more huge
+//   // ! it's freaking that Hela is 3x bigger than the whole Deno (~10mb)!
+//   const jsConfigFiles = ['hela.config.js', '.helarc.js'];
 
-  if (!cfg) {
-    const filepath = jsConfigFiles
-      .map((x) => path.join(cwd, x))
-      .find((fp) => (fs.existsSync(fp) ? fp : false));
+//   if (!cfg) {
+//     const filepath = jsConfigFiles
+//       .map((x) => path.join(cwd, x))
+//       .find((fp) => (fs.existsSync(fp) ? fp : false));
 
-    let config = null;
+//     let config = null;
 
-    try {
-      config = require(filepath);
-    } catch (err) {
-      if (process.argv.includes('--verbose')) {
-        log('[error] hela: while loading config!', err.message || err);
-      }
-      config = null;
-    }
+//     try {
+//       config = require(filepath);
+//     } catch (err) {
+//       if (process.argv.includes('--verbose')) {
+//         log('[error] hela: while loading config!', err.message || err);
+//       }
+//       config = null;
+//     }
 
-    cfg = { config, filepath };
-  }
+//     cfg = { config, filepath };
+//   }
 
-  return cfg;
-}
+//   return cfg;
+// }
 
-async function getPkg(cwd) {
-  let pkg = null;
-  const filepath = path.join(cwd, 'package.json');
+// async function getPkg(cwd) {
+//   let pkg = null;
+//   const filepath = path.join(cwd, 'package.json');
 
-  try {
-    pkg = JSON.parse(await fs.promises.readFile(filepath, 'utf8'));
-  } catch (err) {
-    if (process.argv.includes('--verbose')) {
-      log('[error] hela: while loading config!', err.message || err);
-    }
-    return null;
-  }
+//   try {
+//     pkg = JSON.parse(await fs.promises.readFile(filepath, 'utf8'));
+//   } catch (err) {
+//     if (process.argv.includes('--verbose')) {
+//       log('[error] hela: while loading config!', err.message || err);
+//     }
+//     return null;
+//   }
 
-  return pkg.hela ? { config: pkg.hela, filepath } : null;
-}
+//   return pkg.hela ? { config: pkg.hela, filepath } : null;
+// }
