@@ -79,10 +79,9 @@ We love testing and use best in class tools and practices.
 - During the code-review process, if you see logic that's complicated and lacks
   a test, politely ask the contributor for a test.
 - Tests should not contain user-data: anonymize email addresses, usernames, etc.
-- High test coverage is a great way to make sure your codebase well-tested and
-  stable.
-- Any new functionality should come with a test to verify that it does what we
-  think it does.
+- High test coverage is a great way to make sure your codebase is stable.
+- Anything new should come with a test to verify that it does what we think it
+  does.
 - Any bug fix should always come with a test so that we don't have to encounter
   the same bug multiple times.
 
@@ -102,7 +101,7 @@ life-cycle:
 ### Changes
 
 This is a living document and may be updated from time to time. Please refer to
-the [git history](./commits/master/.github/SECURITY.md) for this document to
+the [git history](https://github.com/tunnckoCore/hela/commits/master/.github/SECURITY.md) for this document to
 view the changes.
 
 ### License
