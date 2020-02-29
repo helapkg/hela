@@ -1,0 +1,7 @@
+CHANGELOG.md
+
+# Build environment
+dist
+
+!*.*js
+!*.*ts
