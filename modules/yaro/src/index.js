@@ -53,6 +53,18 @@ class Yaro {
     this.option('-v, --version', 'Display version');
   }
 
+  // NOTE: use only when single command mode to define like `my-cmd [...files]`
+  // it is later use in `.command` (which in the case of singleMode is called from `.action`)
+  // instead of the `rawName`.
+  usage(str) {
+    // for now only in single command mode
+    if (this.settings.singleMode) {
+      this._usg = str ? str.trim() : '';
+    }
+
+    return this;
+  }
+
   command(rawName, description, config) {
     if (this.settings.singleMode === true && !config.singleMode) {
       throw new Error('in single mode cannot add commands');
@@ -124,7 +136,9 @@ class Yaro {
     const fn = (...args) => handler.apply(this, args);
 
     if (!this.currentCommand && this.settings.singleMode === true) {
-      this.command('$$root', 'On single mode', { singleMode: true });
+      const cmd = this._usg ? ` ${this._usg}` : '';
+
+      this.command(`$$root${cmd}`, 'On single mode', { singleMode: true });
     }
     this.currentCommand.handler = fn;
     this.__updateCommandsList();
@@ -208,10 +222,11 @@ class Yaro {
     // it's general help, so include commands
     if (!commandName) {
       const cmdStr = this.settings.defaultCommand ? ' [command]' : ' <command>';
+      const usg = this.settings.singleMode ? `${this._usg} ` : '';
       sections.push({
         title: 'Usage',
         body: `  $ ${this.programName}${commands.length > 0 ? cmdStr : ''} ${
-          this.flags.size > 0 ? '[options]' : ''
+          this.flags.size > 0 ? `${usg}[options]` : ''
         }`,
       });
 
@@ -536,13 +551,16 @@ class Yaro {
     });
 
     const parsedArgv = { ...parsed };
-    const rawArgs = parsed._;
+    const rawArgs = parsed._.slice();
     delete parsed._;
 
     const flags = { ...parsed };
 
-    const cmdName = rawArgs.slice(0, 1)[0];
-    const args = rawArgs.slice(1);
+    const cmdName = this.settings.singleMode
+      ? '$$root'
+      : rawArgs.slice(0, 1)[0];
+
+    const args = this.settings.singleMode ? rawArgs : rawArgs.slice(1);
     const idx = args.findIndex((x) => x === '--');
     const argsBefore = args.slice(0, idx - 1);
     const argsAfter = args.slice(idx - 1);

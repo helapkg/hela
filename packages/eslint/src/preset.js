@@ -1,1 +1,1 @@
-exports.eslint = require('./index').helaCommand;
+exports.eslint = require('./index').helaCommand();

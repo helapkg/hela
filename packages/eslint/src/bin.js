@@ -3,4 +3,6 @@
 const { hela } = require('@hela/core');
 const { wrapper } = require('./index');
 
-wrapper(hela('eslint', { singleMode: true, argv: { _selfBin: true } })).parse();
+const prog = wrapper(hela('eslint', { singleMode: true }).usage('[...files]'));
+
+prog.parse();
