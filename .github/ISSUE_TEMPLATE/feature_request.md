@@ -19,16 +19,11 @@ assignees: ''
 #### Support plan
 
 <!--
-We are here to help!
+  We are here to help!
 
-You do not need to pay to receive support. The free Community support plan is,
-by its nature, limited to community members available to help.
-Most community support issues are resolved within 2 weeks.
-
-Before submitting an issue, please review the various support plans available
-at https://hapi.dev/support/. That page includes useful information about
-faster and free channels to ask questions,
-as well as priority support options to meet your needs.
+  You do not need to pay to receive support. The free Community support plan is,
+  by its nature, limited to community members available to help.
+  Most community support issues are resolved within 2 weeks.
 -->
 
 - _which support plan is this issue covered by?_ (e.g. Community, Sponsor, or
@@ -47,7 +42,11 @@ as well as priority support options to meet your needs.
 #### What problem are you trying to solve?
 
 <!--
-Describe your issue in detail, including use cases, examples, and alternative solutions you have already tried. Make sure to wrap all code examples in backticks so that they display correctly. Before submitting an issue, make sure to click on the Preview tab above to verify everything is formatted correctly.
+  Describe your issue in detail, including use cases, examples, and alternative
+  solutions you have already tried. Make sure to wrap all code examples
+  in backticks so that they display correctly. Before submitting an issue,
+  make sure to click on the Preview tab above to verify everything
+  is formatted correctly.
 -->
 
 ```js
