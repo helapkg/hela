@@ -1,16 +1,35 @@
-*.tsbuildinfo
-.cache
-.*cache
-*.cache
-
-!commands/build
-presets/dev/src/configs/*/config.js
-
-.yarn/unplugged
-.yarn/build-state.yml
-
-# Build environment
+**/CHANGELOG.md
 dist
+**/*fixture*/**
+.gitkeep
+*.map
+*.lock
+.npmrc
+.yarnrc
+*.js.snap
+coverage
+*.*ignore
+.editorconfig
+*.ico
+*.png
+*.svg
+*.jpeg
+*.jpg
+.now
+
+# !*.*js*
+# !*.*ts*
+# !*.*md*
+
+@packages/function-arguments
+
+# .*
+# !.verb*.md
+patches
+**/static/**/*.css
+
+*.tsbuildinfo
+*.*cache
 
 # Package managers lockfiles
 package-lock.json
@@ -32,7 +51,7 @@ pids
 lib-cov
 
 # Coverage directory used by tools like istanbul
-/coverage
+coverage
 
 # nyc test coverage
 .nyc_output
