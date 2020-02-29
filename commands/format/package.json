@@ -1,6 +1,6 @@
 {
   "name": "@hela/format",
-  "version": "3.0.0-canary.20200229.1",
+  "version": "3.0.0",
   "licenseStart": 2018,
   "license": "MPL-2.0",
   "description": "WIP: Powerful software development experience",
@@ -28,7 +28,6 @@
     "tag": "latest"
   },
   "scripts": {},
-  "dependencies": {},
   "keywords": [
     "tunnckocorehq",
     "tunnckocore-oss",
