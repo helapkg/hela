@@ -1,6 +1,9 @@
 'use strict';
 
-const path = require('path');
+const fsasas = 1;
+// console.log(fsasas);
+
+// const path = require('path');
 const arrayify = require('arrify');
 const { CLIEngine } = require('eslint');
 
@@ -32,8 +35,17 @@ const DEFAULT_OPTIONS = {
 function normalizeOptions(options) {
   const forcedOptions = {
     fix: true,
-    cache: true,
-    cacheLocation: path.join(process.cwd(), '.cache/eslintcache-file'),
+    baseConfig: {
+      extends: [
+        '@tunnckocore/eslint-config',
+        '@tunnckocore/eslint-config/mdx',
+        '@tunnckocore/eslint-config/jest',
+        '@tunnckocore/eslint-config/node',
+        '@tunnckocore/eslint-config/promise',
+        '@tunnckocore/eslint-config/unicorn',
+      ],
+    },
+    useEslintrc: false,
   };
   const opts = { ...DEFAULT_OPTIONS, ...options, ...forcedOptions };
 
