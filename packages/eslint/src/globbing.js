@@ -20,25 +20,26 @@ const { toReadable } = require('stream-iterators-utils');
 const serialize = require('serialize-javascript');
 const { cosmiconfig } = require('cosmiconfig');
 
-module.exports = async function* globChanged(options) {
+async function* globChanged(options) {
   const { include, globOptions, ...opts } = options;
   const cfg = { cacheLocation: './.cache/globbing', hooks: {}, ...opts };
 
   const {
+    always = () => {},
     changed = () => {},
     notChanged = () => {},
     found = () => {},
-    notFound = async (file) => {
-      await cacache.put(opts.cacheLocation, file.path, file.contents);
+    notFound = async ({ file }) => {
+      await cacache.put(cfg.cacheLocation, file.path, file.contents);
     },
-  } = opts.hooks;
+  } = cfg.hooks;
 
   const config = {
     ...globOptions,
     unique: true,
     absolute: true,
     objectMode: true,
-    ignore: opts.exclude,
+    ignore: cfg.exclude,
   };
 
   // const argsContents = JSON.stringify({ patterns, config });
@@ -55,36 +56,44 @@ module.exports = async function* globChanged(options) {
   for await (const data of globStream) {
     const contents = await util.promisify(fs.readFile)(data.path);
     const integrity = integrityFromContents(contents);
-    const info = await cacache.get.info(opts.cacheLocation, data.path);
-    const hash = await cacache.get.hasContent(opts.cacheLocation, integrity);
+    const info = await cacache.get.info(cfg.cacheLocation, data.path);
+    const hash = await cacache.get.hasContent(cfg.cacheLocation, integrity);
 
     const file = {
       ...data,
-      changed: hash === false,
-      notFound: info === null,
       contents,
       size: contents.length,
       integrity,
     };
 
-    if (file.changed) {
-      if (file.notFound) {
-        await notFound(file, opts);
+    const ctx = {
+      file,
+      changed: hash === false,
+      notFound: info === null,
+      cacache,
+      cacheLocation: cfg.cacheLocation,
+    };
+    ctx.cacheFile = info;
+
+    if (ctx.changed) {
+      if (ctx.notFound) {
+        await notFound(ctx, cfg);
       } else {
-        await found(file, opts);
+        await found(ctx, cfg);
       }
-      await changed(file, opts);
-      yield file;
+      await changed(ctx, cfg);
     } else {
-      await notChanged(file, opts);
+      await notChanged(ctx, cfg);
     }
+    await always(ctx, cfg);
+    yield ctx;
   }
-};
+}
 
 function hasha(value, { algorithm = 'sha512', digest = 'base64' }) {
   return crypto
     .createHash(algorithm)
-    .update(typeof value === 'string' ? value : JSON.stringify(value))
+    .update(value)
     .digest(digest);
 }
 
@@ -93,3 +102,35 @@ function integrityFromContents(contents, hash = 'sha512') {
 
   return `${hash}-${id}`;
 }
+
+const globCache = {
+  stream: async function* globCacheStream(options) {
+    // if (options.hooks) {
+    //   console.warn('glob-cache: Using hooks on stream API is not recommended.');
+    // }
+    yield* globChanged(options);
+  },
+  promise: async function globCachePromise(options) {
+    const stream = globChanged(options);
+    const results = [];
+
+    for await (const ctx of stream) {
+      // do not put on memory if not necessary,
+      // because we may want to just use the Hooks API
+      if (options.buffered) {
+        results.push(ctx);
+      }
+    }
+
+    return results;
+  },
+};
+
+function glob(...args) {
+  return globCache.promise(...args);
+}
+
+glob.stream = globCache.stream;
+glob.promise = globCache.promise;
+
+module.exports = glob;

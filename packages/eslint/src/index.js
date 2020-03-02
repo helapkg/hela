@@ -44,10 +44,11 @@ function wrapper(prog) {
       console.log(include);
       console.log(argv);
 
-      const report = await (argv.smart ? smartLintFiles : lintFiles)(
+      const report = await (argv.smart ? smartLintFiles : lintFiles)({
+        ...argv,
         include,
-        argv,
-      );
+        exclude,
+      });
       // console.log(report);
       // console.log(report.results[0]);
       format(report.results);

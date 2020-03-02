@@ -13,4 +13,7 @@ module.exports = {
     '@tunnckocore/eslint-config/promise',
     '@tunnckocore/eslint-config/unicorn',
   ],
+  rules: {
+    'import/no-unresolved': 'off',
+  },
 };
