@@ -146,13 +146,13 @@ async function smartLintFiles(settings) {
   };
 
   if (useIterables) {
-    useIterables({ include, exclude, ...options }, report);
+    await useIterables({ include, exclude, ...options }, report);
   }
   if (usePromises) {
-    usePromises({ include, exclude, ...options }, report);
+    await usePromises({ include, exclude, ...options }, report);
   }
   if (useGlobCache) {
-    useGlobCache({ include, exclude, ...options }, report);
+    await useGlobCache({ include, exclude, ...options }, report);
   }
 
   return report;
