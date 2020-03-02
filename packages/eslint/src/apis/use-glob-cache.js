@@ -13,6 +13,7 @@ module.exports = async ({ include, exclude, ...options }, report) => {
     include,
     exclude,
     globOptions: { cwd: options.cwd, ...options.globOptions },
+    always: true,
     async hook(ctx) {
       const { valid, missing, file, cacheFile } = ctx;
 

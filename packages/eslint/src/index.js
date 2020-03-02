@@ -45,8 +45,10 @@ function wrapper(prog) {
       console.log(include);
       console.log(argv);
 
+      let report = null;
+
       if (argv.useIterables) {
-        await smartLintFiles({
+        report = await smartLintFiles({
           ...argv,
           include,
           exclude,
@@ -55,7 +57,7 @@ function wrapper(prog) {
         });
       }
       if (argv.useIterablesConfigCache) {
-        await smartLintFiles({
+        report = await smartLintFiles({
           ...argv,
           include,
           exclude,
@@ -64,13 +66,23 @@ function wrapper(prog) {
         });
       }
       if (argv.usePromises) {
-        await smartLintFiles({ ...argv, include, exclude, usePromises });
+        report = await smartLintFiles({
+          ...argv,
+          include,
+          exclude,
+          usePromises,
+        });
       }
       if (argv.useGlobCache) {
-        await smartLintFiles({ ...argv, include, exclude, useGlobCache });
+        report = await smartLintFiles({
+          ...argv,
+          include,
+          exclude,
+          useGlobCache,
+        });
       }
       if (argv.useSmartOld) {
-        await smartLintOld({ ...argv, include, exclude });
+        report = await smartLintOld({ ...argv, include, exclude });
       }
 
       // const report = await (argv.smart ? smartLintFiles : lintFiles)({
@@ -80,7 +92,7 @@ function wrapper(prog) {
       // });
       // console.log(report);
       // console.log(report.results[0]);
-      // format(report.results);
+      format(report.results);
 
       // await glob({
       //   include,
