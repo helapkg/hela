@@ -30,41 +30,41 @@ const DEFAULT_IGNORE = [
 
 const DEFAULT_INPUTS = ['**/src/**', '**/*test*/**'];
 const DEFAULT_EXTENSIONS = ['js', 'jsx', 'cjs', 'mjs', 'ts', 'tsx'];
-const DEFAULT_OPTIONS = {
-  exit: true,
-  warnings: false,
-  reporter: 'codeframe',
-  input: DEFAULT_INPUTS,
-  exclude: DEFAULT_IGNORE,
-  extensions: DEFAULT_EXTENSIONS,
-  reportUnusedDisableDirectives: true,
-};
+// const DEFAULT_OPTIONS = {
+//   exit: true,
+//   warnings: false,
+//   reporter: 'codeframe',
+//   input: DEFAULT_INPUTS,
+//   exclude: DEFAULT_IGNORE,
+//   extensions: DEFAULT_EXTENSIONS,
+//   reportUnusedDisableDirectives: true,
+// };
 
-function normalizeOptions(options) {
-  const forcedOptions = {
-    fix: true,
-    baseConfig: {
-      extends: [
-        '@tunnckocore/eslint-config',
-        '@tunnckocore/eslint-config/mdx',
-        '@tunnckocore/eslint-config/jest',
-        '@tunnckocore/eslint-config/node',
-        '@tunnckocore/eslint-config/promise',
-        '@tunnckocore/eslint-config/unicorn',
-      ],
-    },
-    useEslintrc: false,
-    cache: true,
-    cacheLocation: './.eslintcache',
-  };
-  const opts = { ...DEFAULT_OPTIONS, ...options, ...forcedOptions };
+// function normalizeOptions(options) {
+//   const forcedOptions = {
+//     fix: true,
+//     baseConfig: {
+//       extends: [
+//         '@tunnckocore/eslint-config',
+//         '@tunnckocore/eslint-config/mdx',
+//         '@tunnckocore/eslint-config/jest',
+//         '@tunnckocore/eslint-config/node',
+//         '@tunnckocore/eslint-config/promise',
+//         '@tunnckocore/eslint-config/unicorn',
+//       ],
+//     },
+//     useEslintrc: false,
+//     cache: true,
+//     cacheLocation: './.eslintcache',
+//   };
+//   const opts = { ...DEFAULT_OPTIONS, ...options, ...forcedOptions };
 
-  opts.input = arrayify(opts.input);
-  opts.ignore = DEFAULT_IGNORE.concat(arrayify(opts.ignore));
-  opts.extensions = arrayify(opts.extensions);
+//   opts.input = arrayify(opts.input);
+//   opts.ignore = DEFAULT_IGNORE.concat(arrayify(opts.ignore));
+//   opts.extensions = arrayify(opts.extensions);
 
-  return opts;
-}
+//   return opts;
+// }
 
 /**
   Using CLIEngine executeOnFiles
@@ -90,45 +90,52 @@ function normalizeOptions(options) {
     - @hela/eslint 5 files (fresh, no cache) - 2.64s, 119mb, ~1440 switches, ~740 outputs
     - @hela/eslint 5 files (warm cache) - 0.6s, 56mb, ~600 switches, ~72 outputs
  */
-function lint(name) {
-  return async (value, fp, options) => {
-    if (name === 'files') {
-      // eslint-disable-next-line no-param-reassign
-      options = fp;
-    }
-    const opts = normalizeOptions(options);
+// function lint(name) {
+//   return async (value, fp, options) => {
+//     if (name === 'files') {
+//       // eslint-disable-next-line no-param-reassign
+//       options = fp;
+//     }
+//     const opts = normalizeOptions(options);
 
-    const engine = new CLIEngine(opts);
-    const fn = name === 'files' ? engine.executeOnFiles : engine.executeOnText;
-    const report = fn.apply(
-      engine,
-      [value, name === 'text' && fp].filter(Boolean),
-    );
+//     const engine = new CLIEngine(opts);
+//     const fn = name === 'files' ? engine.executeOnFiles : engine.executeOnText;
+//     const report = fn.apply(
+//       engine,
+//       [value, name === 'text' && fp].filter(Boolean),
+//     );
 
-    report.format = engine.getFormatter(opts.reporter);
+//     report.format = engine.getFormatter(opts.reporter);
 
-    if (name === 'files') {
-      CLIEngine.outputFixes(report);
-    }
+//     if (name === 'files') {
+//       CLIEngine.outputFixes(report);
+//     }
 
-    return report;
-  };
-}
+//     return report;
+//   };
+// }
 
-async function lintText(code, fp, options) {
-  return lint('text')(code, fp, options);
-}
+// async function lintText(code, fp, options) {
+//   return lint('text')(code, fp, options);
+// }
 
-async function lintFiles(code, fp, options) {
-  return lint('files')(code, fp, options);
-}
+// async function lintFiles(code, fp, options) {
+//   return lint('files')(code, fp, options);
+// }
 
 // 1. respect eslintignore (merge with default ignores)
 // 2. some random (e.g. import/no-unresolved) rules are reporting errors
 // 3. the memory leak (the `eslintConfig = {}`)
 // 4. use fast-glob Stream API + cacache directly instead of glob-cache?
-async function smartLintFiles({ include, exclude, ...options }) {
-  const opts = { cwd: process.cwd(), ...options };
+async function smartLintFiles(settings) {
+  const {
+    include,
+    exclude,
+    useIterables,
+    usePromises,
+    useGlobCache,
+    ...options
+  } = settings;
 
   const report = {
     results: [],
@@ -138,198 +145,158 @@ async function smartLintFiles({ include, exclude, ...options }) {
     fixableWarningCount: 0,
   };
 
-  // const eslintConfig = {};
-
-  const engine = new CLIEngine({ ...opts, ignore: true });
-  const alwaysHook = createAlwaysHook(opts, engine, report);
-
-  const useIterables = false;
-
   if (useIterables) {
-    const iterable = glob.stream({
-      ...options,
-      include,
-      exclude,
-      globOptions: { cwd: options.cwd, ...options.globOptions },
-    });
-
-    for await (const ctx of iterable) {
-      const { changed, notFound, file, cacheFile } = ctx;
-
-      if (changed === false && notFound === false && cacheFile.metadata) {
-        report.results.push(cacheFile.metadata.report);
-
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-      if (engine.isPathIgnored(file.path)) {
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-
-      await alwaysHook(ctx);
-    }
-  } else {
-    await glob.promise({
-      ...options,
-      include,
-      exclude,
-      globOptions: { cwd: options.cwd, ...options.globOptions },
-      hooks: {
-        async always(ctx) {
-          const { changed, notFound, file, cacheFile } = ctx;
-
-          if (changed === false && notFound === false && cacheFile.metadata) {
-            report.results.push(cacheFile.metadata.report);
-
-            // eslint-disable-next-line no-continue
-            return;
-          }
-          if (engine.isPathIgnored(file.path)) {
-            // eslint-disable-next-line no-continue
-            return;
-          }
-
-          await alwaysHook(ctx);
-        },
-      },
-    });
+    useIterables({ include, exclude, ...options }, report);
+  }
+  if (usePromises) {
+    usePromises({ include, exclude, ...options }, report);
+  }
+  if (useGlobCache) {
+    useGlobCache({ include, exclude, ...options }, report);
   }
 
   return report;
 }
 
-exports.normalizeOptions = normalizeOptions;
-exports.lint = lint;
-exports.lintText = lintText;
-exports.lintFiles = lintFiles;
-exports.smartLintFiles = smartLintFiles;
-exports.DEFAULT_IGNORE = DEFAULT_IGNORE;
-exports.DEFAULT_INPUTS = DEFAULT_INPUTS;
-exports.DEFAULT_INPUT = DEFAULT_INPUTS;
+module.exports = {
+  smartLintFiles,
+  DEFAULT_IGNORE,
+  DEFAULT_INPUT: DEFAULT_INPUTS,
+  DEFAULT_INPUTS,
+  DEFAULT_EXTENSIONS,
+};
 
-function createAlwaysHook(opts, engine, report) {
-  const verifyCachePath = path.join(opts.cwd, '.cache', 'verify-process');
-  const configsCachePath = path.join(opts.cwd, '.cache', 'directory-config');
+// exports.normalizeOptions = normalizeOptions;
+// exports.lint = lint;
+// exports.lintText = lintText;
+// exports.lintFiles = lintFiles;
+// exports.smartLintFiles = smartLintFiles;
+// exports.DEFAULT_IGNORE = DEFAULT_IGNORE;
+// exports.DEFAULT_INPUTS = DEFAULT_INPUTS;
+// exports.DEFAULT_INPUT = DEFAULT_INPUTS;
 
-  const memoizerVerify = memoizeFs({ cachePath: verifyCachePath });
-  const linter = new Linter({ cwd: opts.cwd });
+// function createAlwaysHook(opts, engine, report) {
+//   const verifyCachePath = path.join(opts.cwd, '.cache', 'verify-process');
+//   const configsCachePath = path.join(opts.cwd, '.cache', 'directory-config');
 
-  const eslintConfig = {};
+//   const memoizerVerify = memoizeFs({ cachePath: verifyCachePath });
+//   const linter = new Linter({ cwd: opts.cwd });
 
-  return async (ctx) => {
-    const { file, changed, notFound, cacheFile, cacache, cacheLocation } = ctx;
+//   const eslintConfig = {};
 
-    const fileDirname = path.dirname(file.path);
-    let config = opts.useConfigCache
-      ? await getConfigForDirectory(fileDirname, {
-          cachePath: configsCachePath,
-          cacache,
-        })
-      : null;
+//   return async (ctx) => {
+//     const { file, changed, notFound, cacheFile, cacache, cacheLocation } = ctx;
 
-    if (!config) {
-      config = eslintConfig[fileDirname] || engine.getConfigForFile(file.path);
+//     const fileDirname = path.dirname(file.path);
+//     let config = opts.useConfigCache
+//       ? await getConfigForDirectory(fileDirname, {
+//           cachePath: configsCachePath,
+//           cacache,
+//         })
+//       : null;
 
-      if (opts.useConfigCache) {
-        await cacache.put(
-          configsCachePath,
-          fileDirname,
-          JSON.stringify(config),
-        );
-      } else {
-        eslintConfig[fileDirname] = config;
-      }
-    }
+//     if (!config) {
+//       config = eslintConfig[fileDirname] || engine.getConfigForFile(file.path);
 
-    if (changed || notFound) {
-      injectToLinter({ config, linter });
-    }
+//       if (opts.useConfigCache) {
+//         await cacache.put(
+//           configsCachePath,
+//           fileDirname,
+//           JSON.stringify(config),
+//         );
+//       } else {
+//         eslintConfig[fileDirname] = config;
+//       }
+//     }
 
-    const contents = file.contents.toString();
-    const memoizedFunc = await memoizerVerify.fn((cont, cfg) =>
-      // console.log('content changed! ... verify called');
+//     if (changed || notFound) {
+//       injectToLinter({ config, linter });
+//     }
 
-      linter.verifyAndFix(cont, cfg),
-    );
-    const { output, messages } = await memoizedFunc(contents, config);
+//     const contents = file.contents.toString();
+//     const memoizedFunc = await memoizerVerify.fn((cont, cfg) =>
+//       // console.log('content changed! ... verify called');
 
-    const result = {
-      filePath: file.path,
-      messages,
-      errorCount: calculateCount('error', messages, report),
-      warningCount: calculateCount('warning', messages, report),
-      fixableErrorCount: 0,
-      fixableWarningCount: 0,
-    };
+//       linter.verifyAndFix(cont, cfg),
+//     );
+//     const { output, messages } = await memoizedFunc(contents, config);
 
-    const meta = cacheFile && cacheFile.metadata;
-    const diff = JSON.stringify(result) !== JSON.stringify(meta && meta.report);
+//     const result = {
+//       filePath: file.path,
+//       messages,
+//       errorCount: calculateCount('error', messages, report),
+//       warningCount: calculateCount('warning', messages, report),
+//       fixableErrorCount: 0,
+//       fixableWarningCount: 0,
+//     };
 
-    if (diff) {
-      // console.log('report changed! re-add / store to cache');
-      cacache.put(cacheLocation, file.path, output, {
-        metadata: { report: result },
-      });
-    }
-    if (diff || changed) {
-      fs.writeFileSync(file.path, output);
-      report.results.push(result);
-    }
-  };
-}
+//     const meta = cacheFile && cacheFile.metadata;
+//     const diff = JSON.stringify(result) !== JSON.stringify(meta && meta.report);
 
-async function getConfigForDirectory(key, { cachePath, cacache }) {
-  const info = await cacache.get.info(cachePath, key);
-  let configCache = null;
+//     if (diff) {
+//       // console.log('report changed! re-add / store to cache');
+//       cacache.put(cacheLocation, file.path, output, {
+//         metadata: { report: result },
+//       });
+//     }
+//     if (diff || changed) {
+//       fs.writeFileSync(file.path, output);
+//       report.results.push(result);
+//     }
+//   };
+// }
 
-  if (info) {
-    try {
-      configCache = JSON.parse(fs.readFileSync(info.path, 'utf8'));
-    } catch (err) {}
-  }
+// async function getConfigForDirectory(key, { cachePath, cacache }) {
+//   const info = await cacache.get.info(cachePath, key);
+//   let configCache = null;
 
-  return configCache;
-}
+//   if (info) {
+//     try {
+//       configCache = JSON.parse(fs.readFileSync(info.path, 'utf8'));
+//     } catch (err) {}
+//   }
 
-function injectToLinter({ config, linter }) {
-  config.plugins.forEach((pluginName) => {
-    let plugin = null;
+//   return configCache;
+// }
 
-    if (pluginName.startsWith('@')) {
-      plugin = require(pluginName);
-    } else {
-      plugin = require(`eslint-plugin-${pluginName}`);
-    }
+// function injectToLinter({ config, linter }) {
+//   config.plugins.forEach((pluginName) => {
+//     let plugin = null;
 
-    Object.keys(plugin.rules).forEach((ruleName) => {
-      linter.defineRule(`${pluginName}/${ruleName}`, plugin.rules[ruleName]);
-    });
-  });
-  if (config.parser) {
-    linter.defineParser(config.parser, require(config.parser));
-  }
+//     if (pluginName.startsWith('@')) {
+//       plugin = require(pluginName);
+//     } else {
+//       plugin = require(`eslint-plugin-${pluginName}`);
+//     }
 
-  return linter;
-}
+//     Object.keys(plugin.rules).forEach((ruleName) => {
+//       linter.defineRule(`${pluginName}/${ruleName}`, plugin.rules[ruleName]);
+//     });
+//   });
+//   if (config.parser) {
+//     linter.defineParser(config.parser, require(config.parser));
+//   }
 
-function calculateCount(type, messages, report) {
-  const rep = report;
-  return []
-    .concat(messages)
-    .filter(Boolean)
-    .filter((x) => (type === 'error' ? x.severity === 2 : x.severity === 1))
-    .reduce((acc) => {
-      if (type === 'error') {
-        rep.errorCount += 1;
-      }
-      if (type === 'warning') {
-        rep.warningCount += 1;
-      }
+//   return linter;
+// }
 
-      return acc + 1;
-    }, 0);
-}
+// function calculateCount(type, messages, report) {
+//   const rep = report;
+//   return []
+//     .concat(messages)
+//     .filter(Boolean)
+//     .filter((x) => (type === 'error' ? x.severity === 2 : x.severity === 1))
+//     .reduce((acc) => {
+//       if (type === 'error') {
+//         rep.errorCount += 1;
+//       }
+//       if (type === 'warning') {
+//         rep.warningCount += 1;
+//       }
+
+//       return acc + 1;
+//     }, 0);
+// }
 
 // always: true,
 

@@ -11,18 +11,21 @@
 const fs = require('fs');
 const util = require('util');
 const crypto = require('crypto');
-const { Transform } = require('stream');
+
 const fg = require('fast-glob');
-const nanoid = require('nanoid');
+const globCache = require('glob-cache');
+
 const cacache = require('cacache');
 const memoizeFs = require('memoize-fs');
-const { toReadable } = require('stream-iterators-utils');
-const serialize = require('serialize-javascript');
-const { cosmiconfig } = require('cosmiconfig');
+// const serialize = require('serialize-javascript');
+// const { cosmiconfig } = require('cosmiconfig');
+
+const readFile = util.promisify(fs.readFile);
 
 async function* globChanged(options) {
   const { include, globOptions, ...opts } = options;
   const cfg = { cacheLocation: './.cache/globbing', hooks: {}, ...opts };
+  const memoizeIntegrity = memoizeFs({ cachePath: './.cache/integrity-cache' });
 
   const {
     always = () => {},
@@ -52,10 +55,11 @@ async function* globChanged(options) {
   // }
 
   const globStream = fg.stream(include, config);
+  const integrityMemoized = await memoizeIntegrity.fn(integrityFromContents);
 
   for await (const data of globStream) {
-    const contents = await util.promisify(fs.readFile)(data.path);
-    const integrity = integrityFromContents(contents);
+    const contents = await readFile(data.path);
+    const integrity = await integrityMemoized(contents);
     const info = await cacache.get.info(cfg.cacheLocation, data.path);
     const hash = await cacache.get.hasContent(cfg.cacheLocation, integrity);
 
@@ -103,7 +107,7 @@ function integrityFromContents(contents, hash = 'sha512') {
   return `${hash}-${id}`;
 }
 
-const globCache = {
+const globbing = {
   stream: async function* globCacheStream(options) {
     // if (options.hooks) {
     //   console.warn('glob-cache: Using hooks on stream API is not recommended.');
@@ -127,10 +131,11 @@ const globCache = {
 };
 
 function glob(...args) {
-  return globCache.promise(...args);
+  return globbing.promise(...args);
 }
 
-glob.stream = globCache.stream;
-glob.promise = globCache.promise;
+glob.stream = globbing.stream;
+glob.promise = globbing.promise;
+glob.globCache = globCache;
 
 module.exports = glob;
