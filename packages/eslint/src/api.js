@@ -1,12 +1,14 @@
+/* eslint-disable max-statements */
+
 'use strict';
 
 const fs = require('fs');
 const path = require('path');
-const glob = require('glob-cache');
 const arrayify = require('arrify');
 const memoizeFs = require('memoize-fs');
 const serialize = require('serialize-javascript');
 const { CLIEngine, Linter } = require('eslint');
+const glob = require('./globbing');
 
 // const foo = 2;
 
@@ -30,7 +32,7 @@ const DEFAULT_OPTIONS = {
   warnings: false,
   reporter: 'codeframe',
   input: DEFAULT_INPUTS,
-  ignore: DEFAULT_IGNORE,
+  exclude: DEFAULT_IGNORE,
   extensions: DEFAULT_EXTENSIONS,
   reportUnusedDisableDirectives: true,
 };
@@ -67,18 +69,23 @@ function normalizeOptions(options) {
   1. Has 6 huge (1000 lines) files
     - eslint 13 files (fresh, no cache) ~6.16s
     - eslint 13 files (warm cache) ~2.75s
+
   2. Each file has around ~200 lines
-    - eslint 5 files (fresh, no cache) ~3.07s
-    - eslint 5 files (warm cache) ~2.56s
+    - eslint 5 files (fresh, no cache) ~3.07s, 126mb, ~1300 switches, 16 outputs
+    - eslint 5 files (warm cache) ~2.56s, 120mb, ~1100 switches, 16 outputs
  */
 
 /**
   Using `linter.verify` API
   and aggressive caching & memoization
 
-  1. Has 5 huge (1000 lines) files
-    - @hela/eslint 13 files (fresh, no cache) - 3.72s
-    - @hela/eslint 13 files (warm cache) - 0.6s
+  1. Has 6 huge (1000 lines) files
+    - @hela/eslint 13 files (fresh, no cache) ~3.72s
+    - @hela/eslint 13 files (warm cache) ~0.6s
+
+  2. Each file has around ~200 lines
+    - @hela/eslint 5 files (fresh, no cache) - 2.64s, 119mb, ~1440 switches, ~740 outputs
+    - @hela/eslint 5 files (warm cache) - 0.6s, 56mb, ~600 switches, ~72 outputs
  */
 function lint(name) {
   return async (value, fp, options) => {
@@ -113,14 +120,22 @@ async function lintFiles(code, fp, options) {
   return lint('files')(code, fp, options);
 }
 
+// 1. respect eslintignore (merge with default ignores)
+// 2. some random (e.g. import/no-unresolved) rules are reporting errors
+// 3. the memory leak (the `eslintConfig = {}`)
+// 4. use fast-glob Stream API + cacache directly instead of glob-cache?
 async function smartLintFiles(patterns, options) {
   const memoizer = memoizeFs({
     cachePath: path.join(process.cwd(), '.cache', 'verify-process'),
   });
 
   const opts = normalizeOptions(options);
-  const linter = new Linter();
-  const engine = new CLIEngine();
+  const linter = new Linter({ cwd: process.cwd() });
+  const engine = new CLIEngine({
+    ...opts,
+    ignore: true,
+    // ignorePattern: opts.exclude,
+  });
 
   const report = {
     results: [],
@@ -134,99 +149,8 @@ async function smartLintFiles(patterns, options) {
 
   await glob({
     include: patterns,
-    exclude: opts.ignore,
-    globOptions: opts.globOptions,
-    always: true,
-
-    async hook({ valid, missing, file, cacheFile, cacheLocation, cacache }) {
-      // if (valid === false || (valid && missing)) {
-
-      const meta = cacheFile && cacheFile.metadata;
-      // const config = meta
-      //   ? meta.eslintConfig
-      //   : engine.getConfigForFile(file.path);
-
-      const dirname = path.dirname(file.path);
-      let config = null;
-      if (eslintConfig[dirname]) {
-        // console.log('using config for', dirname);
-        config = eslintConfig[dirname];
-      } else {
-        // console.log('new config');
-        config = meta ? meta.eslintConfig : engine.getConfigForFile(file.path);
-        eslintConfig[dirname] = config;
-      }
-
-      if (valid === false || (valid && missing)) {
-        config.plugins.forEach((pluginName) => {
-          let plugin = null;
-
-          if (pluginName.startsWith('@')) {
-            // eslint-disable-next-line import/no-dynamic-require, global-require
-            plugin = require(pluginName);
-          } else {
-            // eslint-disable-next-line import/no-dynamic-require, global-require
-            plugin = require(`eslint-plugin-${pluginName}`);
-          }
-
-          Object.keys(plugin.rules).forEach((ruleName) => {
-            linter.defineRule(
-              `${pluginName}/${ruleName}`,
-              plugin.rules[ruleName],
-            );
-          });
-        });
-      }
-
-      const contents = file.contents.toString();
-      const memoizedFunc = await memoizer.fn((cont, cfg) =>
-        // console.log('content changed! ... verify called');
-
-        linter.verifyAndFix(cont, cfg),
-      );
-      const { output, messages } = await memoizedFunc(contents, config);
-
-      const result = {
-        filePath: file.path,
-        messages,
-        errorCount: []
-          .concat(messages)
-          .filter(Boolean)
-          .filter((x) => x.severity === 2)
-          .reduce((acc) => {
-            report.errorCount += 1;
-
-            return acc + 1;
-          }, 0),
-        warningCount: []
-          .concat(messages)
-          .filter(Boolean)
-          .filter((x) => x.severity === 1)
-          .reduce((acc) => {
-            report.warningCount += 1;
-
-            return acc + 1;
-          }, 0),
-        fixableErrorCount: 0,
-        fixableWarningCount: 0,
-      };
-
-      if (JSON.stringify(result) !== JSON.stringify(meta && meta.report)) {
-        // console.log('report changed! re-add / store to cache');
-
-        cacache.put(cacheLocation, file.path, output, {
-          metadata: {
-            contents,
-            output,
-            report: result,
-            eslintConfig: config,
-          },
-        });
-      }
-
-      fs.writeFileSync(file.path, output);
-      report.results.push({ ...result, source: output });
-    },
+    ...opts,
+    globOptions: { cwd: opts.cwd, ...opts.globOptions },
   });
 
   return report;
@@ -240,3 +164,108 @@ exports.smartLintFiles = smartLintFiles;
 exports.DEFAULT_IGNORE = DEFAULT_IGNORE;
 exports.DEFAULT_INPUTS = DEFAULT_INPUTS;
 exports.DEFAULT_INPUT = DEFAULT_INPUTS;
+
+// always: true,
+
+//   async hook({ valid, missing, file, cacheFile, cacheLocation, cacache }) {
+//     // if (valid === false || (valid && missing)) {
+
+//     const relativePath = path.relative(process.cwd(), file.path);
+//     console.log(engine.isPathIgnored(relativePath), file.path);
+//     if (engine.isPathIgnored(relativePath)) {
+//       console.log(
+//         'ignored',
+//         file.path,
+//         // path.relative(process.cwd(), file.path),
+//       );
+//       return;
+//     }
+
+//     const meta = cacheFile && cacheFile.metadata;
+//     // const config = meta
+//     //   ? meta.eslintConfig
+//     //   : engine.getConfigForFile(file.path);
+
+//     const dirname = path.dirname(file.path);
+//     let config = null;
+//     if (eslintConfig[dirname]) {
+//       // console.log('using config for', dirname);
+//       config = eslintConfig[dirname];
+//     } else {
+//       // console.log('new config');
+//       config = meta ? meta.eslintConfig : engine.getConfigForFile(file.path);
+//       eslintConfig[dirname] = config;
+//     }
+
+//     if (valid === false || (valid && missing)) {
+//       config.plugins.forEach((pluginName) => {
+//         let plugin = null;
+
+//         if (pluginName.startsWith('@')) {
+//           // eslint-disable-next-line import/no-dynamic-require, global-require
+//           plugin = require(pluginName);
+//         } else {
+//           // eslint-disable-next-line import/no-dynamic-require, global-require
+//           plugin = require(`eslint-plugin-${pluginName}`);
+//         }
+
+//         Object.keys(plugin.rules).forEach((ruleName) => {
+//           linter.defineRule(
+//             `${pluginName}/${ruleName}`,
+//             plugin.rules[ruleName],
+//           );
+//         });
+//       });
+//     }
+
+//     const contents = file.contents.toString();
+//     const memoizedFunc = await memoizer.fn((cont, cfg) =>
+//       // console.log('content changed! ... verify called');
+
+//       linter.verifyAndFix(cont, cfg),
+//     );
+//     const { output, messages } = await memoizedFunc(contents, config);
+
+//     const result = {
+//       filePath: file.path,
+//       messages,
+//       errorCount: []
+//         .concat(messages)
+//         .filter(Boolean)
+//         .filter((x) => x.severity === 2)
+//         .reduce((acc) => {
+//           report.errorCount += 1;
+
+//           return acc + 1;
+//         }, 0),
+//       warningCount: []
+//         .concat(messages)
+//         .filter(Boolean)
+//         .filter((x) => x.severity === 1)
+//         .reduce((acc) => {
+//           report.warningCount += 1;
+
+//           return acc + 1;
+//         }, 0),
+//       fixableErrorCount: 0,
+//       fixableWarningCount: 0,
+//     };
+
+//     if (JSON.stringify(result) !== JSON.stringify(meta && meta.report)) {
+//       // console.log('report changed! re-add / store to cache');
+
+//       cacache.put(cacheLocation, file.path, output, {
+//         metadata: {
+//           contents,
+//           output,
+//           report: result,
+//           eslintConfig: config,
+//         },
+//       });
+//     }
+
+//     if (valid === false || (valid && missing) || valid) {
+//       fs.writeFileSync(file.path, output);
+//       report.results.push({ ...result, source: output });
+//     }
+//   },

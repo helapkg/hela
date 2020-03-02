@@ -1,6 +1,10 @@
 'use strict';
 
 module.exports = {
+  parser: 'babel-eslint',
+  parserOptions: {
+    ecmaVersion: 2020,
+  },
   extends: [
     '@tunnckocore/eslint-config',
     '@tunnckocore/eslint-config/mdx',

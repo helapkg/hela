@@ -46,6 +46,8 @@
     "eslint": "^6.8.0",
     "glob-cache": "^0.3.5",
     "memoize-fs": "^2.1.0",
-    "serialize-javascript": "^3.0.0"
+    "nanoid": "^2.1.11",
+    "serialize-javascript": "^3.0.0",
+    "stream-iterators-utils": "^0.1.1"
   }
 }

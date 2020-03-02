@@ -2,7 +2,7 @@
 const crypto = require('crypto');
 const meriyah = require('meriyah');
 const cacache = require('cacache');
-// const serializer = require('serialize-javascript');
+const sasa = require('serialize-javascript');
 
 const DEFAULT_OPTIONS = {
   cacheId: '$$rootId',
