@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 /* eslint-disable global-require */
 /* eslint-disable import/no-dynamic-require */
 
@@ -5,14 +6,17 @@
 
 const fs = require('fs');
 const path = require('path');
-const glob = require('glob-cache');
+const crypto = require('crypto');
+const findPkg = require('find-pkg');
 const memoizeFs = require('memoize-fs');
 const { CLIEngine, Linter } = require('eslint');
+const glob = require('./globbing');
 
 module.exports = async function smartOld({ include, exclude, ...options }) {
   const memoizer = memoizeFs({
-    cachePath: path.join(process.cwd(), '.cache', 'verify-process'),
+    cachePath: path.join(options.cwd, '.cache', 'verify-process'),
   });
+  const configsCachePath = path.join(options.cwd, '.cache', 'directory-config');
 
   const linter = new Linter();
   const engine = new CLIEngine();
@@ -26,13 +30,15 @@ module.exports = async function smartOld({ include, exclude, ...options }) {
   };
 
   const eslintConfig = {};
+  const rootDir = [];
 
-  await glob({
+  await glob.globCache({
     include,
     exclude,
     globOptions: { cwd: options.cwd, ...options.globOptions },
     always: true,
-
+    // hooks: {
+    //   async always({
     async hook({ valid, missing, file, cacheFile, cacheLocation, cacache }) {
       // if (valid === false || (valid && missing)) {
 
@@ -41,16 +47,57 @@ module.exports = async function smartOld({ include, exclude, ...options }) {
       //   ? meta.eslintConfig
       //   : engine.getConfigForFile(file.path);
 
-      const dirname = path.dirname(file.path);
       let config = null;
-      if (eslintConfig[dirname]) {
-        // console.log('using config for', dirname);
-        config = eslintConfig[dirname];
-      } else {
-        // console.log('new config');
-        config = meta ? meta.eslintConfig : engine.getConfigForFile(file.path);
-        eslintConfig[dirname] = config;
-      }
+
+      // TODO write full resolved config to the directory, then load from there
+      const key = rootDir.shift() || (await findPkg(path.dirname(file.path)));
+      rootDir.push(key);
+
+      // console.log(key);
+      // Buffer.from(path.dirname(file.path))
+      //   .toString('hex')
+      //   .slice(0, 20);
+
+      // const info = await cacache.get.info(configsCachePath, key);
+      // const hash = await cacache.get.hasContent(
+      //   configsCachePath,
+      //   integrityFromContents(key),
+      // );
+
+      // const changed = hash === false;
+      // const notFound = info === null;
+      // if (changed || notFound === false) {
+
+      const fnToMemoize = async (_) => {
+        // console.log('sasa');
+        const res = engine.getConfigForFile(file.path);
+
+        return res;
+      };
+
+      const memoizedFnc = await memoizer.fn(fnToMemoize, { cacheId: key });
+
+      config =
+        meta && meta.eslintConfig
+          ? meta.eslintConfig
+          : eslintConfig[key] || (await memoizedFnc(key));
+
+      eslintConfig[key] = config;
+
+      // await cacache.put(configsCachePath, key, key, {
+      //   metadata: { config },
+      // });
+
+      // eslintConfig[dirname] = config;
+
+      // if (eslintConfig[dirname]) {
+      //   // console.log('using config for', dirname);
+      //   config = eslintConfig[dirname];
+      // } else {
+      //   // console.log('new config');
+      //   config = meta ? meta.eslintConfig : engine.getConfigForFile(file.path);
+      //   eslintConfig[dirname] = config;
+      // }
 
       if (valid === false || (valid && missing)) {
         []
@@ -113,10 +160,8 @@ module.exports = async function smartOld({ include, exclude, ...options }) {
       if (JSON.stringify(result) !== JSON.stringify(meta && meta.report)) {
         // console.log('report changed! re-add / store to cache');
 
-        cacache.put(cacheLocation, file.path, output, {
+        await cacache.put(cacheLocation, file.path, output, {
           metadata: {
-            contents,
-            output,
             report: result,
             eslintConfig: config,
           },
@@ -130,3 +175,30 @@ module.exports = async function smartOld({ include, exclude, ...options }) {
 
   return report;
 };
+
+// async function getConfigForDirectory(key, { cachePath, cacache }) {
+//   const info = await cacache.get.info(cachePath, key);
+//   let configCache = null;
+
+//   if (info) {
+//     console.log('wat?!');
+//     try {
+//       configCache = info.metadata && info.metadata.config;
+//     } catch (err) {}
+//   }
+
+//   return configCache;
+// }
+
+function hasha(value, { algorithm = 'sha512', digest = 'base64' }) {
+  return crypto
+    .createHash(algorithm)
+    .update(value)
+    .digest(digest);
+}
+
+function integrityFromContents(contents, hash = 'sha512') {
+  const id = hasha(contents, { algorithm: hash });
+
+  return `${hash}-${id}`;
+}

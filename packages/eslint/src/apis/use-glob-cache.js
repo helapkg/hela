@@ -9,26 +9,34 @@ module.exports = async ({ include, exclude, ...options }, report) => {
   const alwaysHook = createAlwaysHook(options, engine, report);
 
   await glob.globCache({
-    ...options,
     include,
     exclude,
     globOptions: { cwd: options.cwd, ...options.globOptions },
     always: true,
     async hook(ctx) {
-      const { valid, missing, file, cacheFile } = ctx;
+      const { valid, file, cacheFile } = ctx;
 
-      if ((valid === false || (valid && missing)) && cacheFile.metadata) {
+      if (valid && cacheFile && cacheFile.metadata) {
         report.results.push(cacheFile.metadata.report);
-
-        // eslint-disable-next-line no-continue
         return;
       }
       if (engine.isPathIgnored(file.path)) {
-        // eslint-disable-next-line no-continue
+        // console.log('excluded', file.path);
         return;
       }
+      // console.log('included', file.path);
 
+      // console.log('okkk', cacheFile);
       await alwaysHook(ctx);
     },
   });
+  // .then(async ({ results }) => {
+  //   await Promise.all(
+  //     results
+  //       .filter(({ file }) => !engine.isPathIgnored(file.path))
+  //       .map(async (ctx) => {
+  //         await alwaysHook(ctx);
+  //       }),
+  //   );
+  // });
 };

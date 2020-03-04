@@ -5,16 +5,6 @@
 
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const arrayify = require('arrify');
-const memoizeFs = require('memoize-fs');
-// const serialize = require('serialize-javascript');
-const { CLIEngine, Linter } = require('eslint');
-const glob = require('./globbing');
-
-// const foo = 2;
-
 const DEFAULT_IGNORE = [
   '**/node_modules/**',
   '**/bower_components/**',

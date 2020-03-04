@@ -1,9 +1,7 @@
 'use strict';
 
-const glob = require('glob-cache');
 const { hela } = require('@hela/core');
 const codeframe = require('eslint/lib/cli-engine/formatters/codeframe');
-const memoizeFs = require('memoize-fs');
 
 const smartLintOld = require('./smart-lint-yesterday');
 
@@ -11,10 +9,6 @@ const useIterables = require('./apis/use-iterables');
 const usePromises = require('./apis/use-promises');
 const useGlobCache = require('./apis/use-glob-cache');
 const { smartLintFiles, DEFAULT_IGNORE, DEFAULT_INPUTS } = require('./api');
-
-// const memoizer = memoizeFs({
-//   cachePath: './.cache-memoized',
-// });
 
 function wrapper(prog) {
   return prog
@@ -79,45 +73,14 @@ function wrapper(prog) {
           include,
           exclude,
           useGlobCache,
+          useConfigCache: false,
         });
       }
       if (argv.useSmartOld) {
         report = await smartLintOld({ ...argv, include, exclude });
       }
 
-      // const report = await (argv.smart ? smartLintFiles : lintFiles)({
-      //   ...argv,
-      //   include,
-      //   exclude,
-      // });
-      // console.log(report);
-      // console.log(report.results[0]);
       format(report.results);
-
-      // await glob({
-      //   include,
-      //   exclude,
-      //   globOptions: { cwd: argv.cwd },
-      //   always: true,
-
-      //   async hook(ctx) {
-      //     const {
-      //       valid,
-      //       missing,
-      //       file,
-      //       cacheFile,
-      //       cacache,
-      //       cacheLocation,
-      //     } = ctx;
-      //     console.log('hit1', valid, missing);
-
-      //     const report = await smartLintFiles(file.path, argv);
-
-      //     // console.log(engine.getConfigForFile(file.path));
-      //     console.log(JSON.stringify(report, null, 2));
-      //     format(report.results);
-      //   },
-      // });
     });
 }
 

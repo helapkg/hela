@@ -19,12 +19,9 @@ module.exports = async ({ include, exclude, ...options }, report) => {
 
         if (changed === false && notFound === false && cacheFile.metadata) {
           report.results.push(cacheFile.metadata.report);
-
-          // eslint-disable-next-line no-continue
           return;
         }
         if (engine.isPathIgnored(file.path)) {
-          // eslint-disable-next-line no-continue
           return;
         }
 
