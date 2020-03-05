@@ -156,11 +156,12 @@ const globCache = require('glob-cache');
 const { CLIEngine, Linter } = require('eslint');
 
 function resolveConfigSync(filePath, baseConfig, options) {
-  const opts = { cwd: process.cwd(), ...options };
+  const { cwd, ...opt } = { /* cwd: process.cwd(), */ ...options };
   const doNotUseEslintRC = baseConfig && typeof baseConfig === 'object';
 
   const engine = new CLIEngine({
-    ...opts,
+    extensions: DEFAULT_EXTENSIONS,
+    ...opt,
     baseConfig,
     cache: true,
     useEslintrc: !doNotUseEslintRC,
@@ -240,7 +241,12 @@ function injectIntoLinter(config, linter) {
 }
 
 async function* lintFiles(patterns, options) {
-  const opts = { dirs: [], exclude: DEFAULT_IGNORE, ...options };
+  const opts = {
+    dirs: [],
+    exclude: DEFAULT_IGNORE,
+    extensions: DEFAULT_EXTENSIONS,
+    ...options,
+  };
   const iterable = globCache(patterns, opts);
 
   let linter = new Linter();
@@ -248,23 +254,20 @@ async function* lintFiles(patterns, options) {
 
   linter = injectIntoLinter(eslintConfig, linter);
 
-  const report = {
-    results: [],
-    errorCount: 0,
-    warningCount: 0,
-    fixableErrorCount: 0,
-    fixableWarningCount: 0,
-  };
-
   for await (const ctx of iterable) {
+    const meta = ctx.cacheFile && ctx.cacheFile.metadata;
+
     if (ctx.changed) {
       const dirname = path.dirname(ctx.file.path);
       if (opts.dirs.includes(dirname)) {
-        eslintConfig = await resolveConfig(ctx.file.path, 0, { dirname });
+        eslintConfig = await resolveConfig(ctx.file.path, 0, {
+          ...opts,
+          dirname,
+        });
+
         linter = injectIntoLinter(eslintConfig, linter);
       }
 
-      const meta = ctx.cacheFile && ctx.cacheFile.metadata;
       const contents = ctx.file.contents.toString();
       const { output, messages } = lint({
         ...opts,
@@ -277,42 +280,58 @@ async function* lintFiles(patterns, options) {
       const res = {
         filePath: ctx.file.path,
         messages,
-        errorCount: calculateCount('error', messages, report),
-        warningCount: calculateCount('warning', messages, report),
+        errorCount: calculateCount('error', messages),
+        warningCount: calculateCount('warning', messages),
 
         // todo calc these too?
         fixableErrorCount: 0,
         fixableWarningCount: 0,
       };
 
-      yield { ...ctx, result: res };
+      yield { ...ctx, result: { ...res, source: output } };
 
       const diff = JSON.stringify(res) !== JSON.stringify(meta && meta.report);
 
       if (diff) {
         // todo update cache with cacache.put
         await ctx.cacache.put(ctx.cacheLocation, ctx.file.path, output, {
-          metadata: { report: res, eslintConfig },
+          metadata: { report: { ...res, source: output }, eslintConfig },
         });
       }
 
       if (opts.report) {
         formatCodeframe([res]);
       }
-      if (opts.buffered) {
-        report.results.push(res);
+      // if (opts.buffered) {
+      //   report.results.push(res);
+      // }
+    }
+
+    if (ctx.changed === false && ctx.notFound === false) {
+      yield { ...ctx, result: meta.report };
+      if (opts.report) {
+        formatCodeframe([meta.report]);
       }
     }
   }
-
-  return report;
 }
 
 (async () => {
-  const iter = await lintFiles('packages/eslint/src/**/*.js', { report: true });
+  const report = {
+    results: [],
+    errorCount: 0,
+    warningCount: 0,
+    fixableErrorCount: 0,
+    fixableWarningCount: 0,
+  };
 
-  for await (const x of iter) {
+  const iter = await lintFiles('packages/eslint/src/**/*.js', { fix: true });
+
+  for await (const { result } of iter) {
+    report.results.push(result);
   }
+
+  formatCodeframe(report.results);
 })();
 
 async function tryLoadLintConfig() {
@@ -322,7 +341,7 @@ async function tryLoadLintConfig() {
   try {
     // console.log('zzzzzzzzz', require(path.join(rootDir, 'lint.config.js')));
     // cfg = {};
-    cfg = await require(path.join(rootDir, 'lint.config.js'));
+    cfg = await require(path.join(rootDir, 'lintconfig.js'));
   } catch (err) {
     return null;
   }
@@ -340,7 +359,7 @@ function lint(options) {
 
   if (opts.fix) {
     const { output, messages } = opts.linter.verifyAndFix(opts.contents, cfg);
-    fs.writeFileSync(opts.filepath, output);
+    fs.writeFileSync(opts.filename, output);
 
     return { output, messages };
   }
@@ -350,7 +369,8 @@ function lint(options) {
 }
 
 function calculateCount(type, messages, report) {
-  const rep = report;
+  const rep = report || {};
+
   return []
     .concat(messages)
     .filter(Boolean)
