@@ -25,7 +25,7 @@ const readFile = util.promisify(fs.readFile);
 async function* globChanged(options) {
   const { include, globOptions, ...opts } = options;
   const cfg = { cacheLocation: './.cache/globbing', hooks: {}, ...opts };
-  const memoizeIntegrity = memoizeFs({ cachePath: './.cache/integrity-cache' });
+  const memoizer = memoizeFs({ cachePath: './.cache/meta-cache' });
 
   const {
     always = () => {},
@@ -55,10 +55,15 @@ async function* globChanged(options) {
   // }
 
   const globStream = fg.stream(include, config);
-  const integrityMemoized = await memoizeIntegrity.fn(integrityFromContents);
+  const integrityMemoized = await memoizer.fn(integrityFromContents, {
+    cacheId: 'integrity',
+  });
+  const readFileMemoized = await memoizer.fn(readFile, {
+    cacheId: 'fileContents',
+  });
 
   for await (const data of globStream) {
-    const contents = await readFile(data.path);
+    const contents = await readFileMemoized(data.path);
     const integrity = await integrityMemoized(contents);
     const info = await cacache.get.info(cfg.cacheLocation, data.path);
     const hash = await cacache.get.hasContent(cfg.cacheLocation, integrity);

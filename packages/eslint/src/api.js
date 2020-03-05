@@ -14,8 +14,8 @@ const DEFAULT_IGNORE = [
   '{tmp,temp}/**',
   '**/*.min.js',
   '**/bundle.js',
-  'vendor/**',
-  'dist/**',
+  '**/vendor/**',
+  '**/dist/**',
 ];
 
 const DEFAULT_INPUTS = ['**/src/**', '**/*test*/**'];
@@ -117,15 +117,136 @@ const DEFAULT_EXTENSIONS = ['js', 'jsx', 'cjs', 'mjs', 'ts', 'tsx'];
 // 2. some random (e.g. import/no-unresolved) rules are reporting errors
 // 3. the memory leak (the `eslintConfig = {}`)
 // 4. use fast-glob Stream API + cacache directly instead of glob-cache?
-async function smartLintFiles(settings) {
-  const {
-    include,
-    exclude,
-    useIterables,
-    usePromises,
-    useGlobCache,
-    ...options
-  } = settings;
+// async function smartLintFiles(settings) {
+//   const {
+//     include,
+//     exclude,
+//     useIterables,
+//     usePromises,
+//     useGlobCache,
+//     ...options
+//   } = settings;
+
+//   const report = {
+//     results: [],
+//     errorCount: 0,
+//     warningCount: 0,
+//     fixableErrorCount: 0,
+//     fixableWarningCount: 0,
+//   };
+
+//   if (useIterables) {
+//     await useIterables({ include, exclude, ...options }, report);
+//   }
+//   if (usePromises) {
+//     await usePromises({ include, exclude, ...options }, report);
+//   }
+//   if (useGlobCache) {
+//     await useGlobCache({ include, exclude, ...options }, report);
+//   }
+
+//   return report;
+// }
+
+const fs = require('fs');
+const path = require('path');
+const memoizeFs = require('memoize-fs');
+const codeframe = require('eslint/lib/cli-engine/formatters/codeframe');
+const globCache = require('glob-cache');
+const { CLIEngine, Linter } = require('eslint');
+
+function resolveConfigSync(filePath, baseConfig, options) {
+  const opts = { cwd: process.cwd(), ...options };
+  const doNotUseEslintRC = baseConfig && typeof baseConfig === 'object';
+
+  const engine = new CLIEngine({
+    ...opts,
+    baseConfig,
+    cache: true,
+    useEslintrc: !doNotUseEslintRC,
+    cacheLocation: './.cache/custom-eslint-cache',
+  });
+
+  const config = engine.getConfigForFile(filePath);
+
+  return config;
+}
+
+async function resolveConfig(filePath, baseConfig, options) {
+  const opts = { ...options };
+  const memoizer = memoizeFs({
+    cachePath: path.join(process.cwd(), '.cache', 'eslint-resolve-config'),
+  });
+
+  const memoizedFn = await memoizer.fn(
+    opts.dirname
+      ? (_) => resolveConfigSync(filePath, baseConfig, options)
+      : resolveConfigSync,
+  );
+  const cfg = await memoizedFn(
+    ...(opts.dirname ? [opts.dirname] : [filePath, baseConfig, options]),
+  );
+
+  return cfg;
+}
+
+function formatCodeframe(rep) {
+  return console.log(codeframe(rep.results || rep));
+}
+
+function injectIntoLinter(config, linter) {
+  if (!config) {
+    return linter;
+  }
+
+  const linterInstance = linter || new Linter();
+
+  []
+    .concat(config.plugins)
+    .filter(Boolean)
+    .forEach((pluginName) => {
+      let plugin = null;
+
+      if (pluginName.startsWith('@')) {
+        plugin = require(pluginName);
+      } else {
+        plugin = require(`eslint-plugin-${pluginName}`);
+      }
+
+      // note: defineRules is buggy
+      Object.keys(plugin.rules).forEach((ruleName) => {
+        linterInstance.defineRule(
+          `${pluginName}/${ruleName}`,
+          plugin.rules[ruleName],
+        );
+      });
+
+      // note: otherwise this should work
+      // linterInstance.defineRules(
+      //   Object.keys(plugin.rules).reduce((acc, ruleName) => {
+      //     acc[`${pluginName}/${ruleName}`] = plugin.rules[ruleName];
+
+      //     return acc;
+      //   }, {}),
+      // );
+    });
+
+  // define only when we are passed with "raw" (not processed) config
+  if (config.parser && !config.parser.startsWith('/')) {
+    linterInstance.defineParser(config.parser, require(config.parser));
+  }
+
+  return linterInstance;
+}
+
+async function* lintFiles(patterns, options) {
+  const opts = { dirs: [], exclude: DEFAULT_IGNORE, ...options };
+  const iterable = globCache(patterns, opts);
+
+  let linter = new Linter();
+  let eslintConfig = await tryLoadLintConfig();
+
+  linter = injectIntoLinter(eslintConfig, linter);
 
   const report = {
     results: [],
@@ -135,21 +256,126 @@ async function smartLintFiles(settings) {
     fixableWarningCount: 0,
   };
 
-  if (useIterables) {
-    await useIterables({ include, exclude, ...options }, report);
-  }
-  if (usePromises) {
-    await usePromises({ include, exclude, ...options }, report);
-  }
-  if (useGlobCache) {
-    await useGlobCache({ include, exclude, ...options }, report);
+  for await (const ctx of iterable) {
+    if (ctx.changed) {
+      const dirname = path.dirname(ctx.file.path);
+      if (opts.dirs.includes(dirname)) {
+        eslintConfig = await resolveConfig(ctx.file.path, 0, { dirname });
+        linter = injectIntoLinter(eslintConfig, linter);
+      }
+
+      const meta = ctx.cacheFile && ctx.cacheFile.metadata;
+      const contents = ctx.file.contents.toString();
+      const { output, messages } = lint({
+        ...opts,
+        linter,
+        filename: ctx.file.path,
+        contents,
+        config: meta ? meta.eslintConfig : eslintConfig,
+      });
+
+      const res = {
+        filePath: ctx.file.path,
+        messages,
+        errorCount: calculateCount('error', messages, report),
+        warningCount: calculateCount('warning', messages, report),
+
+        // todo calc these too?
+        fixableErrorCount: 0,
+        fixableWarningCount: 0,
+      };
+
+      yield { ...ctx, result: res };
+
+      const diff = JSON.stringify(res) !== JSON.stringify(meta && meta.report);
+
+      if (diff) {
+        // todo update cache with cacache.put
+        await ctx.cacache.put(ctx.cacheLocation, ctx.file.path, output, {
+          metadata: { report: res, eslintConfig },
+        });
+      }
+
+      if (opts.report) {
+        formatCodeframe([res]);
+      }
+      if (opts.buffered) {
+        report.results.push(res);
+      }
+    }
   }
 
   return report;
 }
 
+(async () => {
+  const iter = await lintFiles('packages/eslint/src/**/*.js', { report: true });
+
+  for await (const x of iter) {
+  }
+})();
+
+async function tryLoadLintConfig() {
+  const rootDir = process.cwd();
+  let cfg = null;
+
+  try {
+    // console.log('zzzzzzzzz', require(path.join(rootDir, 'lint.config.js')));
+    // cfg = {};
+    cfg = await require(path.join(rootDir, 'lint.config.js'));
+  } catch (err) {
+    return null;
+  }
+
+  return cfg;
+}
+
+function lint(options) {
+  const opts = { ...options };
+  const cfg = { ...opts.config, filename: opts.filename };
+
+  if (!opts.contents) {
+    opts.contents = fs.readFileSync(opts.filename, 'utf8');
+  }
+
+  if (opts.fix) {
+    const { output, messages } = opts.linter.verifyAndFix(opts.contents, cfg);
+    fs.writeFileSync(opts.filepath, output);
+
+    return { output, messages };
+  }
+
+  const messages = opts.linter.verify(opts.contents, cfg);
+  return { output: opts.contents, messages };
+}
+
+function calculateCount(type, messages, report) {
+  const rep = report;
+  return []
+    .concat(messages)
+    .filter(Boolean)
+    .filter((x) => (type === 'error' ? x.severity === 2 : x.severity === 1))
+    .reduce((acc) => {
+      if (type === 'error') {
+        rep.errorCount += 1;
+      }
+      if (type === 'warning') {
+        rep.warningCount += 1;
+      }
+
+      return acc + 1;
+    }, 0);
+}
+
 module.exports = {
-  smartLintFiles,
+  injectIntoLinter,
+  resolveConfigSync,
+  resolveConfig,
+  formatCodeframe,
+  lintFiles,
+  lint,
+  tryLoadLintConfig,
+
   DEFAULT_IGNORE,
   DEFAULT_INPUT: DEFAULT_INPUTS,
   DEFAULT_INPUTS,
