@@ -12,7 +12,8 @@
     "bootstrap": "lerna bootstrap --since",
     "clean:fresh": "lerna clean -y && rm -rf node_modules yarn.lock",
     "format": "prettier '**/*.{js,md,json}' --write",
-    "lint": "eslint '{commands,modules,packages,presets}/*/{src,__tests__}/**/*.js' --fix --cache --quiet --format codeframe",
+    "lint": "hela eslint --fix",
+    "lint:fresh": "rm -rf .cache/hela-eslint-cache && hela eslint --fix",
     "release": "lerna version && lerna publish from-package",
     "presetup": "echo foo-bar",
     "setup": "yarn",
@@ -36,10 +37,10 @@
     "prettier": "^1.19.1",
     "prettier-plugin-pkgjson": "^0.2.4"
   },
+  "hela": "./.hela.config.js",
   "renovate": {
     "extends": [
       "@tunnckocore"
     ]
-  },
-  "hela": "./.hela.config.js"
+  }
 }

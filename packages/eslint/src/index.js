@@ -3,7 +3,7 @@
 /* eslint-disable max-statements */
 /* eslint-disable no-restricted-syntax */
 
-'use strict'
+'use strict';
 
 const fs = require('fs');
 const path = require('path');
@@ -46,6 +46,7 @@ function wrapper(prog) {
           `${rootLintConfigFile}`,
           `module.exports = ${JSON.stringify(config)}`,
         );
+
         console.log('Done.');
         return;
       }
