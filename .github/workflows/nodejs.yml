@@ -43,11 +43,24 @@ jobs:
             ${{ matrix.os }}-nodejs-${{ matrix.node }}-
             ${{ matrix.os }}-nodejs-
             ${{ matrix.os }}-
+      - uses: actions/cache@v1
+        id: lint-cache
+        name: Cache linting and other things
+        with:
+          path: .cache
+          key: ${{ matrix.os }}-caching-v1-${{ matrix.node }}-${{ hashFiles('.lint.config.js') }}
+          restore-keys: |
+            ${{ matrix.os }}-caching-v1-${{ matrix.node }}-
+            ${{ matrix.os }}-caching-v1-
+            ${{ matrix.os }}-
       - name: Installing dependencies
         if: steps.nodejs-cache.outputs.cache-hit != 'true'
         run: yarn run setup:ci
-      - name: Linting & Format codebase with ESLint and Prettier
-        run: yarn run lint && yarn run format
+      - name: Linting & Format with Hela ESLint
+        if: steps.lint-cache.outputs.cache-hit != 'true'
+        run: yarn run lint
+      - name: Format codebase Prettier
+        run: yarn run format
   test:
     if: "!contains(toJson(github.event.commits), '[skip ci]')"
     env:
