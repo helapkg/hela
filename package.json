@@ -41,7 +41,5 @@
       "@tunnckocore"
     ]
   },
-  "hela": {
-    "extends": "@hela/dev"
-  }
+  "hela": "./.hela.config.js"
 }

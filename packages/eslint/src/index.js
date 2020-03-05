@@ -1,95 +1,108 @@
-'use strict';
+/* eslint-disable global-require */
+/* eslint-disable import/no-dynamic-require */
+/* eslint-disable max-statements */
+/* eslint-disable no-restricted-syntax */
 
+'use strict'
+
+const fs = require('fs');
+const path = require('path');
 const { hela } = require('@hela/core');
-const codeframe = require('eslint/lib/cli-engine/formatters/codeframe');
-
-const smartLintOld = require('./smart-lint-yesterday');
-
-const useIterables = require('./apis/use-iterables');
-const usePromises = require('./apis/use-promises');
-const useGlobCache = require('./apis/use-glob-cache');
-const { smartLintFiles, DEFAULT_IGNORE, DEFAULT_INPUTS } = require('./api');
+const {
+  DEFAULT_IGNORE,
+  DEFAULT_INPUTS,
+  OUR_CONFIG_FILENAME,
+  ...api
+} = require('./api');
 
 function wrapper(prog) {
   return prog
-
+    .option('--init', 'Create lint config from fully resolved ESLint config')
     .option('--fix', 'Automatically fix problems')
+    .option('--warnings', 'Shows warnings too', false)
     .option('--reporter', 'Use a specific output format reporter')
     .option('--include', 'Input files or glob patterns', DEFAULT_INPUTS)
-    .option('--exclude', 'Ignore patterns', DEFAULT_IGNORE)
-    .option(
-      '-c, --config',
-      'Use this configuration, overriding .eslintrc.* config options if present',
-    )
+    .option('--exclude', 'Ignore patterns (multiple)', DEFAULT_IGNORE)
     .action(async (...args) => {
       const files = args.slice(0, -2);
       const argv = args[args.length - 2];
-      const opts = args[args.length - 1];
+      // const opts = args[args.length - 1];
+
+      if (argv.init) {
+        const rootLintConfigFile = path.join(
+          process.cwd(),
+          OUR_CONFIG_FILENAME,
+        );
+        const loadConfigContents = `module.exports = require('@hela/eslint').resolveConfig(__filename);`;
+
+        // write our config loading resolution
+        fs.writeFileSync(rootLintConfigFile, loadConfigContents);
+
+        // import/require/load the resolved config
+        const config = await require(rootLintConfigFile);
+
+        // re-write the `.js` config file
+        fs.writeFileSync(
+          `${rootLintConfigFile}`,
+          `module.exports = ${JSON.stringify(config)}`,
+        );
+        console.log('Done.');
+        return;
+      }
 
       const include = []
         .concat(files.length > 0 ? files : argv.include || DEFAULT_INPUTS)
         .reduce((acc, x) => acc.concat(x), [])
         .filter(Boolean);
 
-      const exclude = []
-        .concat(argv.exclude || DEFAULT_IGNORE)
+      let exclude = []
+        .concat(argv.exclude)
         .reduce((acc, x) => acc.concat(x), [])
         .filter(Boolean);
+      exclude = exclude.length > 0 ? exclude : null;
 
-      console.log(include);
-      console.log(argv);
+      const report = {
+        errorCount: 0,
+        warningCount: 0,
+        filesCount: 0,
+      };
 
-      let report = null;
+      const iterable = await api.lintFiles(include, { ...argv, exclude });
 
-      if (argv.useIterables) {
-        report = await smartLintFiles({
-          ...argv,
-          include,
-          exclude,
-          useConfigCache: false,
-          useIterables,
-        });
-      }
-      if (argv.useIterablesConfigCache) {
-        report = await smartLintFiles({
-          ...argv,
-          include,
-          exclude,
-          useConfigCache: true,
-          useIterables,
-        });
-      }
-      if (argv.usePromises) {
-        report = await smartLintFiles({
-          ...argv,
-          include,
-          exclude,
-          usePromises,
-        });
-      }
-      if (argv.useGlobCache) {
-        report = await smartLintFiles({
-          ...argv,
-          include,
-          exclude,
-          useGlobCache,
-          useConfigCache: false,
-        });
-      }
-      if (argv.useSmartOld) {
-        report = await smartLintOld({ ...argv, include, exclude });
+      for await (const { result } of iterable) {
+        report.filesCount += 1;
+        if (result.errorCount || result.warningCount) {
+          const resultReport = api.createReportOrResult('results', [result]);
+
+          report.errorCount += resultReport.errorCount || 0;
+          report.warningCount += resultReport.warningCount || 0;
+
+          const output = api
+            .formatCodeframe(resultReport.results)
+            .trim()
+            .split('\n')
+            .slice(0, -2)
+            .join('\n');
+
+          console.log(output);
+        } else {
+          // console.log('File:', report.filesCount, file.path);
+        }
       }
 
-      format(report.results);
+      if (report.errorCount === 0 && report.warningCount === 0) {
+        console.log('No problems found.');
+        return;
+      }
+
+      const warnings = argv.warnings
+        ? `and ${report.warningCount} warning(s) `
+        : '';
+
+      console.log('');
+      console.log(`${report.errorCount} error(s) ${warnings}found.`);
+      // formatCodeframe(report, true);
     });
-}
-
-function hasReportChanged(a, b) {
-  return JSON.stringify(a) === JSON.stringify(b);
-}
-
-function format(reportResults) {
-  console.log(codeframe(reportResults));
 }
 
 function helaCommand() {
@@ -97,7 +110,7 @@ function helaCommand() {
 }
 
 module.exports = {
-  /* lintText, lintFiles, */
+  ...api,
   wrapper,
   helaCommand,
 };

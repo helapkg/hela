@@ -18,8 +18,12 @@ const DEFAULT_IGNORE = [
   '**/dist/**',
 ];
 
-const DEFAULT_INPUTS = ['**/src/**', '**/*test*/**'];
+const OUR_CONFIG_FILENAME = '.lint.config.js';
 const DEFAULT_EXTENSIONS = ['js', 'jsx', 'cjs', 'mjs', 'ts', 'tsx'];
+const DEFAULT_INPUTS = [
+  `**/src/**/*.{${DEFAULT_EXTENSIONS.join(',')}}`,
+  `**/*test*/**/*.{${DEFAULT_EXTENSIONS.join(',')}}`,
+];
 
 const fs = require('fs');
 const path = require('path');
@@ -32,14 +36,16 @@ function resolveConfigSync(filePath, baseConfig, options) {
   const { cwd, ...opt } = { /* cwd: process.cwd(), */ ...options };
   const doNotUseEslintRC = baseConfig && typeof baseConfig === 'object';
 
-  const engine = new CLIEngine({
-    extensions: DEFAULT_EXTENSIONS,
+  const settings = {
     ...opt,
     baseConfig,
     cache: true,
     useEslintrc: !doNotUseEslintRC,
     cacheLocation: './.cache/custom-eslint-cache',
-  });
+  };
+  settings.extensions = settings.extensions || DEFAULT_EXTENSIONS;
+
+  const engine = new CLIEngine(settings);
 
   const config = engine.getConfigForFile(filePath);
 
@@ -64,8 +70,9 @@ async function resolveConfig(filePath, baseConfig, options) {
   return cfg;
 }
 
-function formatCodeframe(rep) {
-  return console.log(codeframe(rep.results || rep));
+function formatCodeframe(rep, log) {
+  const res = codeframe(rep.results || rep);
+  return log ? console.log(res) : res;
 }
 
 function injectIntoLinter(config, linter) {
@@ -105,6 +112,15 @@ function injectIntoLinter(config, linter) {
       // );
     });
 
+  if (config.parser && config.parser.startsWith('/')) {
+    if (config.parser.includes('babel-eslint')) {
+      config.parser = 'babel-eslint';
+    } else if (config.parser.includes('@typescript-eslint/parser')) {
+      config.parser = '@typescript-eslint/parser';
+    }
+    // NOTE: more parsers
+  }
+
   // define only when we are passed with "raw" (not processed) config
   if (config.parser && !config.parser.startsWith('/')) {
     linterInstance.defineParser(config.parser, require(config.parser));
@@ -114,13 +130,15 @@ function injectIntoLinter(config, linter) {
 }
 
 async function* lintFiles(patterns, options) {
-  const opts = {
-    dirs: [],
-    exclude: DEFAULT_IGNORE,
-    extensions: DEFAULT_EXTENSIONS,
-    ...options,
-  };
-  const iterable = globCache(patterns, opts);
+  const opts = { dirs: [], cwd: process.cwd(), ...options };
+  opts.exclude = opts.exclude || DEFAULT_IGNORE;
+  opts.extensions = opts.extensions || DEFAULT_EXTENSIONS;
+  opts.cacheLocation =
+    typeof opts.cacheLocation === 'string'
+      ? opts.cacheLocation
+      : path.join(opts.cwd, '.cache', 'hela-eslint-cache');
+
+  const iterable = await globCache(patterns, opts);
 
   let linter = opts.linter || new Linter();
   let eslintConfig = await tryLoadLintConfig();
@@ -130,6 +148,7 @@ async function* lintFiles(patterns, options) {
   for await (const ctx of iterable) {
     const meta = ctx.cacheFile && ctx.cacheFile.metadata;
 
+    // TODO force `ctx.changed` to be true when `options` change
     if (ctx.changed) {
       const dirname = path.dirname(ctx.file.path);
       if (opts.dirs.includes(dirname)) {
@@ -162,11 +181,14 @@ async function* lintFiles(patterns, options) {
       //   fixableErrorCount: 0,
       //   fixableWarningCount: 0,
       // };
+      const diff = JSON.stringify(res) !== JSON.stringify(meta && meta.report);
 
       // NOTE: `source` property seems deprecated but formatters need it so..
-      yield { ...ctx, result: { ...res, source } };
-
-      const diff = JSON.stringify(res) !== JSON.stringify(meta && meta.report);
+      yield {
+        ...ctx,
+        result: { ...res, source },
+        eslintConfig: (meta && meta.eslintConfig) || eslintConfig,
+      };
 
       if (diff) {
         // todo update cache with cacache.put
@@ -193,21 +215,24 @@ async function* lintFiles(patterns, options) {
   }
 }
 
-lintFiles.promise = async function lintFilesPromise(...args) {
+lintFiles.promise = async function lintFilesPromise(patterns, options) {
+  const opts = { ...options };
   const results = [];
-  const iterable = await lintFiles(...args);
+  const iterable = await lintFiles(patterns, opts);
 
   for await (const { result } of iterable) {
     results.push(result);
   }
 
-  return createReportOrResult(results);
+  return createReportOrResult('results', results);
 };
 
 function lint(options) {
   const opts = { ...options };
   const cfg = { ...opts.config, filename: opts.filename };
   const linter = opts.linter || new Linter();
+  const filter = (x) =>
+    opts.warnings ? true : !opts.warnings && x.severity === 2;
 
   if (!opts.contents && !opts.text) {
     opts.contents = fs.readFileSync(cfg.filename, 'utf8');
@@ -221,11 +246,14 @@ function lint(options) {
       fs.writeFileSync(cfg.filename, output);
     }
 
-    return { source: output, messages };
+    return { source: output, messages: messages.filter(filter) };
   }
 
   const messages = linter.verify(opts.contents, cfg);
-  return { source: opts.contents, messages };
+  return {
+    source: opts.contents,
+    messages: messages.filter(filter),
+  };
 }
 
 async function lintText(contents, options) {
@@ -244,7 +272,7 @@ async function lintText(contents, options) {
   });
 
   const result = createReportOrResult('messages', messages, {
-    filePath: opts.filename,
+    filePath: opts.filename || '<text>',
     source,
   });
   const report = createReportOrResult('results', [result]);
@@ -268,16 +296,15 @@ function createReportOrResult(type, results, extra) {
     ret.warningCount = calculateCount('warning', results);
   }
 
-  return results.reduce((acc, result) => {
-    ret[type].push(result);
+  return results.reduce((acc, res) => {
+    ret[type].push(res);
 
-    if (type !== 'messages') {
-      acc.errorCount += result.errorCount || 0;
-      acc.warningCount += result.warningCount || 0;
+    if (type === 'results') {
+      acc.errorCount += res.errorCount || 0;
+      acc.warningCount += res.warningCount || 0;
+      acc.fixableErrorCount += res.fixableErrorCount || 0;
+      acc.fixableWarningCount += res.fixableWarningCount || 0;
     }
-
-    acc.fixableErrorCount += result.fixableErrorCount || 0;
-    acc.fixableWarningCount += result.fixableWarningCount || 0;
 
     return acc;
   }, ret);
@@ -288,7 +315,7 @@ async function tryLoadLintConfig() {
   let cfg = null;
 
   try {
-    cfg = await require(path.join(rootDir, 'lintconfig.js'));
+    cfg = await require(path.join(rootDir, OUR_CONFIG_FILENAME));
   } catch (err) {
     return null;
   }
@@ -320,15 +347,14 @@ module.exports = {
   DEFAULT_INPUT: DEFAULT_INPUTS,
   DEFAULT_INPUTS,
   DEFAULT_EXTENSIONS,
+  OUR_CONFIG_FILENAME,
 };
 
-(async () => {
-  const patterns = 'packages/eslint/src/**/*.js';
-  const report = await lintText('var foo = 123', {
-    fix: true,
-    filename: 'foobie.js',
-  });
+// (async () => {
+//   // const patterns = 'packages/eslint/src/**/*.js';
+//   // const report = await lintFiles(patterns, { fix: true });
+//   const report = await lintText('var foo = 123', { fix: true });
 
-  formatCodeframe(report.results);
-  console.log(report.source); // fixed source code text
-})();
+//   formatCodeframe(report.results);
+//   console.log(report.source); // fixed source code text
+// })();
