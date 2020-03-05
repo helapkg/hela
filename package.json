@@ -23,7 +23,7 @@
     "setup:full": "yarn audit && yarn run setup:locklint && yarn run bootstrap",
     "setup:locklint": "lockfile-lint --path yarn.lock --type yarn --validate-https",
     "test": "jest",
-    "test:ci": "jest --coverage"
+    "test:ci": "jest --coverage --onlyChanged"
   },
   "dependencies": {
     "@tunnckocore/eslint-config": "^5.4.5",

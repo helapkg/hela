@@ -44,7 +44,7 @@ function wrapper(prog) {
         // re-write the `.js` config file
         fs.writeFileSync(
           `${rootLintConfigFile}`,
-          `// cache-changed\nmodule.exports = ${JSON.stringify(config)}`,
+          `module.exports = ${JSON.stringify(config)}`,
         );
 
         console.log('Done.');
@@ -115,49 +115,3 @@ module.exports = {
   wrapper,
   helaCommand,
 };
-
-// file changed    OR    first hit
-// if (valid === false || (valid && missing)) {
-//   console.log('hit2', valid, missing);
-//   const report = await lintFiles(file.path, argv);
-//   const cacheReport = cacheFile && cacheFile.metadata;
-//   const { results, errorCount, warningCount } = report;
-
-//   const isReportChanged = hasReportChanged(
-//     { results, errorCount, warningCount },
-//     cacheReport,
-//   );
-//   console.log(valid, missing, isReportChanged);
-
-//   if (
-//     isReportChanged ||
-//     isReportChanged === 0 ||
-//     missing === true ||
-//     valid === false
-//   ) {
-//     console.log('writing new cache with metadata');
-//     // delete old
-//     // cacache.rm.entry(cacheLocation, file.path);
-//     // cacache.rm.content(
-//     //   cacheLocation,
-//     //   (cacheFile && cacheFile.integrity) || file.integrity,
-//     // );
-//     // cacache.verify(cacheLocation);
-
-//     // re-add with metadata
-//     cacache.put(cacheLocation, file.path, file.contents.toString(), {
-//       metadata: {
-//         results,
-//         errorCount,
-//         warningCount,
-//       },
-//     });
-//   }
-
-//   format(results);
-// }
-
-// if (valid && missing === false) {
-//   console.log('from cache');
-//   format(cacheFile.metadata.results);
-// }
