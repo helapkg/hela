@@ -145,10 +145,12 @@ async function* lintFiles(patterns, options) {
 
   linter = injectIntoLinter(eslintConfig, linter);
 
+  // TODO use `cacache` for caching `options` and
+  // based on that force `ctx.changed` if it is `false`
+
   for await (const ctx of iterable) {
     const meta = ctx.cacheFile && ctx.cacheFile.metadata;
 
-    // TODO force `ctx.changed` to be true when `options` change
     if (ctx.changed) {
       const dirname = path.dirname(ctx.file.path);
       if (opts.dirs.includes(dirname)) {

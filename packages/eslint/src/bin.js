@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+'use strict';
+
 const { hela } = require('@hela/core');
 const { wrapper } = require('./index.js');
 
