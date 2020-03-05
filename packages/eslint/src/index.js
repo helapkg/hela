@@ -33,7 +33,7 @@ function wrapper(prog) {
           process.cwd(),
           OUR_CONFIG_FILENAME,
         );
-        const loadConfigContents = `module.exports = require('@hela/eslint').resolveConfig(__filename);`;
+        const loadConfigContents = `\nmodule.exports = require('@hela/eslint').resolveConfig(__filename);`;
 
         // write our config loading resolution
         fs.writeFileSync(rootLintConfigFile, loadConfigContents);
@@ -44,7 +44,7 @@ function wrapper(prog) {
         // re-write the `.js` config file
         fs.writeFileSync(
           `${rootLintConfigFile}`,
-          `module.exports = ${JSON.stringify(config)}`,
+          `// cache-changed\nmodule.exports = ${JSON.stringify(config)}`,
         );
 
         console.log('Done.');
