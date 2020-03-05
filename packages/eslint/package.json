@@ -44,6 +44,6 @@
   "dependencies": {
     "@hela/core": "^3.1.0",
     "eslint": "^6.8.0",
-    "glob-cache": "^0.3.5"
+    "glob-cache": "^1.0.0"
   }
 }
