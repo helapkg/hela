@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.2.0](https://github.com/tunnckoCore/hela/compare/@hela/cli@3.1.0...@hela/cli@3.2.0) (2020-03-06)
+
+
+### Features
+
+* rewrite `@hela/eslint` from scratch ([#222](https://github.com/tunnckoCore/hela/issues/222)) ([a0d43d4](https://github.com/tunnckoCore/hela/commit/a0d43d41dfbd0ebe7c5f1aecc86ac6378fdd2139))
+
+
+
+
+
 # 3.1.0 (2020-02-29)
 
 
