@@ -27,6 +27,7 @@ function wrapper(prog) {
       const files = args.slice(0, -2);
       const argv = args[args.length - 2];
       // const opts = args[args.length - 1];
+      console.log(args);
 
       if (argv.init) {
         const rootLintConfigFile = path.join(
