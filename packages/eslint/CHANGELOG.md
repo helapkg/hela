@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.1](https://github.com/tunnckoCore/hela/compare/@hela/eslint@3.2.0...@hela/eslint@3.2.1) (2020-03-06)
+
+
+### Bug Fixes
+
+* duhhhh, fix the wrong publishConfig.registry ([b0e35d0](https://github.com/tunnckoCore/hela/commit/b0e35d00426c0d1a6e0544989a164c825101ad85))
+
+
+
+
+
 # [3.2.0](https://github.com/tunnckoCore/hela/compare/@hela/eslint@3.1.0...@hela/eslint@3.2.0) (2020-03-06)
 
 
