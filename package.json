@@ -45,7 +45,7 @@
     }
   },
   "lint-staged": {
-    "**/*.{js,jsx,mjs,cjs,ts,tsx}": "hela eslint --fix --",
+    "**/*.{js,jsx,mjs,cjs,ts,tsx}": "hela eslint --fix --globOptions.dot --",
     "**/*.{js,md,json}": "prettier --write"
   },
   "renovate": {
