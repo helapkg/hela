@@ -29,6 +29,7 @@
     "node": ">= 10.13"
   },
   "publishConfig": {
+    "registry": "https://registry.npmjs.com",
     "access": "public",
     "tag": "latest"
   },
@@ -37,7 +38,7 @@
     "@hela/core": "^3.1.0",
     "eslint": "^6.8.0",
     "find-pkg": "^2.0.0",
-    "glob-cache": "^1.0.0",
+    "glob-cache": "^1.0.1",
     "memoize-fs": "^2.1.0"
   },
   "keywords": [
