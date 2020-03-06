@@ -27,7 +27,6 @@ function wrapper(prog) {
       const files = args.slice(0, -2);
       const argv = args[args.length - 2];
       // const opts = args[args.length - 1];
-      console.log(args);
 
       if (argv.init) {
         const rootLintConfigFile = path.join(
@@ -104,6 +103,11 @@ function wrapper(prog) {
       console.log('');
       console.log(`${report.errorCount} error(s) ${warnings}found.`);
       // formatCodeframe(report, true);
+
+      if (report.errorCount > 0) {
+        // eslint-disable-next-line unicorn/no-process-exit
+        process.exit(1);
+      }
     });
 }
 

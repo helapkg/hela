@@ -41,7 +41,7 @@
   "hela": "./.hela.config.js",
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged --debug"
     }
   },
   "lint-staged": {
