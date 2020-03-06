@@ -33,11 +33,21 @@
     "husky": "^4.2.3",
     "jest": "^25.1.0",
     "lerna": "^3.20.2",
+    "lint-staged": "^10.0.8",
     "lockfile-lint": "^4.0.0",
     "prettier": "^1.19.1",
     "prettier-plugin-pkgjson": "^0.2.4"
   },
   "hela": "./.hela.config.js",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,mjs,cjs,ts,tsx}": "yarn lint",
+    "**/*.{js,md,json}": "prettier --write"
+  },
   "renovate": {
     "extends": [
       "@tunnckocore"
