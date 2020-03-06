@@ -13,22 +13,24 @@ exports.createJestCommand = function createJestCommand(prog) {
       .option('-e, --exclude', 'Ignore pattern string.')
       .option(
         '-I, --input',
-        'Input patterns for the "lint" command, defaults to src and testing dirs.',
+        'Input patterns for the command, defaults to src and testing dirs.',
       )
       .option(
         '-m, --testPathPattern',
-        'A regexp pattern string that is matched against all tests paths before executing the test.',
+        'A regexp pattern string that is matched against all matched paths before executing.',
       )
       .option(
         '-t, --testNamePattern',
         'Run only tests with a name that matches the regex pattern',
       )
       .option('-o, --onlyChanged', 'Run only on changed packages')
-      .action(async (argv) => {
+      .action(async function ssss(argv) {
         // switch the env set by default when running Jest. For ensurance.
         process.env.NODE_ENV = name;
 
+        // console.log(arguments);
         const opts = { ...argv };
+        // console.log('xxxx', opts);
 
         const ignores = opts.exclude;
         const inputs = opts.input;
@@ -48,6 +50,8 @@ exports.createJestCommand = function createJestCommand(prog) {
         ].forEach((key) => {
           delete opts[key];
         });
+
+        if (opts._) opts._.shift();
 
         const flags = toFlags(opts, { allowCamelCase: true });
         // console.log(opts, flags);
