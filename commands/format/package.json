@@ -24,6 +24,7 @@
     "node": ">= 10.13"
   },
   "publishConfig": {
+    "registry": "https://registry.npmjs.com",
     "access": "public",
     "tag": "latest"
   },

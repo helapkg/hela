@@ -5,3 +5,6 @@ dist
 
 !*.*js
 !*.*ts
+
+memoize-fs.js
+# globbing.js

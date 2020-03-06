@@ -46,8 +46,10 @@ jobs:
       - name: Installing dependencies
         if: steps.nodejs-cache.outputs.cache-hit != 'true'
         run: yarn run setup:ci
-      - name: Linting & Format codebase with ESLint and Prettier
-        run: yarn run lint && yarn run format
+      - name: Linting & Format with Hela ESLint
+        run: yarn run lint
+      - name: Format full codebase with Prettier
+        run: yarn run format
   test:
     if: "!contains(toJson(github.event.commits), '[skip ci]')"
     env:

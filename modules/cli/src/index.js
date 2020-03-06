@@ -29,7 +29,7 @@ prog
 
 module.exports = async function main() {
   const cfgPath = argv.c || argv.config;
-  const cfg = cfgPath ? await explorer.load(cfgPath) : await explorer.search();
+  const cfg = await tryLoadConfig(cfgPath);
 
   if (!isValidConfig(cfg)) {
     throw new HelaError('No config found or invalid. Try "--config" flag.');
@@ -90,4 +90,28 @@ function isValidConfig(val) {
 
 function isObject(val) {
   return val && typeof val === 'object' && Array.isArray(val) === false;
+}
+
+async function tryLoadConfig(name) {
+  let mod = null;
+
+  try {
+    mod = require(name);
+    if (mod) {
+      mod = { config: mod, filepath: name };
+    }
+  } catch (err) {
+    if (name) {
+      try {
+        mod = await explorer.load(name);
+      } catch (e) {
+        try {
+          mod = await explorer.search();
+        } catch (_) {
+          mod = null;
+        }
+      }
+    }
+  }
+  return mod || explorer.search();
 }

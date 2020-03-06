@@ -12,7 +12,8 @@
     "bootstrap": "lerna bootstrap --since",
     "clean:fresh": "lerna clean -y && rm -rf node_modules yarn.lock",
     "format": "prettier '**/*.{js,md,json}' --write",
-    "lint": "eslint '{commands,modules,packages,presets}/*/{src,__tests__}/**/*.js' --fix --cache --quiet --format codeframe",
+    "lint": "hela eslint --fix",
+    "lint:fresh": "rm -rf .cache/hela-eslint-cache && hela eslint --fix",
     "release": "lerna version && lerna publish from-package",
     "presetup": "echo foo-bar",
     "setup": "yarn",
@@ -22,11 +23,12 @@
     "setup:full": "yarn audit && yarn run setup:locklint && yarn run bootstrap",
     "setup:locklint": "lockfile-lint --path yarn.lock --type yarn --validate-https",
     "test": "jest",
-    "test:ci": "jest --coverage"
+    "test:ci": "jest --coverage --onlyChanged"
   },
   "dependencies": {
     "@tunnckocore/eslint-config": "^5.4.5",
     "@tunnckocore/prettier-config": "^1.3.4",
+    "babel-eslint": "^10.1.0",
     "eslint": "^6.8.0",
     "husky": "^4.2.3",
     "jest": "^25.1.0",
@@ -35,12 +37,10 @@
     "prettier": "^1.19.1",
     "prettier-plugin-pkgjson": "^0.2.4"
   },
+  "hela": "./.hela.config.js",
   "renovate": {
     "extends": [
       "@tunnckocore"
     ]
-  },
-  "hela": {
-    "extends": "@hela/dev"
   }
 }
