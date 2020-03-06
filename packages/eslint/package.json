@@ -1,6 +1,6 @@
 {
   "name": "@hela/eslint",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "licenseStart": 2018,
   "license": "MPL-2.0",
   "description": "WIP: Powerful software development experience",
@@ -35,7 +35,7 @@
   },
   "scripts": {},
   "dependencies": {
-    "@hela/core": "^3.2.1",
+    "@hela/core": "^3.2.2",
     "eslint": "^6.8.0",
     "find-pkg": "^2.0.0",
     "glob-cache": "^1.0.1",

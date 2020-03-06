@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.2](https://github.com/tunnckoCore/hela/compare/@hela/eslint@3.2.1...@hela/eslint@3.2.2) (2020-03-06)
+
+
+### Bug Fixes
+
+* tweaks, yaro exit 1, ignores, lint-staged ([20ad4c0](https://github.com/tunnckoCore/hela/commit/20ad4c0a549c4bd9971427d29fbc33a9ada83d23))
+* **eslint:** ignore path that is eslintignore-ed ([aa8fcbe](https://github.com/tunnckoCore/hela/commit/aa8fcbe4edb54243b6703a6c63ef8baa99c9aa42))
+
+
+
+
+
 ## [3.2.1](https://github.com/tunnckoCore/hela/compare/@hela/eslint@3.2.0...@hela/eslint@3.2.1) (2020-03-06)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.2](https://github.com/tunnckoCore/hela/compare/@hela/yaro@3.2.1...@hela/yaro@3.2.2) (2020-03-06)
+
+
+### Bug Fixes
+
+* **yaro:** support nested flag dot notation ([99329c6](https://github.com/tunnckoCore/hela/commit/99329c66e1f8c67b59896fcdb92d7767ef96f0ee))
+
+
+
+
+
 ## [3.2.1](https://github.com/tunnckoCore/hela/compare/@hela/yaro@3.2.0...@hela/yaro@3.2.1) (2020-03-06)
 
 
