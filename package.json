@@ -45,7 +45,7 @@
     }
   },
   "lint-staged": {
-    "**/*.{js,jsx,mjs,cjs,ts,tsx}": "yarn lint",
+    "**/*.{js,jsx,mjs,cjs,ts,tsx}": "hela eslint --fix --",
     "**/*.{js,md,json}": "prettier --write"
   },
   "renovate": {
