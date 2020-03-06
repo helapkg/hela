@@ -5,6 +5,7 @@
 'use strict';
 
 const parseArgv = require('mri');
+const dset = require('dset');
 
 const { cwd, exit } = process;
 const processEnv = process.env;
@@ -554,7 +555,10 @@ class Yaro {
     const rawArgs = parsed._.slice();
     delete parsed._;
 
-    const flags = { ...parsed };
+    const flags = Object.keys({ ...parsed }).reduce((acc, key) => {
+      dset(acc, key, acc[key] === undefined ? true : acc[key]);
+      return acc;
+    }, {});
 
     const cmdName = this.settings.singleMode
       ? '$$root'

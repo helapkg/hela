@@ -30,6 +30,7 @@
   },
   "scripts": {},
   "dependencies": {
+    "dset": "^2.0.1",
     "mri": "^1.1.4"
   },
   "keywords": [
