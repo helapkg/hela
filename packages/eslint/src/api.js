@@ -140,6 +140,7 @@ async function* lintFiles(patterns, options) {
 
   const iterable = await globCache(patterns, opts);
 
+  const engine = new CLIEngine();
   let linter = opts.linter || new Linter();
   let eslintConfig = await tryLoadLintConfig();
 
@@ -150,6 +151,11 @@ async function* lintFiles(patterns, options) {
 
   for await (const ctx of iterable) {
     const meta = ctx.cacheFile && ctx.cacheFile.metadata;
+
+    if (engine.isPathIgnored(ctx.file.path)) {
+      // eslint-disable-next-line no-continue
+      continue;
+    }
 
     if (ctx.changed) {
       const dirname = path.dirname(ctx.file.path);
@@ -173,16 +179,6 @@ async function* lintFiles(patterns, options) {
         filePath: ctx.file.path,
       });
 
-      // const res = {
-      //   filePath: ctx.file.path,
-      //   messages,
-      //   errorCount: calculateCount('error', messages),
-      //   warningCount: calculateCount('warning', messages),
-
-      //   // todo calc these too?
-      //   fixableErrorCount: 0,
-      //   fixableWarningCount: 0,
-      // };
       const diff = JSON.stringify(res) !== JSON.stringify(meta && meta.report);
 
       // NOTE: `source` property seems deprecated but formatters need it so..
