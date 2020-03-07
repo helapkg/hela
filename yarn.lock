@@ -1725,9 +1725,9 @@ abbrev@1:
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
   integrity sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==
 
-acorn-globals@EmmaGoodliffe/acorn-globals#patch-1, acorn-globals@^4.3.2:
+acorn-globals@ForbesLindesay/acorn-globals#greenkeeper/acorn-7.1.1, acorn-globals@^4.3.2:
   version "4.3.4"
-  resolved "https://codeload.github.com/EmmaGoodliffe/acorn-globals/tar.gz/edebf79f829da5f0a6e19661a0b8a61033f16499"
+  resolved "https://codeload.github.com/ForbesLindesay/acorn-globals/tar.gz/7c415599482ab369d53fa4dce9eebb403f784c37"
   dependencies:
     acorn "^7.1.1"
     acorn-walk "^6.0.1"
