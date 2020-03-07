@@ -27,6 +27,7 @@
   "dependencies": {
     "@tunnckocore/eslint-config": "^5.4.5",
     "@tunnckocore/prettier-config": "^1.3.4",
+    "acorn-globals": "EmmaGoodliffe/acorn-globals#patch-1",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.8.0",
     "husky": "^4.2.3",
