@@ -21,8 +21,6 @@
     "src"
   ],
   "bin": {
-    "eslint": "src/bin.js",
-    "eslint-cli": "src/bin.js",
     "hela-eslint": "src/bin.js"
   },
   "engines": {
@@ -37,8 +35,10 @@
   "dependencies": {
     "@hela/core": "^3.2.2",
     "eslint": "^6.8.0",
-    "find-pkg": "^2.0.0",
+    "find-file-up": "^2.0.1",
     "glob-cache": "^1.0.1",
+    "import-fresh": "^3.2.1",
+    "is-glob": "^4.0.1",
     "memoize-fs": "^2.1.0"
   },
   "keywords": [

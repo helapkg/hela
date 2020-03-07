@@ -26,6 +26,8 @@ function wrapper(prog) {
     .action(async (...args) => {
       const files = args.slice(0, -2);
       const argv = args[args.length - 2];
+
+      console.log('files', files);
     });
 }
 
