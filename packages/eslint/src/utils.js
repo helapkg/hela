@@ -2,6 +2,8 @@
 
 const fs = require('fs');
 const util = require('util');
+const path = require('path');
+const crypto = require('crypto');
 
 const findFileUp = require('find-file-up');
 const importFresh = require('import-fresh');
@@ -99,38 +101,41 @@ function isContext(item) {
   return (item && isFile(item.file) && isCacheFile(item.cacheFile)) || false;
 }
 
-async function toFile(file) {
-  if (isFile(file)) {
-    return file;
+async function toFile(file, options) {
+  const opts = { toIntegrity, ...options };
+
+  let x = file || {};
+
+  if (typeof x === 'string') {
+    x = { path: x };
+  }
+  if (x && typeof x.path === 'string') {
+    x = { ...x, path: x.path };
   }
 
-  if ((file && typeof file.path === 'string') || typeof file === 'string') {
-    const contents = await readFile(file.path || file);
-    return {
-      path: file,
-      contents,
-      size: contents.length,
-    };
-  }
+  x.contents = (x && x.contents) || (await readFile(x.path));
+  x.size = x.contents.length;
+  x.integrity = x.integrity || (await opts.toIntegrity(x.contents));
 
-  throw new Error('@hela/eslint: unknown type, pass filepath or File object');
+  return { ...x };
+  // throw new Error('@hela/eslint: unknown type, pass filepath or File object');
 }
 
-async function toContext(file) {
-  if (isContext(file)) {
-    return file;
-  }
-  const f = toFile(file);
+function toIntegrity(value) {
+  const hashId = crypto
+    .createHash('sha512')
+    .update(value)
+    .digest('base64');
 
-  return { file: f, cacheFile: { key: f.path } };
+  return `sha512-${hashId}`;
 }
 
 module.exports = {
   isFile,
   isCacheFile,
   isContext,
-  toContext,
   toFile,
+  toIntegrity,
   readFile,
   constants,
   processLint,

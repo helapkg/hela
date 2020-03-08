@@ -20,7 +20,7 @@ const DEFAULT_FILES = [
 ];
 
 const DEFAULT_OPTIONS = {
-  forceReload: false,
+  forceLoad: false,
   cacheLocation: '.cache/hela-eslint-cache',
 };
 
