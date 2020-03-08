@@ -2,12 +2,13 @@
 
 const fs = require('fs');
 const util = require('util');
-const path = require('path');
+// const path = require('path');
 const crypto = require('crypto');
 
 const findFileUp = require('find-file-up');
 const importFresh = require('import-fresh');
 const { Linter } = require('eslint');
+const codeframe = require('eslint/lib/cli-engine/formatters/codeframe');
 
 const eslintPackageJson = require('eslint/package.json');
 const constants = require('./constants');
@@ -15,8 +16,9 @@ const constants = require('./constants');
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
 
-async function loadESLintConifg(cwd = process.cwd(), fresh) {
-  const eslintConfigPath = await findFileUp('eslint.config.js', cwd);
+async function loadESLintConifg(options) {
+  const opts = { cwd: process.cwd(), ...options };
+  const eslintConfigPath = await findFileUp('eslint.config.js', opts.cwd);
 
   if (!eslintConfigPath) {
     throw new Error(
@@ -26,7 +28,9 @@ async function loadESLintConifg(cwd = process.cwd(), fresh) {
 
   return {
     filepath: eslintConfigPath,
-    config: fresh ? importFresh(eslintConfigPath) : require(eslintConfigPath),
+    config: opts.fresh
+      ? importFresh(eslintConfigPath)
+      : require(eslintConfigPath),
   };
 }
 
@@ -198,6 +202,11 @@ function lint(options) {
   };
 }
 
+function formatCodeframe(rep, log = true) {
+  const res = codeframe(rep.results || rep);
+  return log ? console.log(res) : res;
+}
+
 module.exports = {
   isFile,
   isCacheFile,
@@ -206,6 +215,7 @@ module.exports = {
   toIntegrity,
   createReportOrResult,
   calculateCount,
+  formatCodeframe,
   lint,
   readFile,
   writeFile,

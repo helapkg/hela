@@ -253,4 +253,6 @@ lintFiles([
   // and promises resolving to one of above
   'modules/*/src/**/*.js',
   Promise.resolve(path.join(process.cwd(), 'packages/eslint/src/api.js')),
-]).then(console.log);
+]).then((report) => {
+  utils.formatCodeframe(report.results);
+});
