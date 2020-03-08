@@ -9,6 +9,7 @@ const path = require('path');
 const isGlob = require('is-glob');
 const cacache = require('cacache');
 // const fastGlob = require('fast-glob');
+
 const memoizeFs = require('memoize-fs');
 const globCache = require('glob-cache');
 const { constants, ...utils } = require('./utils');
@@ -18,10 +19,12 @@ const memoizer = memoizeFs({
 });
 const toIntegrityPromise = memoizer.fn(utils.toIntegrity);
 
-// (async () => {
-//   const cliCacheLoc = path.join(process.cwd(), '.cache', 'eslint-global-cache');
-//   await cacache
-// })();
+module.exports = {
+  resolvePatternsStream,
+  resolvePatterns,
+  resolveItems,
+  lintFiles,
+};
 
 async function* resolvePatternsStream(patterns, options) {
   const opts = { ...constants.DEFAULT_OPTIONS, ...options };
@@ -72,62 +75,6 @@ async function* resolvePatternsStream(patterns, options) {
 //   // console.log(contexts);
 //   return lintFiles(contexts, opts);
 // }
-
-async function lintConfigItems(configArrayItems, options) {
-  const opts = { ...constants.DEFAULT_OPTIONS, ...options };
-
-  const report = {
-    results: [],
-    errorCount: 0,
-    warningCount: 0,
-    fixableErrorCount: 0,
-    fixableWarningCount: 0,
-  };
-  const mapper = (x) => opts.mapper(x, report) || x;
-
-  await Promise.all(
-    []
-      .concat(configArrayItems)
-      .filter(Boolean)
-      .map(async (item) => {
-        if (!item.files) {
-          return;
-        }
-        // TODO
-        // - lintFiles(item.files)
-        // - injectIntoLinter
-
-        // rep.results
-        // rep.errorCount += res.errorCount || 0;
-        // rep.warningCount += res.warningCount || 0;
-        // rep.fixableErrorCount += res.fixableErrorCount || 0;
-        // rep.fixableWarningCount += res.fixableWarningCount || 0;
-        // const itemReport = await lintFiles(item.files, { ...opts, mapper });
-        await lintFiles(item.files, { ...opts, mapper });
-
-        // const output = utils
-        //   .formatCodeframe(itemReport.results, false)
-        //   .trim()
-        //   .split('\n')
-        //   .slice(0, -2)
-        //   .join('\n');
-
-        // report.errorCount += itemReport.errorCount;
-        // report.warningCount += itemReport.warningCount;
-        // report.fixableErrorCount += itemReport.fixableErrorCount;
-        // report.fixableWarningCount += itemReport.fixableWarningCount;
-
-        // if (output.length > 0) {
-        //   console.log(output);
-        // }
-
-        // reports.push(reportForConfigItem);
-      }),
-  );
-
-  // const report = utils.createReportOrResult('results', reports);
-  return report;
-}
 async function lintFiles(items, options) {
   const opts = { ...constants.DEFAULT_OPTIONS, ...options, forceLoad: true };
 
@@ -145,6 +92,7 @@ async function lintFiles(items, options) {
         return;
       }
 
+      const hrstart = process.hrtime();
       const { source, messages } = utils.lint({
         ...opts,
         filename: ctx.file.path,
@@ -156,8 +104,26 @@ async function lintFiles(items, options) {
         source,
       });
 
-      // const cacheReport = (meta && meta.report) || {};
+      const hrend = process.hrtime(hrstart);
 
+      console.log('#', ctx.file.path);
+      console.info(
+        'Execution time (hr): %ds %dms',
+        hrend[0],
+        hrend[1] / 1000000,
+      );
+
+      const used = process.memoryUsage();
+
+      Object.keys(used).forEach((key) => {
+        console.log(
+          `${key} ${Math.round((used[key] / 1024 / 1024) * 100) / 100} MB`,
+        );
+      });
+
+      console.log('########');
+
+      // const cacheReport = (meta && meta.report) || {};
       // removing `source` from the meta cached,
       // because the `res` report doesn't have it either
 
@@ -166,9 +132,10 @@ async function lintFiles(items, options) {
       const rep = (meta && meta.report) || {};
       const reportChanged = JSON.stringify(res) !== JSON.stringify(rep);
 
-      if (res.errorCount > 0 || res.warningCount > 0) {
-        console.error(utils.cleanFrame([res]));
-      }
+      // TODO optionally!
+      // if (res.errorCount > 0 || res.warningCount > 0) {
+      //   // console.error(utils.cleanFrame([res]));
+      // }
 
       // const { config, ...setts } = opts;
       // console.log(setts, reportChanged, ctx.file.path);
@@ -240,6 +207,7 @@ async function resolvePatterns(patterns, options) {
   const results = [];
 
   for await (const ctx of iterable) {
+    console.log(ctx.file.path);
     if (opts.forceLoad === true) {
       results.push(ctx);
       continue;
@@ -281,40 +249,3 @@ async function resolvePatterns(patterns, options) {
 
 //   // utils.formatCodeframe(report.results);
 // });
-(async () => {
-  const { config } = await utils.loadESLintConifg();
-  const oldCfg = require(path.join(process.cwd(), './.lint.config.js'));
-
-  const { config: cfg, linter } = utils.injectIntoLinter(oldCfg);
-  const report = await lintConfigItems(config, {
-    config: cfg,
-    linter,
-    mapper: (ctx) => {
-      const meta = ctx.cacheFile && ctx.cacheFile.metadata;
-      const rep = (meta && meta.report) || null;
-
-      if (rep) {
-        if (rep.errorCount > 0 || rep.warningCount > 0) {
-          console.error(utils.cleanFrame([rep]));
-        }
-      }
-
-      return ctx;
-    },
-  });
-
-  // if (report.errorCount === 0 && report.warningCount === 0) {
-  //   console.log('No problems found.');
-  //   return;
-  // }
-
-  // const warnings = `and ${report.warningCount} warning(s) `;
-
-  // console.log('');
-  // console.log(`${report.errorCount} error(s) ${warnings}found.`);
-
-  // if (report.errorCount > 0) {
-  //   // eslint-disable-next-line unicorn/no-process-exit
-  //   process.exit(1);
-  // }
-})();

@@ -23,6 +23,7 @@ const DEFAULT_OPTIONS = {
   cwd: process.cwd(),
   forceLoad: false,
   cacheLocation: '.cache/hela-eslint-cache',
+  exclude: DEFAULT_IGNORE,
   mapper: (x) => x,
 };
 

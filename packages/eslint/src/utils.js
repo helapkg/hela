@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const util = require('util');
-// const path = require('path');
+// const path = require('path');xx
 const crypto = require('crypto');
 
 const cacache = require('cacache');
@@ -254,26 +254,30 @@ function calculateCount(type, items) {
 function lint(options) {
   const opts = { ...options };
   const cfg = { ...opts.config, filename: opts.filename };
-  const linter = opts.linter || new Linter();
+  // const linter = opts.linter || new Linter();
   const filter = (x) =>
     opts.warnings ? true : !opts.warnings && x.severity === 2;
 
+  const { config, linter } = opts.inject
+    ? injectIntoLinter(cfg)
+    : { config: cfg, linter: opts.linter || new Linter() };
+
   if (!opts.contents && !opts.text) {
-    opts.contents = fs.readFileSync(cfg.filename, 'utf8');
+    opts.contents = fs.readFileSync(config.filename, 'utf8');
   }
   if (opts.text) {
-    cfg.filename = opts.filename || '<text>';
+    config.filename = opts.filename || '<text>';
   }
   if (opts.fix) {
-    const { output, messages } = linter.verifyAndFix(opts.contents, cfg);
+    const { output, messages } = linter.verifyAndFix(opts.contents, config);
     if (!opts.text) {
-      fs.writeFileSync(cfg.filename, output);
+      fs.writeFileSync(config.filename, output);
     }
 
     return { source: output, messages: messages.filter(filter) };
   }
 
-  const messages = linter.verify(opts.contents, cfg);
+  const messages = linter.verify(opts.contents, config);
   return {
     source: opts.contents,
     messages: messages.filter(filter),

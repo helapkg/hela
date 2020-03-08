@@ -39,7 +39,9 @@
     "glob-cache": "^1.0.1",
     "import-fresh": "^3.2.1",
     "is-glob": "^4.0.1",
-    "memoize-fs": "^2.1.0"
+    "jest-worker": "^25.1.0",
+    "memoize-fs": "^2.1.0",
+    "v8-compile-cache": "^2.1.0"
   },
   "keywords": [
     "tunnckocorehq",
