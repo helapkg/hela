@@ -1,41 +1,4 @@
-'use strict';
-
-// module.exports = {
-//   name: "name",
-//   files: ["*.js"],
-//   ignores: ["*.test.js"],
-//   settings: {},
-//   languageOptions: {
-//       ecmaVersion: 2020,
-//       sourceType: "module",
-//       globals: {},
-//       parser: object || "string",
-//       parserOptions: {},
-//       linterOptions: {
-//           reportUnusedDisableDirectives: "string"
-//       }
-//   }
-//   processor: object || "string",
-//   plugins: {}
-//   rules: {}
-// };
-
-const {
-  DEFAULT_FILES,
-  DEFAULT_IGNORE,
-} = require('./packages/eslint/src/constants');
-
 module.exports = [
-  /*
-    gets converted to
-
-    {
-      plugins: {
-        'eslint:recommended': require('somehow-load-eslint-internal-rules')
-      }
-    }
-   */
-  // 'eslint:recommended',
   {
     name: 'loading-babel-eslint-parser-through-custom-plugin',
     plugins: {
@@ -43,10 +6,18 @@ module.exports = [
     },
   },
 
-  // consider linting src/index.jsx - both configs should apply for it
-  // so, what will the ConfigArray#getConfig(filename) return??
+  // example using the custom loaded parser
   {
-    files: '**/*.{js,jsx}',
+    languageOptions: {
+      // directly requiring the parser
+      // parser: require('babel-eslint'),
+
+      // or: through the loaded plugin
+      parser: 'custom-plugin/eslint-esnext',
+    },
+  },
+  {
+    files: 'packages/*/src/**/*.js',
     plugins: {
       unicorn: require('eslint-plugin-unicorn'),
     },
@@ -57,43 +28,13 @@ module.exports = [
     },
   },
   {
-    files: '**/*.jsx',
+    files: '**/__tests__/**/*.{js,jsx}',
     plugins: {
       react: require('eslint-plugin-react'),
     },
     rules: {
       'react/jsx-uses-react': 'error',
       'global-require': 'error',
-    },
-  },
-
-  {
-    name: 'some-tunnckocore-config',
-    files: DEFAULT_FILES,
-    ignores: DEFAULT_IGNORE,
-    languageOptions: {
-      globals: {},
-      // directly requiring the parser
-      // parser: require('babel-eslint'),
-
-      // or: through the loaded plugin
-      parser: 'custom-plugin/eslint-esnext',
-
-      // or require-ing of the plugin directly
-      // parser: require('./custom-eslint-plugin').parsers['eslint-esnext'],
-      parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: 'module',
-        ecmaFeatures: {
-          generators: false,
-          objectLiteralDuplicateProperties: false,
-        },
-      },
-    },
-    plugins: {},
-    rules: {
-      semi: ['error', 'always'],
-      'global-require': ['error', 'always'],
     },
   },
 ];

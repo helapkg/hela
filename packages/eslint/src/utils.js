@@ -5,6 +5,7 @@ const util = require('util');
 // const path = require('path');
 const crypto = require('crypto');
 
+const cacache = require('cacache');
 const findFileUp = require('find-file-up');
 const importFresh = require('import-fresh');
 const { Linter } = require('eslint');
@@ -103,7 +104,12 @@ function isCacheFile(x) {
 }
 
 function isContext(item) {
-  return (item && isFile(item.file) && isCacheFile(item.cacheFile)) || false;
+  return (
+    (item &&
+      isFile(item.file) &&
+      (isCacheFile(item.cacheFile) || item.cacheFile === null)) ||
+    false
+  );
 }
 
 async function toFile(file, options) {
@@ -126,13 +132,85 @@ async function toFile(file, options) {
   // throw new Error('@hela/eslint: unknown type, pass filepath or File object');
 }
 
-function toIntegrity(value) {
-  const hashId = crypto
-    .createHash('sha512')
+function hasha(value, options) {
+  const opts = { algorithm: 'sha512', digest: 'base64', ...options };
+
+  return crypto
+    .createHash(opts.algorithm)
     .update(value)
-    .digest('base64');
+    .digest(opts.digest);
+}
+
+function injectIntoLinter(config, linter) {
+  if (!config) {
+    return linter;
+  }
+
+  const linterInstance = linter || new Linter();
+
+  []
+    .concat(config.plugins)
+    .filter(Boolean)
+    .forEach((pluginName) => {
+      let plugin = null;
+
+      if (pluginName.startsWith('@')) {
+        plugin = require(pluginName);
+      } else {
+        plugin = require(`eslint-plugin-${pluginName}`);
+      }
+
+      // note: defineRules is buggy
+      Object.keys(plugin.rules).forEach((ruleName) => {
+        linterInstance.defineRule(
+          `${pluginName}/${ruleName}`,
+          plugin.rules[ruleName],
+        );
+      });
+
+      // note: otherwise this should work
+      // linterInstance.defineRules(
+      //   Object.keys(plugin.rules).reduce((acc, ruleName) => {
+      //     acc[`${pluginName}/${ruleName}`] = plugin.rules[ruleName];
+
+      //     return acc;
+      //   }, {}),
+      // );
+    });
+
+  if (config.parser && config.parser.startsWith('/')) {
+    if (config.parser.includes('babel-eslint')) {
+      config.parser = 'babel-eslint';
+    } else if (config.parser.includes('@typescript-eslint/parser')) {
+      config.parser = '@typescript-eslint/parser';
+    }
+    // NOTE: more parsers
+  }
+
+  // define only when we are passed with "raw" (not processed) config
+  if (config.parser && !config.parser.startsWith('/')) {
+    linterInstance.defineParser(config.parser, require(config.parser));
+  }
+
+  return { linter: linterInstance, config: { ...config } };
+}
+
+function toIntegrity(value) {
+  const hashId = hasha(value);
 
   return `sha512-${hashId}`;
+}
+
+async function hasInCache(file, options) {
+  const opts = { ...options };
+  const info = await cacache.get.info(opts.cacheLocation, file.path);
+  const hash = await cacache.get.hasContent(opts.cacheLocation, file.integrity);
+
+  return {
+    changed: hash === false,
+    notFound: info === null,
+    cacheFile: info,
+  };
 }
 
 function createReportOrResult(type, results, extra) {
@@ -184,7 +262,7 @@ function lint(options) {
     opts.contents = fs.readFileSync(cfg.filename, 'utf8');
   }
   if (opts.text) {
-    cfg.filename = opts.filename || '<text32>';
+    cfg.filename = opts.filename || '<text>';
   }
   if (opts.fix) {
     const { output, messages } = linter.verifyAndFix(opts.contents, cfg);
@@ -207,15 +285,27 @@ function formatCodeframe(rep, log = true) {
   return log ? console.log(res) : res;
 }
 
+function cleanFrame(rep) {
+  return formatCodeframe(rep.results || rep, false)
+    .trim()
+    .split('\n')
+    .slice(0, -2)
+    .join('\n');
+}
+
 module.exports = {
   isFile,
   isCacheFile,
   isContext,
   toFile,
+  injectIntoLinter,
+  hasha,
+  hasInCache,
   toIntegrity,
   createReportOrResult,
   calculateCount,
   formatCodeframe,
+  cleanFrame,
   lint,
   readFile,
   writeFile,
