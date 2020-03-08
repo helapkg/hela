@@ -28,12 +28,59 @@ async function* resolveFilesStream(patterns, options) {
   }
 }
 
+async function lintFiles(items, options) {
+  const opts = {
+    ...utils.constants.DEFAULT_OPTIONS,
+    ...options,
+    forceLoad: true,
+  };
+  const contexts = await resolveItems(items, opts);
+
+  const results = [];
+
+  await Promise.all(
+    contexts.map(async (ctx) => {
+      const meta = ctx.cacheFile && ctx.cacheFile.metadata;
+
+      if (ctx.changed === false && ctx.notFound === false) {
+        results.push(meta.report);
+        return;
+      }
+
+      const { source, messages } = utils.lint({
+        ...opts,
+        filename: ctx.file.path,
+        contents: ctx.file.contents.toString(),
+      });
+
+      const res = utils.createReportOrResult('messages', messages, {
+        filePath: ctx.file.path,
+      });
+
+      const reportChanged =
+        JSON.stringify(res) !== JSON.stringify(meta && meta.report);
+
+      results.push(res);
+
+      if (opts.forceLoad === true || reportChanged) {
+        await ctx.cacache.put(ctx.cacheLocation, ctx.file.path, source, {
+          metadata: { report: res, source },
+        });
+      }
+    }),
+  );
+
+  const report = utils.createReportOrResult('results', results);
+
+  return report;
+}
+
 // filepath, glob patterns or File
 async function resolveItems(items, options) {
   const opts = { ...utils.constants.DEFAULT_OPTIONS, ...options };
 
   const memoizer = memoizeFs({
-    cachePath: path.join(process.cwd(), '.cache', 'glob-meta-cache'),
+    cachePath: path.join(opts.cwd, '.cache', 'glob-meta-cache'),
   });
   const toIntegrity = await memoizer.fn(utils.toIntegrity);
 
@@ -68,11 +115,6 @@ async function resolveItems(items, options) {
         };
 
         ctx.cacheFile = info;
-
-        // NOTE: not here!
-        // if (ctx.changed) {
-        //   await cacache.put(opts.cacheLocation, file.path, file.contents);
-        // }
 
         if (opts.forceLoad === true || ctx.changed) {
           contexts.push(ctx);
@@ -201,7 +243,7 @@ async function lintText(contents, options) {
 
 // resolveFiles('modules/*/src/**/*.js', { forceLoad: true }).then(console.log);
 
-resolveItems([
+lintFiles([
   // 'foobar.js',
   // { path: 'foobar.js' },
   // { path: 'foobar.js', contents: Buffer.from('var foobar = 1;')},
@@ -212,8 +254,3 @@ resolveItems([
   'modules/*/src/**/*.js',
   Promise.resolve(path.join(process.cwd(), 'packages/eslint/src/api.js')),
 ]).then(console.log);
-
-async function lintFiles(items, options) {
-  const opts = { ...utils.constants.DEFAULT_OPTIONS, ...options };
-  const contexts = await resolveItems(items, options);
-}
