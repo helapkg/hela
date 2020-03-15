@@ -5,7 +5,7 @@
 // sasa
 
 const { hela } = require('@hela/core');
-const { wrapper } = require('./index.js');
+const { wrapper } = require('./index');
 
 const prog = wrapper(hela('eslint', { singleMode: true }).usage('[...files]'));
 

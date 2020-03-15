@@ -1,7 +1,9 @@
+/* eslint-disable no-param-reassign */
+
 'use strict';
 
 // require('v8-compile-cache');
-
+// eslint:recommended eslint/conf/eslint-recommended.js
 const fs = require('fs');
 const util = require('util');
 // const path = require('path');xx
@@ -155,7 +157,52 @@ function isObject(val) {
   return Boolean(val && typeof val === 'object' && !Array.isArray(val));
 }
 
-function getParser(parser, plugins) {
+// function load(val, loadType) {
+//   let [, type = loadType, value] =
+//     /(plugin|config|eslint|\/|@)?:?(.+)/i.exec(val) || [];
+
+//   value = type === '/' || type === '@' ? type + value : value;
+//   // type = value.startsWith('@') ? '@' : type;
+
+//   const parts = value.split('/');
+
+//   if (type === '@') {
+//     value = value.split('/').slice(1);
+//   }
+// }
+
+// function loadConfig(val) {
+//   // e.g. `@tunnckocore/foo-config/mdx` or `promise/recommended`
+//   const parts = val.split('/');
+
+//   const name = parts.length === 2 ? parts[0] : `${parts[0]}/${parts[1]}`;
+//   const key = parts.length === 2 ? parts[1] : parts[2];
+// }
+
+function loadPresetString(name) {
+  if (name.includes('plugin:')) {
+    const { plugin, key } = loadPlugin(name.slice(7));
+    return { preset: plugin.configs[key], name, key };
+  }
+  const mod = name.startsWith('/')
+    ? require(name)
+    : eslintRequire('config', name);
+
+  return { preset: mod, name, key: name };
+}
+
+function loadPlugin(val, plugins) {
+  const parts = val.split('/');
+
+  const name = parts.length === 2 ? parts[0] : `${parts[0]}/${parts[1]}`;
+  const key = parts.length === 2 ? parts[1] : parts[2];
+
+  const plugin = plugins ? plugins[name] : eslintRequire('plugin', name);
+
+  return { plugin, name, key, parts };
+}
+
+function loadParser(parser, plugins) {
   let parserMod = parser;
   let parserName = '';
 
@@ -164,15 +211,7 @@ function getParser(parser, plugins) {
     // - parser: '@my-scope/some-plugin/foo-parser`
     // - parser: 'some-plugin/foo-parser`
     if (parser.includes('/')) {
-      const parts = parser.split('/');
-
-      const pluginName =
-        parts.length === 2 ? parts[0] : `${parts[0]}/${parts[1]}`;
-      const key = parts.length === 2 ? parts[1] : parts[2];
-
-      const plugin = plugins
-        ? plugins[pluginName]
-        : eslintRequire('plugin', pluginName);
+      const { plugin, key } = loadPlugin(parser, plugins);
 
       if (!isObject(plugin.parsers)) {
         throw new TypeError(
@@ -224,7 +263,7 @@ function injectIntoLinter(config, linter, linterOptions) {
   });
 
   if (config.languageOptions && config.languageOptions.parser) {
-    const { parser, name: parserName } = getParser(
+    const { parser, name: parserName } = loadParser(
       config.languageOptions.parser,
       config.plugins,
     );
@@ -232,9 +271,9 @@ function injectIntoLinter(config, linter, linterOptions) {
     linterInstance.defineParser(parserName, parser);
   }
 
-  // NOTE: delete `config.parser` and `config.plugins` intentionally,
+  // NOTE: delete `config.parser`, `config.plugins` and `config.extends` intentionally,
   // because linter.verify/verifyAndFix may not understand the new definitions
-  const { plugins: _, parser: __, ...cleanedConfig } = config;
+  const { plugins: _, parser: __, extends: ___, ...cleanedConfig } = config;
   // delete config.plugins;
   // delete config.parser;
 
@@ -327,8 +366,6 @@ function lint(options) {
     ? injectIntoLinter(cfg, $linter, linterOptions)
     : { config: cfg, linter: $linter };
 
-  console.log('loaded config', config);
-
   if (!opts.contents && !opts.text) {
     opts.contents = fs.readFileSync(config.filename, 'utf8');
   }
@@ -365,7 +402,9 @@ function cleanFrame(rep) {
 }
 
 async function pFlatten(arr, ...args) {
-  const items = await (await arr).reduce(async (acc, e) => {
+  const items = await (
+    await Promise.all([].concat(arr).filter(Boolean))
+  ).reduce(async (acc, e) => {
     const accum = await acc;
 
     let item = await e;
@@ -384,7 +423,7 @@ async function pFlatten(arr, ...args) {
     return accum.concat(item);
   }, Promise.resolve([])); // initial value for the accumulator is []
 
-  return Promise.all(items);
+  return (await Promise.all(items)).filter(Boolean);
 }
 
 function normalizePlugins(plugins) {
@@ -411,8 +450,15 @@ function normalizePlugins(plugins) {
   return plugins;
 }
 
+function nsToItem(item) {
+  if (isEslintNamespace(item)) {
+    item = { name: item };
+    item.rules = require(`eslint/conf/${item.replace(':', '-')}`);
+  }
+  return item;
+}
+
 function normalizeAndMerge(target, item) {
-  // eslint-disable-next-line no-param-reassign
   item.plugins = normalizePlugins(item.plugins);
 
   const accum = mixinDeep({ ...target }, item);
@@ -432,6 +478,12 @@ function normalizeAndMerge(target, item) {
 
   if (lang.sourceType === 'commonjs') {
     lang.sourceType = 'script';
+  }
+  if (
+    lang.sourceType === 'commonjs' ||
+    (lang.globals &&
+      (lang.globals.node === true || lang.globals.commonjs === true))
+  ) {
     lang.globals = {
       ...lang.globals,
       require: true,
@@ -440,27 +492,60 @@ function normalizeAndMerge(target, item) {
     };
     lang.parserOptions = mixinDeep(
       { ...lang.parserOptions },
-      {
-        ecmaFeatures: { globalReturn: true },
-      },
+      { ecmaFeatures: { globalReturn: true } },
     );
   }
 
-  accum.parserOptions = {
-    ...lang.parserOptions,
-    ecmaVersion: lang.ecmaVersion,
-    sourceType: lang.sourceType,
-  };
-  accum.globals = { ...lang.globals };
+  accum.parserOptions = mixinDeep(
+    accum.parserOptions,
+    // {
+    //   ecmaVersion: lang.ecmaVersion,
+    //   sourceType: lang.sourceType,
+    // },
+    lang.parserOptions,
+  );
+  accum.globals = mixinDeep(accum.globals, lang.globals);
 
-  accum.languageOptions = lang;
+  accum.languageOptions = lang || accum.parserOptions;
   return accum;
+}
+
+function isEslintNamespace(x) {
+  return typeof x === 'string' && x.startsWith('eslint:');
+}
+
+function createItemsFromExtends(presets) {
+  const $extends = []
+    .concat(presets)
+    .filter(Boolean)
+    .filter((x) => !isEslintNamespace(x))
+    .filter(Boolean);
+
+  return $extends.reduce((acc, name) => {
+    let mod = null;
+
+    console.log('name', name);
+    const { preset } = loadPresetString(name);
+    mod = preset;
+
+    if (mod.extends) {
+      return acc.concat(createItemsFromExtends(mod.extends));
+    }
+
+    return acc.concat({
+      ...mod,
+      name,
+      plugins: normalizePlugins(mod.plugins),
+    });
+  }, []);
 }
 
 module.exports = {
   isFile,
   isCacheFile,
   isContext,
+  isEslintNamespace,
+  nsToItem,
   toFile,
   injectIntoLinter,
   hasha,
@@ -468,7 +553,10 @@ module.exports = {
   pFlatten,
   normalizeAndMerge,
   normalizePlugins,
-  getParser,
+  loadParser,
+  loadPlugin,
+  loadPresetString,
+  createItemsFromExtends,
   defineRulesFrom,
   eslintRequire,
   isObject,

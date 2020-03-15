@@ -2,30 +2,30 @@
 
 // require('v8-compile-cache');
 
-const path = require('path');
-const lintConfigItems = require('./src/lint-config.js');
+// const path = require('path');
+
+// const api = require('./src/api');
 const utils = require('./src/utils');
+const lingConfigItems = require('./src/lint-config');
 
 (async () => {
   const { config } = await utils.loadESLintConifg();
-  const oldCfg = require(path.join(process.cwd(), './.lint.config.js'));
+  // const oldCfg = require(path.join(process.cwd(), './.lint.config.js'));
 
   // const { config: cfg, linter } = utils.injectIntoLinter(oldCfg);
 
-  await lintConfigItems(config, {
-    config: oldCfg,
+  await lingConfigItems(config, {
+    // config: oldCfg,
     // linter,
-    fix: true,
+    // fix: true,
     // mapper: (ctx) => {
     //   const meta = ctx.cacheFile && ctx.cacheFile.metadata;
     //   const rep = (meta && meta.report) || null;
-
     //   if (rep) {
     //     if (rep.errorCount > 0 || rep.warningCount > 0) {
     //       console.error(utils.cleanFrame([rep]));
     //     }
     //   }
-
     //   return ctx;
     // },
   });

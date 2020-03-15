@@ -27,6 +27,7 @@ module.exports = {
   resolvePatterns,
   resolveItems,
   lintFiles,
+  lintConfigItems,
 };
 
 async function* resolvePatternsStream(patterns, options) {
@@ -222,6 +223,36 @@ async function resolvePatterns(patterns, options) {
   }
 
   return results;
+}
+
+async function lintConfigItems(configArrayItems, options) {
+  const opts = { ...constants.DEFAULT_OPTIONS, ...options };
+
+  const itemsGroups = {};
+
+  const configItems = (
+    await utils.pFlatten(
+      configArrayItems,
+      utils.createFunctionConfigContext(),
+      opts,
+    )
+  ).reduce((acc, item, idx) => {
+    const cfgItem = utils.nsToItem(item);
+
+    if (typeof cfgItem === 'string') {
+      throw new TypeError(
+        'config item cannot be string other than starting with "eslint:"',
+      );
+    }
+    cfgItem.name = cfgItem.name || `@position#${idx}`;
+
+    return acc.concat(cfgItem);
+  }, []);
+
+  configItems.forEach((item) => {
+    itemsGroups[item.name] = itemsGroups[item.name] || [];
+    itemsGroups[item.name].push(item);
+  });
 }
 
 // TODO

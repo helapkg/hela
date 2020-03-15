@@ -20,24 +20,33 @@ module.exports = async function lintConfigItems(configArrayItems, options) {
     configArrayItems,
     utils.createFunctionConfigContext(),
     opts,
-  );
+  ); /* .reduce((acc, item, idx) => {
+    const cfgItem = utils.nsToItem(item);
+
+    if (typeof cfgItem === 'string') {
+      throw new TypeError(
+        'config item cannot be string other than starting with "eslint:"',
+      );
+    }
+    cfgItem.name = cfgItem.name || `@position#${idx}`;
+
+    return acc.concat(cfgItem);
+  }, []); */
 
   const cfg = configItems
-    .filter((x) => !x.files)
+    // .filter((x) => (x && !x.files) || utils.isEslintNamespace(x))
+    .filter((x) => x && !x.files)
     .reduce(utils.normalizeAndMerge, {});
 
-  // NOTE: in future
-  // const [pluginName, parserName] = cfg.languageOptions.parser.split('/');
-  // console.log(cfg.plugins[pluginName].parsers[parserName]);
-
-  // console.log(cfg);
+  // console.log('cfg:', cfg);
 
   return Promise.all(
     configItems
-      .filter((x) => x.files)
+      .filter((x) => x && x.files)
       .map(async (item) => {
         const { files, ...configItem } = item;
         const conf = utils.normalizeAndMerge(cfg, configItem);
+        // console.log('files:', files);
 
         // rep.results
         // rep.errorCount += res.errorCount || 0;
@@ -47,13 +56,6 @@ module.exports = async function lintConfigItems(configArrayItems, options) {
         // const itemReport = await lintFiles(item.files, { ...opts, mapper });
 
         await lintFilesWrapper(files, { ...opts, config: conf });
-
-        // const output = utils
-        //   .formatCodeframe(itemReport.results, false)
-        //   .trim()
-        //   .split('\n')
-        //   .slice(0, -2)
-        //   .join('\n');
 
         // report.errorCount += itemReport.errorCount;
         // report.warningCount += itemReport.warningCount;
