@@ -15,5 +15,7 @@ module.exports = {
   ],
   rules: {
     'import/no-unresolved': 'off',
+    'import/no-dynamic-require': 'off',
+    'global-require': 'off',
   },
 };

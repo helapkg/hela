@@ -1,358 +1,286 @@
-/* eslint-disable global-require */
-/* eslint-disable import/no-dynamic-require */
-/* eslint-disable no-restricted-syntax */
 /* eslint-disable max-statements */
+/* eslint-disable no-continue */
+/* eslint-disable no-restricted-syntax */
 
 'use strict';
 
-const DEFAULT_IGNORE = [
-  '**/node_modules/**',
-  '**/bower_components/**',
-  'flow-typed/**',
-  'coverage/**',
-  '**/*fixture*/**',
-  '{tmp,temp}/**',
-  '**/*.min.js',
-  '**/bundle.js',
-  '**/vendor/**',
-  '**/dist/**',
-];
+// require('v8-compile-cache');
 
-const OUR_CONFIG_FILENAME = '.lint.config.js';
-const DEFAULT_EXTENSIONS = ['js', 'jsx', 'cjs', 'mjs', 'ts', 'tsx'];
-const DEFAULT_INPUTS = [
-  `**/src/**/*.{${DEFAULT_EXTENSIONS.join(',')}}`,
-  `**/*test*/**/*.{${DEFAULT_EXTENSIONS.join(',')}}`,
-];
-
-const fs = require('fs');
+// const fs = require('fs');
+// const util = require('util');
 const path = require('path');
+const isGlob = require('is-glob');
+const cacache = require('cacache');
+// const fastGlob = require('fast-glob');
+
 const memoizeFs = require('memoize-fs');
-const codeframe = require('eslint/lib/cli-engine/formatters/codeframe');
 const globCache = require('glob-cache');
-const { CLIEngine, Linter } = require('eslint');
+const { constants, ...utils } = require('./utils');
 
-function resolveConfigSync(filePath, baseConfig, options) {
-  const { cwd, ...opt } = { /* cwd: process.cwd(), */ ...options };
-  const doNotUseEslintRC = baseConfig && typeof baseConfig === 'object';
-
-  const settings = {
-    ...opt,
-    baseConfig,
-    cache: true,
-    useEslintrc: !doNotUseEslintRC,
-    cacheLocation: './.cache/custom-eslint-cache',
-  };
-  settings.extensions = settings.extensions || DEFAULT_EXTENSIONS;
-
-  const engine = new CLIEngine(settings);
-
-  const config = engine.getConfigForFile(filePath);
-
-  return config;
-}
-
-async function resolveConfig(filePath, baseConfig, options) {
-  const opts = { ...options };
-  const memoizer = memoizeFs({
-    cachePath: path.join(process.cwd(), '.cache', 'eslint-resolve-config'),
-  });
-
-  const memoizedFn = await memoizer.fn(
-    opts.dirname
-      ? (_) => resolveConfigSync(filePath, baseConfig, options)
-      : resolveConfigSync,
-  );
-  const cfg = await memoizedFn(
-    ...(opts.dirname ? [opts.dirname] : [filePath, baseConfig, options]),
-  );
-
-  return cfg;
-}
-
-function formatCodeframe(rep, log) {
-  const res = codeframe(rep.results || rep);
-  return log ? console.log(res) : res;
-}
-
-function injectIntoLinter(config, linter) {
-  if (!config) {
-    return linter;
-  }
-
-  const linterInstance = linter || new Linter();
-
-  []
-    .concat(config.plugins)
-    .filter(Boolean)
-    .forEach((pluginName) => {
-      let plugin = null;
-
-      if (pluginName.startsWith('@')) {
-        plugin = require(pluginName);
-      } else {
-        plugin = require(`eslint-plugin-${pluginName}`);
-      }
-
-      // note: defineRules is buggy
-      Object.keys(plugin.rules).forEach((ruleName) => {
-        linterInstance.defineRule(
-          `${pluginName}/${ruleName}`,
-          plugin.rules[ruleName],
-        );
-      });
-
-      // note: otherwise this should work
-      // linterInstance.defineRules(
-      //   Object.keys(plugin.rules).reduce((acc, ruleName) => {
-      //     acc[`${pluginName}/${ruleName}`] = plugin.rules[ruleName];
-
-      //     return acc;
-      //   }, {}),
-      // );
-    });
-
-  if (config.parser && config.parser.startsWith('/')) {
-    if (config.parser.includes('babel-eslint')) {
-      config.parser = 'babel-eslint';
-    } else if (config.parser.includes('@typescript-eslint/parser')) {
-      config.parser = '@typescript-eslint/parser';
-    }
-    // NOTE: more parsers
-  }
-
-  // define only when we are passed with "raw" (not processed) config
-  if (config.parser && !config.parser.startsWith('/')) {
-    linterInstance.defineParser(config.parser, require(config.parser));
-  }
-
-  return linterInstance;
-}
-
-async function* lintFiles(patterns, options) {
-  const opts = { dirs: [], cwd: process.cwd(), ...options };
-  opts.exclude = opts.exclude || DEFAULT_IGNORE;
-  opts.extensions = opts.extensions || DEFAULT_EXTENSIONS;
-  opts.cacheLocation =
-    typeof opts.cacheLocation === 'string'
-      ? opts.cacheLocation
-      : path.join(opts.cwd, '.cache', 'hela-eslint-cache');
-
-  const iterable = await globCache(patterns, opts);
-
-  const engine = new CLIEngine();
-  let linter = opts.linter || new Linter();
-  let eslintConfig = await tryLoadLintConfig();
-
-  linter = injectIntoLinter(eslintConfig, linter);
-
-  // TODO use `cacache` for caching `options` and
-  // based on that force `ctx.changed` if it is `false`
-
-  for await (const ctx of iterable) {
-    const meta = ctx.cacheFile && ctx.cacheFile.metadata;
-
-    if (engine.isPathIgnored(ctx.file.path)) {
-      // eslint-disable-next-line no-continue
-      continue;
-    }
-
-    if (ctx.changed) {
-      const dirname = path.dirname(ctx.file.path);
-      if (opts.dirs.includes(dirname)) {
-        eslintConfig = await resolveConfig(ctx.file.path, 0, {
-          ...opts,
-          dirname,
-        });
-      }
-
-      const contents = ctx.file.contents.toString();
-      const { source, messages } = lint({
-        ...opts,
-        linter,
-        filename: ctx.file.path,
-        contents,
-        config: eslintConfig || (meta && meta.eslintConfig),
-      });
-
-      const res = createReportOrResult('messages', messages, {
-        filePath: ctx.file.path,
-      });
-
-      const diff = JSON.stringify(res) !== JSON.stringify(meta && meta.report);
-
-      // NOTE: `source` property seems deprecated but formatters need it so..
-      yield {
-        ...ctx,
-        result: { ...res, source },
-        eslintConfig: (meta && meta.eslintConfig) || eslintConfig,
-      };
-
-      if (diff) {
-        // todo update cache with cacache.put
-        await ctx.cacache.put(ctx.cacheLocation, ctx.file.path, source, {
-          metadata: { report: { ...res, source }, eslintConfig },
-        });
-      }
-
-      // if (opts.report) {
-      //   formatCodeframe([res]);
-      // }
-    }
-
-    if (ctx.changed === false && ctx.notFound === false) {
-      yield {
-        ...ctx,
-        result: meta.report,
-        eslintConfig: meta.eslintConfig || eslintConfig,
-      };
-      // if (opts.report) {
-      //   formatCodeframe([meta.report]);
-      // }
-    }
-  }
-}
-
-lintFiles.promise = async function lintFilesPromise(patterns, options) {
-  const opts = { ...options };
-  const results = [];
-  const iterable = await lintFiles(patterns, opts);
-
-  for await (const { result } of iterable) {
-    results.push(result);
-  }
-
-  return createReportOrResult('results', results);
-};
-
-function lint(options) {
-  const opts = { ...options };
-  const cfg = { ...opts.config, filename: opts.filename };
-  const linter = opts.linter || new Linter();
-  const filter = (x) =>
-    opts.warnings ? true : !opts.warnings && x.severity === 2;
-
-  if (!opts.contents && !opts.text) {
-    opts.contents = fs.readFileSync(cfg.filename, 'utf8');
-  }
-  if (opts.text) {
-    cfg.filename = opts.filename || '<text32>';
-  }
-  if (opts.fix) {
-    const { output, messages } = linter.verifyAndFix(opts.contents, cfg);
-    if (!opts.text) {
-      fs.writeFileSync(cfg.filename, output);
-    }
-
-    return { source: output, messages: messages.filter(filter) };
-  }
-
-  const messages = linter.verify(opts.contents, cfg);
-  return {
-    source: opts.contents,
-    messages: messages.filter(filter),
-  };
-}
-
-async function lintText(contents, options) {
-  const opts = { ...options };
-  let linter = opts.linter || new Linter();
-
-  const eslintConfig = opts.config || (await tryLoadLintConfig());
-
-  linter = injectIntoLinter(eslintConfig, linter);
-  const { source, messages } = lint({
-    ...opts,
-    config: eslintConfig,
-    linter,
-    contents,
-    text: true,
-  });
-
-  const result = createReportOrResult('messages', messages, {
-    filePath: opts.filename || '<text>',
-    source,
-  });
-  const report = createReportOrResult('results', [result]);
-
-  return { ...report, source };
-}
-
-function createReportOrResult(type, results, extra) {
-  const ret = {
-    ...extra,
-    errorCount: 0,
-    warningCount: 0,
-    fixableErrorCount: 0,
-    fixableWarningCount: 0,
-  };
-
-  ret[type] = [];
-
-  if (type === 'messages') {
-    ret.errorCount = calculateCount('error', results);
-    ret.warningCount = calculateCount('warning', results);
-  }
-
-  return results.reduce((acc, res) => {
-    ret[type].push(res);
-
-    if (type === 'results') {
-      acc.errorCount += res.errorCount || 0;
-      acc.warningCount += res.warningCount || 0;
-      acc.fixableErrorCount += res.fixableErrorCount || 0;
-      acc.fixableWarningCount += res.fixableWarningCount || 0;
-    }
-
-    return acc;
-  }, ret);
-}
-
-async function tryLoadLintConfig() {
-  const rootDir = process.cwd();
-  let cfg = null;
-
-  try {
-    cfg = await require(path.join(rootDir, OUR_CONFIG_FILENAME));
-  } catch (err) {
-    return null;
-  }
-
-  return cfg;
-}
-
-function calculateCount(type, items) {
-  return []
-    .concat(items)
-    .filter(Boolean)
-    .filter((x) => (type === 'error' ? x.severity === 2 : x.severity === 1))
-    .reduce((acc) => acc + 1, 0);
-}
+const memoizer = memoizeFs({
+  cachePath: path.join(process.cwd(), '.cache', 'eslint-meta-cache'),
+});
+const toIntegrityPromise = memoizer.fn(utils.toIntegrity);
 
 module.exports = {
-  injectIntoLinter,
-  tryLoadLintConfig,
-  resolveConfigSync,
-  resolveConfig,
-  formatCodeframe,
-  calculateCount,
-  createReportOrResult,
+  resolvePatternsStream,
+  resolvePatterns,
+  resolveItems,
   lintFiles,
-  lintText,
-  lint,
-
-  DEFAULT_IGNORE,
-  DEFAULT_INPUT: DEFAULT_INPUTS,
-  DEFAULT_INPUTS,
-  DEFAULT_EXTENSIONS,
-  OUR_CONFIG_FILENAME,
+  lintConfigItems,
 };
 
-// (async () => {
-//   // const patterns = 'packages/eslint/src/**/*.js';
-//   // const report = await lintFiles(patterns, { fix: true });
-//   const report = await lintText('var foo = 123', { fix: true });
+async function* resolvePatternsStream(patterns, options) {
+  const opts = { ...constants.DEFAULT_OPTIONS, ...options };
+  const iterable = await globCache(patterns, opts);
 
-//   formatCodeframe(report.results);
-//   console.log(report.source); // fixed source code text
-// })();
+  for await (const ctx of iterable) {
+    if (opts.forceLoad === true) {
+      yield ctx;
+      continue;
+    }
+    if (ctx.changed) {
+      yield ctx;
+    }
+  }
+}
+
+// async function loadContexts(items, options) {
+//   const opts = { ...constants.DEFAULT_OPTIONS, ...options, forceLoad: true };
+//   const argsJson = JSON.stringify({ items, options: { ...options } });
+//   const argsHash = utils.hasha(argsJson, { algorithm: 'md5', digest: 'hex' });
+//   const globalCache = path.join(opts.cwd, '.cache', 'eslint-global-cache');
+//   const toIntegrity = await toIntegrityPromise;
+
+//   const ctx = await utils.hasInCache(
+//     { path: argsHash, integrity: await toIntegrity(argsJson) },
+//     { cacheLocation: globalCache },
+//   );
+
+//   console.log('load', ctx);
+
+//   if (ctx.changed === false && ctx.notFound === false) {
+//     return ctx.cacheFile && ctx.cacheFile.metadata.contexts;
+//   }
+
+//   const contexts = await resolveItems(items, opts);
+
+//   await cacache.put(globalCache, argsHash, argsJson, {
+//     metadata: { contexts },
+//   });
+
+//   return contexts;
+// }
+
+// async function lintItems(items, options) {
+//   const opts = { ...constants.DEFAULT_OPTIONS, ...options, forceLoad: true };
+//   const contexts = await loadContexts(items, opts);
+
+//   // console.log(contexts);
+//   return lintFiles(contexts, opts);
+// }
+
+async function lintFiles(items, options) {
+  const opts = { ...constants.DEFAULT_OPTIONS, ...options, forceLoad: true };
+
+  const contexts = await resolveItems(items, opts);
+
+  const results = [];
+
+  await Promise.all(
+    contexts.map(async (ctx) => {
+      const meta = ctx.cacheFile && ctx.cacheFile.metadata;
+
+      if (ctx.changed === false && ctx.notFound === false && meta) {
+        // console.log(ctx.file.path);
+        results.push(meta.report);
+        return;
+      }
+
+      const hrstart = process.hrtime();
+
+      const { source, messages } = utils.lint({
+        ...opts,
+        filename: ctx.file.path,
+        contents: ctx.file.contents.toString(),
+      });
+
+      const res = utils.createReportOrResult('messages', messages, {
+        filePath: ctx.file.path,
+        source,
+      });
+
+      const hrend = process.hrtime(hrstart);
+
+      if (opts.verbose) {
+        console.log('#', ctx.file.path);
+        console.log('# Size:', ctx.file.size);
+        console.info('# Execution time:', hrend[0], hrend[1] / 1000000);
+
+        const used = process.memoryUsage();
+
+        Object.keys(used).forEach((key) => {
+          console.log(
+            `# ${key}:`,
+            Math.round((used[key] / 1024 / 1024) * 100) / 100,
+          );
+        });
+
+        console.log('########');
+      }
+
+      // const cacheReport = (meta && meta.report) || {};
+      // removing `source` from the meta cached,
+      // because the `res` report doesn't have it either
+
+      // const { source: src, ...rep } = cacheReport;
+      // const { source: src, ...rep } = (meta && meta.report) || {};
+      const rep = (meta && meta.report) || {};
+      const reportChanged = JSON.stringify(res) !== JSON.stringify(rep);
+
+      // TODO optionally!
+      if (res.errorCount > 0 || (res.warningCount > 0 && opts.warnings)) {
+        console.error(utils.cleanFrame([res]));
+      }
+
+      // const { config, ...setts } = opts;
+      // console.log(setts, reportChanged, ctx.file.path);
+      results.push(rep);
+
+      if (reportChanged) {
+        await cacache.put(ctx.cacheLocation, ctx.file.path, source, {
+          metadata: { report: res },
+        });
+      }
+    }),
+  );
+
+  const report = utils.createReportOrResult('results', results.filter(Boolean));
+  report.contexts = contexts;
+
+  return report;
+}
+
+// filepath, glob patterns or File
+async function resolveItems(items, options) {
+  const opts = { ...constants.DEFAULT_OPTIONS, ...options };
+
+  const globs = [];
+  const contexts = [];
+  const toIntegrity = await toIntegrityPromise;
+
+  await Promise.all(
+    []
+      .concat(items)
+      .filter(Boolean)
+      .map(async (x) => {
+        const item = await x;
+
+        if (isGlob(item)) {
+          globs.push(item);
+          return;
+        }
+        if (utils.isContext(item)) {
+          contexts.push(item);
+          return;
+        }
+
+        const file = await utils.toFile(item, { toIntegrity });
+        const $ctx = await utils.hasInCache(file, opts);
+
+        const ctx = {
+          file,
+          ...$ctx,
+          cacache,
+          cacheLocation: opts.cacheLocation,
+        };
+
+        if (opts.forceLoad === true || ctx.changed) {
+          contexts.push(ctx);
+        }
+      }),
+  );
+
+  const results = globs.length > 0 ? await resolvePatterns(globs, opts) : [];
+
+  return results.concat(contexts).map(opts.mapper);
+}
+
+async function resolvePatterns(patterns, options) {
+  const opts = { ...constants.DEFAULT_OPTIONS, ...options };
+
+  const iterable = await globCache(patterns, opts);
+  const results = [];
+
+  for await (const ctx of iterable) {
+    if (opts.forceLoad === true) {
+      results.push(ctx);
+      continue;
+    }
+    if (ctx.changed) {
+      results.push(ctx);
+    }
+  }
+
+  return results;
+}
+
+async function lintConfigItems(configArrayItems, options) {
+  const opts = { ...constants.DEFAULT_OPTIONS, ...options };
+
+  const itemsGroups = {};
+
+  const configItems = (
+    await utils.pFlatten(
+      configArrayItems,
+      utils.createFunctionConfigContext(),
+      opts,
+    )
+  ).reduce((acc, item, idx) => {
+    const cfgItem = utils.nsToItem(item);
+
+    if (typeof cfgItem === 'string') {
+      throw new TypeError(
+        'config item cannot be string other than starting with "eslint:"',
+      );
+    }
+    cfgItem.name = cfgItem.name || `@position#${idx}`;
+
+    return acc.concat(cfgItem);
+  }, []);
+
+  configItems.forEach((item) => {
+    itemsGroups[item.name] = itemsGroups[item.name] || [];
+    itemsGroups[item.name].push(item);
+  });
+}
+
+// TODO
+// async function lintText(contents, options) {
+//   const opts = { ...constants.DEFAULT_OPTIONS, ...options };
+//   const source = contents;
+
+//   return {
+//     source,
+//     errorCount: 0,
+//     warningCount: 0,
+//     fixableErrorCount: 0,
+//     fixableWarningCount: 0,
+//   };
+// }
+
+// lintItems([
+//   // 'foobar.js',
+//   // { path: 'foobar.js' },
+//   // { path: 'foobar.js', contents: Buffer.from('var foobar = 1;')},
+//   // { file: { path: 'foobar.js' } },
+//   // { file: { path: 'foobar.js', contents: Buffer.from('sasa') } },
+
+//   // and promises resolving to one of above
+//   'modules/*/src/**/*.js',
+//   Promise.resolve(path.join(process.cwd(), 'packages/eslint/src/api.js')),
+// ]).then((report) => {
+//   console.log(report.contexts);
+
+//   // utils.formatCodeframe(report.results);
+// });
