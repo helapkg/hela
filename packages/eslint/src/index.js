@@ -1,5 +1,4 @@
 /* eslint-disable global-require */
-/* eslint-disable baw/no-dynamic-require */
 /* eslint-disable max-statements */
 /* eslint-disable no-restricted-syntax */
 
@@ -8,6 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 const { hela } = require('@hela/core');
+
 const {
   DEFAULT_IGNORE,
   DEFAULT_INPUTS,

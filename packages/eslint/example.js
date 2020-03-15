@@ -17,17 +17,20 @@ const lingConfigItems = require('./src/lint-config');
   await lingConfigItems(config, {
     // config: oldCfg,
     // linter,
-    // fix: true,
-    // mapper: (ctx) => {
-    //   const meta = ctx.cacheFile && ctx.cacheFile.metadata;
-    //   const rep = (meta && meta.report) || null;
-    //   if (rep) {
-    //     if (rep.errorCount > 0 || rep.warningCount > 0) {
-    //       console.error(utils.cleanFrame([rep]));
-    //     }
-    //   }
-    //   return ctx;
-    // },
+    fix: true,
+    mapper: (ctx) => {
+      const meta = ctx.cacheFile && ctx.cacheFile.metadata;
+      const rep = (meta && meta.report) || null;
+      if (rep) {
+        // TODO there are problems with double reporting (and from cache)
+        if (rep.errorCount > 0 || rep.warningCount > 0) {
+          console.log('zzz');
+          console.error(utils.cleanFrame([rep]));
+          console.log('zzz');
+        }
+      }
+      return ctx;
+    },
   });
 
   // if (report.errorCount === 0 && report.warningCount === 0) {

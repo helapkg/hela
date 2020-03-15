@@ -16,11 +16,13 @@ module.exports = async function lintConfigItems(configArrayItems, options) {
   //   fixableErrorCount: 0,
   //   fixableWarningCount: 0,
   // };
-  const configItems = await utils.pFlatten(
-    configArrayItems,
-    utils.createFunctionConfigContext(),
-    opts,
-  ); /* .reduce((acc, item, idx) => {
+  const configItems = (
+    await utils.pFlatten(
+      configArrayItems,
+      utils.createFunctionConfigContext(),
+      opts,
+    )
+  ).reduce((acc, item, idx) => {
     const cfgItem = utils.nsToItem(item);
 
     if (typeof cfgItem === 'string') {
@@ -31,14 +33,16 @@ module.exports = async function lintConfigItems(configArrayItems, options) {
     cfgItem.name = cfgItem.name || `@position#${idx}`;
 
     return acc.concat(cfgItem);
-  }, []); */
+  }, []);
 
   const cfg = configItems
     // .filter((x) => (x && !x.files) || utils.isEslintNamespace(x))
     .filter((x) => x && !x.files)
     .reduce(utils.normalizeAndMerge, {});
 
-  // console.log('cfg:', cfg);
+  // NOTE: for easier migration, temporary:
+  // - those without `files` will be able to accept old format too
+  // - for those with `files`, accept only the new format
 
   return Promise.all(
     configItems
@@ -46,7 +50,6 @@ module.exports = async function lintConfigItems(configArrayItems, options) {
       .map(async (item) => {
         const { files, ...configItem } = item;
         const conf = utils.normalizeAndMerge(cfg, configItem);
-        // console.log('files:', files);
 
         // rep.results
         // rep.errorCount += res.errorCount || 0;

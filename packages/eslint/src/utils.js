@@ -199,7 +199,12 @@ function loadPlugin(val, plugins) {
 
   const plugin = plugins ? plugins[name] : eslintRequire('plugin', name);
 
-  return { plugin, name, key, parts };
+  return {
+    plugin,
+    name,
+    key,
+    parts,
+  };
 }
 
 function loadParser(parser, plugins) {
@@ -273,7 +278,13 @@ function injectIntoLinter(config, linter, linterOptions) {
 
   // NOTE: delete `config.parser`, `config.plugins` and `config.extends` intentionally,
   // because linter.verify/verifyAndFix may not understand the new definitions
-  const { plugins: _, parser: __, extends: ___, ...cleanedConfig } = config;
+  const {
+    plugins: _,
+    parser: __,
+    extends: ___,
+    overrides: $$,
+    ...cleanedConfig
+  } = config;
   // delete config.plugins;
   // delete config.parser;
 
@@ -453,61 +464,81 @@ function normalizePlugins(plugins) {
 function nsToItem(item) {
   if (isEslintNamespace(item)) {
     item = { name: item };
-    item.rules = require(`eslint/conf/${item.replace(':', '-')}`);
+    item.rules = require(`eslint/conf/${item.name.replace(':', '-')}`).rules;
   }
   return item;
 }
 
-function normalizeAndMerge(target, item) {
+// TODO for easier migration, temporary:
+// - those without `files` will be able to accept old format too
+// - for those with `files`, accept only the new format
+function normalizeAndMerge(target, item, idx) {
   item.plugins = normalizePlugins(item.plugins);
 
-  const accum = mixinDeep({ ...target }, item);
+  // const res = { plugins: {} };
+  const { plugins: _, ...x } = item;
+  // const { plugins: _, ...targ } = target;
+  const res = mixinDeep({ ...target }, x);
+  // const accum = mixinDeep({ ...target }, item);
 
-  // Object.keys(item.plugins).forEach((pluginName) => {
-  //   if (target.plugins && target.plugins[pluginName]) {
-  //     throw new Error(
-  //       `config item with "${item.name}" name trying to override "${pluginName}" plugin namespace`,
-  //     );
-  //   }
+  // const plgs = (whenFiles === true ? target.plugins : res.plugins) || {};
 
-  //   accum.plugins = accum.plugins || {};
-  //   accum.plugins[pluginName] = item.plugins[pluginName];
-  // });
+  Object.keys(item.plugins).forEach((pluginName) => {
+    if (res.plugins && res.plugins[pluginName]) {
+      throw new Error(
+        `config item "${item.name ||
+          idx}" trying to override "${pluginName}" plugin namespace`,
+      );
+    }
 
-  const lang = { ...accum.languageOptions };
+    res.plugins = res.plugins || {};
+    res.plugins[pluginName] = item.plugins[pluginName];
+  });
 
-  if (lang.sourceType === 'commonjs') {
-    lang.sourceType = 'script';
-  }
-  if (
-    lang.sourceType === 'commonjs' ||
-    (lang.globals &&
-      (lang.globals.node === true || lang.globals.commonjs === true))
-  ) {
-    lang.globals = {
-      ...lang.globals,
-      require: true,
-      exports: true,
-      module: true,
-    };
-    lang.parserOptions = mixinDeep(
-      { ...lang.parserOptions },
-      { ecmaFeatures: { globalReturn: true } },
-    );
-  }
+  // if (!accum.languageOptions) {
+  //   accum.languageOptions = {
+  //     parserOptions: { ...accum.parserOptions },
+  //     globals: { ...accum.globals },
+  //     parser: accum.parser,
+  //   };
+  //   accum.languageOptions.sourceType =
+  //     accum.languageOptions.parserOptions.sourceType;
+  // }
+  // const lang = { ...accum.languageOptions };
 
-  accum.parserOptions = mixinDeep(
-    accum.parserOptions,
-    // {
-    //   ecmaVersion: lang.ecmaVersion,
-    //   sourceType: lang.sourceType,
-    // },
-    lang.parserOptions,
-  );
-  accum.globals = mixinDeep(accum.globals, lang.globals);
+  // if (lang.sourceType === 'commonjs') {
+  //   lang.sourceType = 'script';
+  // }
+  // if (
+  //   lang.sourceType === 'commonjs' ||
+  //   (lang.globals &&
+  //     (lang.globals.node === true || lang.globals.commonjs === true))
+  // ) {
+  //   lang.globals = {
+  //     ...lang.globals,
+  //     require: true,
+  //     exports: true,
+  //     module: true,
+  //   };
+  //   lang.parserOptions = mixinDeep(
+  //     { ...lang.parserOptions },
+  //     { ecmaFeatures: { globalReturn: true } },
+  //   );
+  // }
 
-  accum.languageOptions = lang || accum.parserOptions;
-  return accum;
+  // accum.parserOptions = mixinDeep(
+  //   accum.parserOptions,
+  //   // {
+  //   //   ecmaVersion: lang.ecmaVersion,
+  //   //   sourceType: lang.sourceType,
+  //   // },
+  //   lang.parserOptions,
+  // );
+  // accum.globals = mixinDeep(accum.globals, lang.globals);
+
+  // accum.languageOptions = lang || accum.parserOptions;
+
+  return res;
 }
 
 function isEslintNamespace(x) {
@@ -524,7 +555,6 @@ function createItemsFromExtends(presets) {
   return $extends.reduce((acc, name) => {
     let mod = null;
 
-    console.log('name', name);
     const { preset } = loadPresetString(name);
     mod = preset;
 
