@@ -1,12 +1,13 @@
 'use strict';
 
+// require('v8-compile-cache');
 // const path = require('path');
 // const JestWorker = require('jest-worker').default;
-const { constants } = require('./utils');
+const utils = require('./utils');
 const lintFilesWrapper = require('./lint-files');
 
 module.exports = async function lintConfigItems(configArrayItems, options) {
-  const opts = { ...constants.DEFAULT_OPTIONS, ...options };
+  const opts = { ...utils.constants.DEFAULT_OPTIONS, ...options };
 
   // const report = {
   //   results: [],
@@ -15,19 +16,28 @@ module.exports = async function lintConfigItems(configArrayItems, options) {
   //   fixableErrorCount: 0,
   //   fixableWarningCount: 0,
   // };
+  const configItems = await utils.pFlatten(
+    configArrayItems,
+    utils.createFunctionConfigContext(),
+    opts,
+  );
+
+  const cfg = configItems
+    .filter((x) => !x.files)
+    .reduce(utils.normalizeAndMerge, {});
+
+  // NOTE: in future
+  // const [pluginName, parserName] = cfg.languageOptions.parser.split('/');
+  // console.log(cfg.plugins[pluginName].parsers[parserName]);
+
+  // console.log(cfg);
 
   return Promise.all(
-    []
-      .concat(configArrayItems)
-      .filter(Boolean)
+    configItems
+      .filter((x) => x.files)
       .map(async (item) => {
-        if (!item.files) {
-          return;
-        }
-
-        // TODO
-        // - lintFiles(item.files)
-        // - injectIntoLinter
+        const { files, ...configItem } = item;
+        const conf = utils.normalizeAndMerge(cfg, configItem);
 
         // rep.results
         // rep.errorCount += res.errorCount || 0;
@@ -36,7 +46,7 @@ module.exports = async function lintConfigItems(configArrayItems, options) {
         // rep.fixableWarningCount += res.fixableWarningCount || 0;
         // const itemReport = await lintFiles(item.files, { ...opts, mapper });
 
-        await lintFilesWrapper(item.files, opts);
+        await lintFilesWrapper(files, { ...opts, config: conf });
 
         // const output = utils
         //   .formatCodeframe(itemReport.results, false)

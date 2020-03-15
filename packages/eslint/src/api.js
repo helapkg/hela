@@ -1,7 +1,10 @@
+/* eslint-disable max-statements */
 /* eslint-disable no-continue */
 /* eslint-disable no-restricted-syntax */
 
 'use strict';
+
+// require('v8-compile-cache');
 
 // const fs = require('fs');
 // const util = require('util');
@@ -75,6 +78,7 @@ async function* resolvePatternsStream(patterns, options) {
 //   // console.log(contexts);
 //   return lintFiles(contexts, opts);
 // }
+
 async function lintFiles(items, options) {
   const opts = { ...constants.DEFAULT_OPTIONS, ...options, forceLoad: true };
 
@@ -86,13 +90,14 @@ async function lintFiles(items, options) {
     contexts.map(async (ctx) => {
       const meta = ctx.cacheFile && ctx.cacheFile.metadata;
 
-      if (ctx.changed === false && ctx.notFound === false) {
+      if (ctx.changed === false && ctx.notFound === false && meta) {
         // console.log(ctx.file.path);
         results.push(meta.report);
         return;
       }
 
       const hrstart = process.hrtime();
+
       const { source, messages } = utils.lint({
         ...opts,
         filename: ctx.file.path,
@@ -106,22 +111,22 @@ async function lintFiles(items, options) {
 
       const hrend = process.hrtime(hrstart);
 
-      console.log('#', ctx.file.path);
-      console.info(
-        'Execution time (hr): %ds %dms',
-        hrend[0],
-        hrend[1] / 1000000,
-      );
+      if (opts.verbose) {
+        console.log('#', ctx.file.path);
+        console.log('# Size:', ctx.file.size);
+        console.info('# Execution time:', hrend[0], hrend[1] / 1000000);
 
-      const used = process.memoryUsage();
+        const used = process.memoryUsage();
 
-      Object.keys(used).forEach((key) => {
-        console.log(
-          `${key} ${Math.round((used[key] / 1024 / 1024) * 100) / 100} MB`,
-        );
-      });
+        Object.keys(used).forEach((key) => {
+          console.log(
+            `# ${key}:`,
+            Math.round((used[key] / 1024 / 1024) * 100) / 100,
+          );
+        });
 
-      console.log('########');
+        console.log('########');
+      }
 
       // const cacheReport = (meta && meta.report) || {};
       // removing `source` from the meta cached,
@@ -133,9 +138,9 @@ async function lintFiles(items, options) {
       const reportChanged = JSON.stringify(res) !== JSON.stringify(rep);
 
       // TODO optionally!
-      // if (res.errorCount > 0 || res.warningCount > 0) {
-      //   // console.error(utils.cleanFrame([res]));
-      // }
+      if (res.errorCount > 0 || (res.warningCount > 0 && opts.warnings)) {
+        console.error(utils.cleanFrame([res]));
+      }
 
       // const { config, ...setts } = opts;
       // console.log(setts, reportChanged, ctx.file.path);
@@ -149,7 +154,7 @@ async function lintFiles(items, options) {
     }),
   );
 
-  const report = utils.createReportOrResult('results', results);
+  const report = utils.createReportOrResult('results', results.filter(Boolean));
   report.contexts = contexts;
 
   return report;
@@ -207,7 +212,6 @@ async function resolvePatterns(patterns, options) {
   const results = [];
 
   for await (const ctx of iterable) {
-    console.log(ctx.file.path);
     if (opts.forceLoad === true) {
       results.push(ctx);
       continue;

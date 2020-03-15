@@ -15,7 +15,7 @@ const utils = require('./src/utils');
   await lintConfigItems(config, {
     config: oldCfg,
     // linter,
-    inject: true,
+    fix: true,
     // mapper: (ctx) => {
     //   const meta = ctx.cacheFile && ctx.cacheFile.metadata;
     //   const rep = (meta && meta.report) || null;
@@ -28,14 +28,6 @@ const utils = require('./src/utils');
 
     //   return ctx;
     // },
-  });
-
-  const used = process.memoryUsage();
-
-  Object.keys(used).forEach((key) => {
-    console.log(
-      `${key} ${Math.round((used[key] / 1024 / 1024) * 100) / 100} MB`,
-    );
   });
 
   // if (report.errorCount === 0 && report.warningCount === 0) {

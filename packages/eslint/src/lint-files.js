@@ -1,5 +1,6 @@
 'use strict';
 
+// require('v8-compile-cache');
 const { constants } = require('./utils');
 const { lintFiles } = require('./api');
 

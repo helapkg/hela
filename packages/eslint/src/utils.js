@@ -1,10 +1,13 @@
 'use strict';
 
+// require('v8-compile-cache');
+
 const fs = require('fs');
 const util = require('util');
 // const path = require('path');xx
 const crypto = require('crypto');
 
+const mixinDeep = require('mixin-deep');
 const cacache = require('cacache');
 const findFileUp = require('find-file-up');
 const importFresh = require('import-fresh');
@@ -41,28 +44,29 @@ function createFunctionConfigContext(/* cwd, fresh */) {
   // const folderOfLoadedConfig = loadESLintConifg();
 
   return {
-    name: 'eslint-next',
+    name: 'hela-eslint',
     version: eslintPackageJson.version,
     cwd: process.cwd(),
-    hasRule(config, ruleId) {
-      const cfg = config;
-      const ruleParts = ruleId.split('/');
-      const pluginName = ruleParts.length > 1 ? ruleParts[0] : 'internals';
-      const ruleName = ruleParts.length > 1 ? ruleParts[1] : 'eslint-rule-name';
-      const plugin = cfg.plugins[pluginName];
+    // NOTE: removed from the RFC
+    // hasRule(config, ruleId) {
+    //   const cfg = config;
+    //   const ruleParts = ruleId.split('/');
+    //   const pluginName = ruleParts.length > 1 ? ruleParts[0] : 'internals';
+    //   const ruleName = ruleParts.length > 1 ? ruleParts[1] : 'eslint-rule-name';
+    //   const plugin = cfg.plugins[pluginName];
 
-      // TODO Do we need to return false or throw in this case?
-      // if (!plugin) {
-      //   throw new Error(`@hela/eslint: Plugin with "${pluginName}" not found.`);
-      // }
-      if (!plugin) {
-        return false;
-      }
-      if (!plugin.rules[ruleName]) {
-        return false;
-      }
-      return true;
-    },
+    //   // TODO Do we need to return false or throw in this case?
+    //   // if (!plugin) {
+    //   //   throw new Error(`@hela/eslint: Plugin with "${pluginName}" not found.`);
+    //   // }
+    //   if (!plugin) {
+    //     return false;
+    //   }
+    //   if (!plugin.rules[ruleName]) {
+    //     return false;
+    //   }
+    //   return true;
+    // },
   };
 }
 
@@ -141,58 +145,114 @@ function hasha(value, options) {
     .digest(opts.digest);
 }
 
-function injectIntoLinter(config, linter) {
-  if (!config) {
-    return linter;
-  }
+function defineRulesFrom(pluginName, rules, linter) {
+  Object.keys(rules || {}).forEach((ruleName) => {
+    linter.defineRule(`${pluginName}/${ruleName}`, rules[ruleName]);
+  });
+}
 
-  const linterInstance = linter || new Linter();
+function isObject(val) {
+  return Boolean(val && typeof val === 'object' && !Array.isArray(val));
+}
 
-  []
-    .concat(config.plugins)
-    .filter(Boolean)
-    .forEach((pluginName) => {
-      let plugin = null;
+function getParser(parser, plugins) {
+  let parserMod = parser;
+  let parserName = '';
 
-      if (pluginName.startsWith('@')) {
-        plugin = require(pluginName);
-      } else {
-        plugin = require(`eslint-plugin-${pluginName}`);
+  if (parser && typeof parser === 'string') {
+    // supports:
+    // - parser: '@my-scope/some-plugin/foo-parser`
+    // - parser: 'some-plugin/foo-parser`
+    if (parser.includes('/')) {
+      const parts = parser.split('/');
+
+      const pluginName =
+        parts.length === 2 ? parts[0] : `${parts[0]}/${parts[1]}`;
+      const key = parts.length === 2 ? parts[1] : parts[2];
+
+      const plugin = plugins
+        ? plugins[pluginName]
+        : eslintRequire('plugin', pluginName);
+
+      if (!isObject(plugin.parsers)) {
+        throw new TypeError(
+          'expect plugin "parsers" key to be an object like { "babel-eslint": require("babel-eslint") }',
+        );
       }
 
-      // note: defineRules is buggy
-      Object.keys(plugin.rules).forEach((ruleName) => {
-        linterInstance.defineRule(
-          `${pluginName}/${ruleName}`,
-          plugin.rules[ruleName],
-        );
-      });
-
-      // note: otherwise this should work
-      // linterInstance.defineRules(
-      //   Object.keys(plugin.rules).reduce((acc, ruleName) => {
-      //     acc[`${pluginName}/${ruleName}`] = plugin.rules[ruleName];
-
-      //     return acc;
-      //   }, {}),
-      // );
-    });
-
-  if (config.parser && config.parser.startsWith('/')) {
-    if (config.parser.includes('babel-eslint')) {
-      config.parser = 'babel-eslint';
-    } else if (config.parser.includes('@typescript-eslint/parser')) {
-      config.parser = '@typescript-eslint/parser';
+      parserMod = plugin.parsers[key];
+      parserName = key;
+    } else {
+      // backward compat
+      // parser: 'babel-eslint`
+      parserMod = require(parser);
+      parserName = parser;
     }
-    // NOTE: more parsers
   }
+
+  if (!isObject(parserMod)) {
+    throw new TypeError('expect parser to be an object or a string');
+  }
+
+  return {
+    parser: parserMod,
+    name: parserName || parserMod.name || 'unknown-parser',
+  };
+}
+
+function eslintRequire(type, name, itIsParser) {
+  let mod = null;
+  if (name.startsWith('@')) {
+    mod = require(name.includes('/') ? name : `${name}/eslint-${type}`);
+  } else if (itIsParser) {
+    mod = require(name);
+  } else {
+    mod = require(`eslint-${type}-${name}`);
+  }
+
+  return mod;
+}
+
+function injectIntoLinter(config, linter, linterOptions) {
+  const linterInstance = linter || new Linter(linterOptions);
+  if (!config) {
+    return linterInstance;
+  }
+
+  Object.keys(config.plugins || {}).forEach((name) => {
+    defineRulesFrom(name, config.plugins[name].rules, linterInstance);
+  });
+
+  if (config.languageOptions && config.languageOptions.parser) {
+    const { parser, name: parserName } = getParser(
+      config.languageOptions.parser,
+      config.plugins,
+    );
+
+    linterInstance.defineParser(parserName, parser);
+  }
+
+  // NOTE: delete `config.parser` and `config.plugins` intentionally,
+  // because linter.verify/verifyAndFix may not understand the new definitions
+  const { plugins: _, parser: __, ...cleanedConfig } = config;
+  // delete config.plugins;
+  // delete config.parser;
+
+  // if (config.parser && config.parser.startsWith('/')) {
+  //   if (config.parser.includes('babel-eslint')) {
+  //     config.parser = 'babel-eslint';
+  //   } else if (config.parser.includes('@typescript-eslint/parser')) {
+  //     config.parser = '@typescript-eslint/parser';
+  //   }
+  //   // NOTE: more parsers
+  // }
 
   // define only when we are passed with "raw" (not processed) config
-  if (config.parser && !config.parser.startsWith('/')) {
-    linterInstance.defineParser(config.parser, require(config.parser));
-  }
+  // if (config.parser && !config.parser.startsWith('/')) {
+  //   linterInstance.defineParser(config.parser, require(config.parser));
+  // }
 
-  return { linter: linterInstance, config: { ...config } };
+  return { linter: linterInstance, config: cleanedConfig };
 }
 
 function toIntegrity(value) {
@@ -252,15 +312,22 @@ function calculateCount(type, items) {
 }
 
 function lint(options) {
-  const opts = { ...options };
+  const opts = { inject: true, ...options };
   const cfg = { ...opts.config, filename: opts.filename };
-  // const linter = opts.linter || new Linter();
   const filter = (x) =>
     opts.warnings ? true : !opts.warnings && x.severity === 2;
 
+  const linterOptions =
+    cfg.linterOptions ||
+    (cfg.languageOptions && cfg.languageOptions.linterOptions) ||
+    opts.linterOptions;
+
+  const $linter = opts.linter || new Linter(linterOptions);
   const { config, linter } = opts.inject
-    ? injectIntoLinter(cfg)
-    : { config: cfg, linter: opts.linter || new Linter() };
+    ? injectIntoLinter(cfg, $linter, linterOptions)
+    : { config: cfg, linter: $linter };
+
+  console.log('loaded config', config);
 
   if (!opts.contents && !opts.text) {
     opts.contents = fs.readFileSync(config.filename, 'utf8');
@@ -297,6 +364,99 @@ function cleanFrame(rep) {
     .join('\n');
 }
 
+async function pFlatten(arr, ...args) {
+  const items = await (await arr).reduce(async (acc, e) => {
+    const accum = await acc;
+
+    let item = await e;
+
+    if (typeof item === 'function') {
+      item = await item(...args);
+    }
+    if (!item) {
+      return accum;
+    }
+    if (Array.isArray(item)) {
+      // if the element is an array, fall flatten on it again and then take the returned value and concat it.
+      return accum.concat(await pFlatten(item));
+    }
+    // otherwise just concat the value.
+    return accum.concat(item);
+  }, Promise.resolve([])); // initial value for the accumulator is []
+
+  return Promise.all(items);
+}
+
+function normalizePlugins(plugins) {
+  if (!plugins) {
+    return {};
+  }
+  if (typeof plugins !== 'object') {
+    throw new TypeError(
+      'plugins property is expected to be an object like { react: require("eslint-plugin-react") } or an array of plugin name strings like ["react"]',
+    );
+  }
+  if (Array.isArray(plugins)) {
+    return plugins.reduce((acc, pluginName) => {
+      if (typeof pluginName !== 'string') {
+        throw new TypeError(
+          'when plugins is an array it can contain only strings',
+        );
+      }
+      acc[pluginName] = eslintRequire('plugin', pluginName);
+      return acc;
+    }, {});
+  }
+
+  return plugins;
+}
+
+function normalizeAndMerge(target, item) {
+  // eslint-disable-next-line no-param-reassign
+  item.plugins = normalizePlugins(item.plugins);
+
+  const accum = mixinDeep({ ...target }, item);
+
+  // Object.keys(item.plugins).forEach((pluginName) => {
+  //   if (target.plugins && target.plugins[pluginName]) {
+  //     throw new Error(
+  //       `config item with "${item.name}" name trying to override "${pluginName}" plugin namespace`,
+  //     );
+  //   }
+
+  //   accum.plugins = accum.plugins || {};
+  //   accum.plugins[pluginName] = item.plugins[pluginName];
+  // });
+
+  const lang = { ...accum.languageOptions };
+
+  if (lang.sourceType === 'commonjs') {
+    lang.sourceType = 'script';
+    lang.globals = {
+      ...lang.globals,
+      require: true,
+      exports: true,
+      module: true,
+    };
+    lang.parserOptions = mixinDeep(
+      { ...lang.parserOptions },
+      {
+        ecmaFeatures: { globalReturn: true },
+      },
+    );
+  }
+
+  accum.parserOptions = {
+    ...lang.parserOptions,
+    ecmaVersion: lang.ecmaVersion,
+    sourceType: lang.sourceType,
+  };
+  accum.globals = { ...lang.globals };
+
+  accum.languageOptions = lang;
+  return accum;
+}
+
 module.exports = {
   isFile,
   isCacheFile,
@@ -304,6 +464,15 @@ module.exports = {
   toFile,
   injectIntoLinter,
   hasha,
+
+  pFlatten,
+  normalizeAndMerge,
+  normalizePlugins,
+  getParser,
+  defineRulesFrom,
+  eslintRequire,
+  isObject,
+
   hasInCache,
   toIntegrity,
   createReportOrResult,

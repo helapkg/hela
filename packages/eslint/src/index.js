@@ -1,5 +1,5 @@
 /* eslint-disable global-require */
-/* eslint-disable import/no-dynamic-require */
+/* eslint-disable baw/no-dynamic-require */
 /* eslint-disable max-statements */
 /* eslint-disable no-restricted-syntax */
 
