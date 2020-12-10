@@ -37,7 +37,7 @@
   "scripts": {},
   "dependencies": {
     "@hela/core": "^3.2.2",
-    "cosmiconfig": "^6.0.0"
+    "cosmiconfig": "^7.0.0"
   },
   "keywords": [
     "tunnckocorehq",
