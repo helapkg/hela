@@ -2896,10 +2896,10 @@ dargs@^4.0.1:
   dependencies:
     number-is-nan "^1.0.0"
 
-dargs@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/dargs/-/dargs-7.0.0.tgz#04015c41de0bcb69ec84050f3d9be0caf8d6d5cc"
-  integrity sha512-2iy1EkLdlBzQGvbweYRFxmFath8+K7+AKB0TlhHWkNuH+TmovaMH/Wp7V7R4u7f4SnX3OgLsU9t1NI9ioDnUpg==
+dargs@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/dargs/-/dargs-8.0.0.tgz#e754b058167f6eb7a973fa12c60bdd5d989f7cec"
+  integrity sha512-uNt1339Xt7lA08sO/0umb/aB7DlLwzl+fV/2bLQIu8QiZ8n4z1CWMKd5UqWF1KMAakg24uIxqklAg+WfjJtcQQ==
 
 dashdash@^1.12.0:
   version "1.14.1"

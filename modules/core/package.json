@@ -31,7 +31,7 @@
   "scripts": {},
   "dependencies": {
     "@hela/yaro": "^3.2.2",
-    "dargs": "^7.0.0",
+    "dargs": "^8.0.0",
     "execa": "^4.0.0",
     "global-dirs": "^2.0.1"
   },
