@@ -30,7 +30,7 @@
     "acorn-globals": "ForbesLindesay/acorn-globals#greenkeeper/acorn-7.1.1",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.8.0",
-    "husky": "^4.2.3",
+    "husky": "^7.0.0",
     "jest": "^25.1.0",
     "lerna": "^3.20.2",
     "lint-staged": "^10.0.8",
