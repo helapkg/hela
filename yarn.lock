@@ -6993,6 +6993,11 @@ picomatch@^2.0.4, picomatch@^2.0.5, picomatch@^2.2.1:
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.2.1.tgz#21bac888b6ed8601f831ce7816e335bc779f0a4a"
   integrity sha512-ISBaA8xQNmwELC7eOjqFKMESB2VIqt4PPDD0nsS95b/9dZXvVKOlz9keMSnoGGKcOHXfTvDD6WMaRoSc9UuhRA==
 
+picomatch@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-3.0.0.tgz#95ce1a281a24a340c3ddc981a63d89360c6dab9b"
+  integrity sha512-G+bUnjy7wQOJBK3YS6hErp7nUOJ+SWI+JZeDEATcdAjnHZwjJ6TXm4TGOHgGScf5lCNGdT9rXdqIa0tJ3lYhnQ==
+
 pify@^2.0.0, pify@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/pify/-/pify-2.3.0.tgz#ed141a6ac043a849ea588498e7dca8b15330e90c"
